@@ -58,6 +58,14 @@
                             <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
                                 <button class="btn btn-primary size trans-btn"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details">9US | 42.5VN | 26.2CM</span><i class="fas dropdown-arrow"></i></button>
                             </div>
+
+                            <div class="input-group" style="margin-top:30px">
+                                <input type="text" class="form-control" placeholder="Nhập số lượng" id="in-quantity">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="btn-apply-quantity">Áp dụng</button>
+                                </div>
+                            </div>
+
                             <div class="input-group" style="margin-top:30px">
                                 <input type="text" class="form-control" placeholder="Nhập mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
                                 <div class="input-group-append">
