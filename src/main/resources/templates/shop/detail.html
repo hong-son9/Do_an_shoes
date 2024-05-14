@@ -366,7 +366,7 @@
                 if (size == null || size == "") {
                     toastr.warning("Sản phẩm tạm hết hàng. Vui lòng đặt hàng sau.");
                 } else {
-                    location.href = "/dat-hang?id="+[[${product.id}]]+"&size="+size;
+                    location.href = "/dat-hang?id="+[[${product.id}]]+"&size="+size+"&quantity=1";
                 }
             } else {
                 toastr.warning("Vui lòng đăng nhập để đặt hàng");

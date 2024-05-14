@@ -62,6 +62,7 @@
                     <th>Điện thoại</th>
                     <th>Trạng thái</th>
                     <th width="20%">Sản phẩm</th>
+                    <th>Số lượng</th>
                     <th>Ngày tạo</th>
                     <th>Ngày sửa</th>
                 </tr>
@@ -119,6 +120,7 @@
                             <span th:if="${order.status} == 5" class="badge badge-light">Đơn hàng bị hủy</span>
                         </td>
                         <td th:text="${order.product.name}"></td>
+                        <td th:text="${order.quantity}"></td>
                         <td>
                             <span th:text="${#dates.format(order.createdAt, 'dd-MM-yyyy HH:mm')}"></span>
                         </td>

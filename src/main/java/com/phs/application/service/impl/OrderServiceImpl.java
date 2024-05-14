@@ -73,14 +73,11 @@ public class OrderServiceImpl implements OrderService {
             throw new BadRequestException("Size giày sản phẩm tạm hết, Vui lòng chọn sản phẩm khác!");
         }
 
-        //Kiểm tra giá sản phẩm
-        if (product.get().getSalePrice() != createOrderRequest.getProductPrice()) {
-            throw new BadRequestException("Giá sản phẩm thay đổi, Vui lòng đặt hàng lại!");
-        }
         Order order = new Order();
         User user = new User();
         user.setId(userId);
         order.setCreatedBy(user);
+        order.setQuantity(createOrderRequest.getQuantity());
         order.setBuyer(user);
         order.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         order.setReceiverAddress(createOrderRequest.getReceiverAddress());
@@ -91,10 +88,14 @@ public class OrderServiceImpl implements OrderService {
         order.setPrice(createOrderRequest.getProductPrice());
         order.setTotalPrice(createOrderRequest.getTotalPrice());
         order.setStatus(ORDER_STATUS);
-        order.setQuantity(1);
+        order.setQuantity(createOrderRequest.getQuantity());
         order.setProduct(product.get());
 
         orderRepository.save(order);
+
+        productSize.setQuantity(productSize.getQuantity() - createOrderRequest.getQuantity());
+        productSizeRepository.save(productSize);
+
         return order;
 
     }
@@ -147,6 +148,7 @@ public class OrderServiceImpl implements OrderService {
         order.setSize(updateDetailOrder.getSize());
         order.setPrice(updateDetailOrder.getProductPrice());
         order.setTotalPrice(updateDetailOrder.getTotalPrice());
+        order.setQuantity(updateDetailOrder.getQuantity());
 
 
         order.setStatus(ORDER_STATUS);
@@ -274,6 +276,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDetailDTO userGetDetailById(long id, long userId) {
         OrderDetailDTO order = orderRepository.userGetDetailById(id, userId);
+        System.out.println(order.getQuantity());
         if (order == null) {
             return null;
         }

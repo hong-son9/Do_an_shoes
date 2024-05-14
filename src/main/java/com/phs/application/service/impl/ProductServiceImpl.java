@@ -194,18 +194,20 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public DetailProductInfoDTO getDetailProductById(String id) {
         Optional<Product> rs = productRepository.findById(id);
+        System.out.println(id);
         if (rs.isEmpty()) {
             throw new NotFoundException("Sản phẩm không tồn tại");
         }
         Product product = rs.get();
 
         if (product.getStatus() != 1) {
-            throw new NotFoundException("Sản phâm không tồn tại");
+            throw new NotFoundException("Sản phẩm không tồn tại");
         }
         DetailProductInfoDTO dto = new DetailProductInfoDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
         dto.setPrice(product.getSalePrice());
+        dto.setQuantity(1);
         dto.setViews(product.getView());
         dto.setSlug(product.getSlug());
         dto.setTotalSold(product.getTotalSold());

@@ -1,20 +1,17 @@
 package com.phs.application.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderDetailDTO {
-    private long id;
+    private Long id;
 
-    private long totalPrice;
+    private Long totalPrice;
 
-    private long productPrice;
+    private Long productPrice;
 
     private String receiverName;
 
@@ -22,29 +19,35 @@ public class OrderDetailDTO {
 
     private String receiverAddress;
 
-    private int status;
+    private Integer status;
+    private Integer quantity;
 
     private String statusText;
 
-    private int sizeVn;
+    private Integer sizeVn;
 
-    private double sizeUs;
+    private Double sizeUs;
 
-    private double sizeCm;
+    private Double sizeCm;
 
     private String productName;
 
     private String productImg;
 
-    public OrderDetailDTO (long id, long totalPrice, long productPrice, String receiverName, String receiverPhone, String receiverAddress, int status, int sizeVn, String productName, String productImg) {
+    public OrderDetailDTO(Long id, Long totalPrice, Integer quantity, Long productPrice,
+                          String receiverName, String receiverPhone, String receiverAddress,
+                          Integer status,
+                          Integer sizeVn,
+                          String productName, String productImg) {
         this.id = id;
         this.totalPrice = totalPrice;
+        this.quantity = quantity;
         this.productPrice = productPrice;
         this.receiverName = receiverName;
         this.receiverPhone = receiverPhone;
         this.receiverAddress = receiverAddress;
-        this.status = status;
         this.sizeVn = sizeVn;
+        this.status = status;
         this.productName = productName;
         this.productImg = productImg;
     }

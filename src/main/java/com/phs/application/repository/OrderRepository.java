@@ -27,8 +27,27 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     @Query(nativeQuery = true, name = "userGetDetailById")
     OrderDetailDTO userGetDetailById(long id, long userId);
 
-//    @Query(value = "select count(product_id) AS A from orders where product_id = ?1;", nativeQuery = true)
-//    int countByProductIds(String id);
-
     int countByProductId(String id);
+
+
+//        @Query("SELECT new com.phs.application.model.dto.OrderDetailDTO(" +
+//                "o.id, " +
+//                "o.totalPrice, " +
+//                "p.price, " +
+//                "o.receiverName, " +
+//                "o.receiverPhone, " +
+//                "o.receiverAddress, " +
+//                "o.status, " +
+//                "o.quantity, " +
+//                "o.statusText, " +
+//                "o.sizeVn, " +
+//                "o.sizeUs, " +
+//                "o.sizeCm, " +
+//                "p.productName, " +
+//                "p.productImg) " +
+//                "FROM Order o " +
+//                "JOIN o.product p " +
+//                "where o.id = :id")
+//        OrderDetailDTO getOrderDetail(long id, long userId);
+
 }

@@ -114,17 +114,20 @@ public class HomeController {
     }
 
     @GetMapping("/dat-hang")
-    public String getCartPage(Model model, @RequestParam String id,@RequestParam int size){
+    public String getCartPage(Model model, @RequestParam String id,@RequestParam int size, @RequestParam int quantity){
 
         //Lấy chi tiết sản phẩm
         DetailProductInfoDTO product;
         try {
             product = productService.getDetailProductById(id);
         } catch (NotFoundException ex) {
+            System.out.println(ex);
             return "error/404";
         } catch (Exception ex) {
             return "error/500";
         }
+        product.setQuantity(quantity);
+        product.setPrice(product.getPrice() * quantity);
         model.addAttribute("product", product);
 
         //Validate size
@@ -149,7 +152,8 @@ public class HomeController {
         model.addAttribute("sizeUs", SIZE_US);
         model.addAttribute("sizeCm", SIZE_CM);
         model.addAttribute("size", size);
-
+        model.addAttribute("saveId", id);
+        model.addAttribute("saveSize", size);
         return "shop/payment";
     }
 

@@ -24,6 +24,7 @@ public class DetailProductInfoDTO {
     private long price;
 
     private int views;
+    private int quantity;
 
     private long totalSold;
 

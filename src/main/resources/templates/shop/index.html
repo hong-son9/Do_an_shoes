@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-                      th:replace="~{/layout/layout :: main-fragment(
+      th:replace="~{/layout/layout :: main-fragment(
                                                                      ~{:: title},
                                                                     'header',
                                                                     'footer',
@@ -15,41 +15,55 @@
 
     </th:block>
 </head>
+<style>
+
+
+    .small-image-container {
+        flex-shrink: 0; /* Prevent the small image from shrinking */
+        margin-left: 10px;
+        position: relative; /* Set position to relative */
+
+    }
+
+    .small-image-container img {
+        width: 100px; /* Adjust the size as needed */
+        height: auto;
+    }
+
+</style>
 <body>
 <main class="main" id="main-content">
-    <div class="home-slider owl-carousel owl-theme owl-carousel-lazy show-nav-hover nav-big mb-2 text-uppercase" data-owl-options="{
-				'loop': true,
-				'autoplay': true,
-                 'autoplayTimeout': 3500
-			}">
+    <div class="slider-container" style="display: flex; align-items: center;">
+        <div class="home-slider owl-carousel owl-theme owl-carousel-lazy show-nav-hover nav-big mb-2 text-uppercase" data-owl-options="{
+            'loop': true,
+            'autoplay': true,
+            'autoplayTimeout': 3500
+        }" style="width: 1000px; height: auto;">
 
-        <div class="home-slide home-slide1 banner">
-            <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider5.png}" data-src="shop/images/slider/slider5.png" alt="slider image">
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider5.png}" data-src="shop/images/slider/slider5.png" alt="slider image">
+            </div>
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider2.png}" data-src="shop/images/slider/slider2.png" alt="slider image">
+            </div>
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider6.jpg}" data-src="shop/images/slider/slider6.jpg" alt="slider image">
+            </div>
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider7.jpg}" data-src="shop/images/slider/slider7.jpg" alt="slider image">
+            </div>
         </div>
 
-        <div class="home-slide home-slide1 banner">
-            <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider2.png}" data-src="shop/images/slider/slider2.png" alt="slider image">
+        <div class="small-image-container" style="margin-left: 10px;">
+            <img th:src="@{/shop/images/slider/banner1.png}" alt="Small image" style="width: 300px; height: 200px;">
+            <img th:src="@{/shop/images/slider/banner2.jpg}" alt="Small image" style="width: 300px; height: 200px; margin-top: 35px;">
         </div>
 
-        <div class="home-slide home-slide1 banner">
-            <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider6.jpg}" data-src="shop/images/slider/slider6.jpg" alt="slider image">
-        </div>
+    </div>
 
-        <div class="home-slide home-slide1 banner">
-            <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider3.png}" data-src="shop/images/slider/slider3.png" alt="slider image">
-        </div>
-
-        <div class="home-slide home-slide1 banner">
-            <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider7.jpg}" data-src="shop/images/slider/slider7.jpg" alt="slider image">
-        </div>
-
-
-
-
-
-
-       <!-- End .home-slide -->
-    </div><!-- End .home-slider -->
 
     <div class="container">
         <div class="info-boxes-slider owl-carousel owl-theme mb-2" data-owl-options="{
@@ -103,34 +117,34 @@
 					}">
                 <th:block th:each="newProduct :${newProducts}">
                     <div class="product-default">
-                    <figure>
-                        <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}">
-                            <img th:src="@{${newProduct.images}}" alt="product">
-                        </a>
-                    </figure>
-                    <div class="product-details">
-                        <h3 class="product-title">
-                            <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}" th:text="${newProduct.name}"></a>
-                        </h3>
-                        <div class="price-box">
-                            <th:block th:if="${newProduct.promotionPrice}">
-                                <span class="product-price" th:text="${#numbers.formatDecimal(newProduct.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
-                                <del class="old-price" th:text="${#numbers.formatDecimal(newProduct.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
-                            </th:block>
-                            <th:block th:unless="${newProduct.promotionPrice}">
-                                <span class="product-price" th:text="${#numbers.formatDecimal(newProduct.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
-                            </th:block>
-                        </div><!-- End .price-box -->
-                        <div class="ratings-container">
-                            <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${newProduct.totalSold}"></span> &dstrok;&ocirc;i</p>
-                        </div><!-- End .product-container -->
-<!--                        <div class="product-action">-->
-<!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
-<!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
-<!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
-<!--                        </div>-->
-                    </div><!-- End .product-details -->
-                </div>
+                        <figure>
+                            <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}">
+                                <img th:src="@{${newProduct.images}}" alt="product">
+                            </a>
+                        </figure>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}" th:text="${newProduct.name}"></a>
+                            </h3>
+                            <div class="price-box">
+                                <th:block th:if="${newProduct.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(newProduct.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                    <del class="old-price" th:text="${#numbers.formatDecimal(newProduct.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
+                                </th:block>
+                                <th:block th:unless="${newProduct.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(newProduct.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                </th:block>
+                            </div><!-- End .price-box -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${newProduct.totalSold}"></span> &dstrok;&ocirc;i</p>
+                            </div><!-- End .product-container -->
+                            <!--                        <div class="product-action">-->
+                            <!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
+                            <!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
+                            <!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
+                            <!--                        </div>-->
+                        </div><!-- End .product-details -->
+                    </div>
                 </th:block>
             </div><!-- End .featured-proucts -->
         </div>
@@ -151,37 +165,37 @@
 					}">
                 <th:block th:each="sell : ${bestSellerProducts}">
                     <div class="product-default">
-                    <figure>
-                        <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}">
-                            <img th:src="@{${sell.images}}" alt="product">
-                        </a>
-                        <div class="label-group">
-                            <div class="product-label label-hot">HOT</div>
-                        </div>
-                    </figure>
-                    <div class="product-details">
-                        <h3 class="product-title">
-                            <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}" th:text="${sell.name}"></a>
-                        </h3>
-                        <div class="price-box">
-                            <th:block th:if="${sell.promotionPrice}">
-                                <span class="product-price" th:text="${#numbers.formatDecimal(sell.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
-                                <del class="old-price" th:text="${#numbers.formatDecimal(sell.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
-                            </th:block>
-                            <th:block th:unless="${sell.promotionPrice}">
-                                <span class="product-price" th:text="${#numbers.formatDecimal(sell.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
-                            </th:block>
-                        </div><!-- End .price-box -->
-                        <div class="ratings-container">
-                            <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${sell.totalSold}"></span> &dstrok;&ocirc;i</p>
-                        </div><!-- End .product-container -->
-<!--                        <div class="product-action">-->
-<!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
-<!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
-<!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
-<!--                        </div>-->
-                    </div><!-- End .product-details -->
-                </div>
+                        <figure>
+                            <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}">
+                                <img th:src="@{${sell.images}}" alt="product">
+                            </a>
+                            <div class="label-group">
+                                <div class="product-label label-hot">HOT</div>
+                            </div>
+                        </figure>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}" th:text="${sell.name}"></a>
+                            </h3>
+                            <div class="price-box">
+                                <th:block th:if="${sell.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(sell.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                    <del class="old-price" th:text="${#numbers.formatDecimal(sell.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
+                                </th:block>
+                                <th:block th:unless="${sell.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(sell.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                </th:block>
+                            </div><!-- End .price-box -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${sell.totalSold}"></span> &dstrok;&ocirc;i</p>
+                            </div><!-- End .product-container -->
+                            <!--                        <div class="product-action">-->
+                            <!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
+                            <!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
+                            <!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
+                            <!--                        </div>-->
+                        </div><!-- End .product-details -->
+                    </div>
                 </th:block>
             </div><!-- End .featured-proucts -->
         </div>
@@ -197,86 +211,86 @@
 					}">
                 <th:block th:each="view : ${viewProducts}">
                     <div class="product-default">
-                    <figure>
-                        <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}">
-                            <img th:src="@{${view.images}}" alt="product">
-                        </a>
-                    </figure>
-                    <div class="product-details">
-                        <h3 class="product-title">
-                            <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}" th:text="${view.name}"></a>
-                        </h3>
-                        <div class="price-box">
-                            <th:block th:if="${view.promotionPrice}">
-                                <span class="product-price" th:text="${#numbers.formatDecimal(view.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
-                                <del class="old-price" th:text="${#numbers.formatDecimal(view.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
-                            </th:block>
-                            <th:block th:unless="${view.promotionPrice}">
-                                <span class="product-price" th:text="${#numbers.formatDecimal(view.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
-                            </th:block>
-                        </div><!-- End .price-box -->
-                        <div class="ratings-container">
-                            <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${view.totalSold}"></span> &dstrok;&ocirc;i</p>
-                        </div><!-- End .product-container -->
-                        <div class="ratings-container">
-                            <p class="card-text sold">Số lượt xem: <span th:text="${view.views}"></span></p>
-                        </div><!-- End .product-container -->
-<!--                        <div class="product-action">-->
-<!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
-<!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
-<!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
-<!--                        </div>-->
-                    </div><!-- End .product-details -->
-                </div>
+                        <figure>
+                            <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}">
+                                <img th:src="@{${view.images}}" alt="product">
+                            </a>
+                        </figure>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}" th:text="${view.name}"></a>
+                            </h3>
+                            <div class="price-box">
+                                <th:block th:if="${view.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(view.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                    <del class="old-price" th:text="${#numbers.formatDecimal(view.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
+                                </th:block>
+                                <th:block th:unless="${view.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(view.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                </th:block>
+                            </div><!-- End .price-box -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${view.totalSold}"></span> &dstrok;&ocirc;i</p>
+                            </div><!-- End .product-container -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">Số lượt xem: <span th:text="${view.views}"></span></p>
+                            </div><!-- End .product-container -->
+                            <!--                        <div class="product-action">-->
+                            <!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
+                            <!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
+                            <!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
+                            <!--                        </div>-->
+                        </div><!-- End .product-details -->
+                    </div>
                 </th:block>
             </div><!-- End .featured-proucts -->
         </div>
     </section>
 
-<!--    <section class="feature-boxes-container">-->
-<!--        <div class="container">-->
-<!--            <div class="row">-->
-<!--                <div class="col-md-4">-->
-<!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
-<!--                        <i class="icon-earphones-alt"></i>-->
+    <!--    <section class="feature-boxes-container">-->
+    <!--        <div class="container">-->
+    <!--            <div class="row">-->
+    <!--                <div class="col-md-4">-->
+    <!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
+    <!--                        <i class="icon-earphones-alt"></i>-->
 
-<!--                        <div class="feature-box-content">-->
-<!--                            <h3 class="m-b-1">Customer Support</h3>-->
-<!--                            <h5 class="m-b-3">You Won't Be Alone</h5>-->
+    <!--                        <div class="feature-box-content">-->
+    <!--                            <h3 class="m-b-1">Customer Support</h3>-->
+    <!--                            <h5 class="m-b-3">You Won't Be Alone</h5>-->
 
-<!--                            <p>We really care about you and your website as much as you do. Purchasing Porto or any other theme from us you get 100% free support.</p>-->
-<!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
-<!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
-<!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
+    <!--                            <p>We really care about you and your website as much as you do. Purchasing Porto or any other theme from us you get 100% free support.</p>-->
+    <!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
+    <!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
+    <!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
 
-<!--                <div class="col-md-4">-->
-<!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
-<!--                        <i class="icon-credit-card"></i>-->
+    <!--                <div class="col-md-4">-->
+    <!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
+    <!--                        <i class="icon-credit-card"></i>-->
 
-<!--                        <div class="feature-box-content">-->
-<!--                            <h3 class="m-b-1">Fully Customizable</h3>-->
-<!--                            <h5 class="m-b-3">Tons Of Options</h5>-->
+    <!--                        <div class="feature-box-content">-->
+    <!--                            <h3 class="m-b-1">Fully Customizable</h3>-->
+    <!--                            <h5 class="m-b-3">Tons Of Options</h5>-->
 
-<!--                            <p>With Porto you can customize the layout, colors and styles within only a few minutes. Start creating an amazing website right now!</p>-->
-<!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
-<!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
-<!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
+    <!--                            <p>With Porto you can customize the layout, colors and styles within only a few minutes. Start creating an amazing website right now!</p>-->
+    <!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
+    <!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
+    <!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
 
-<!--                <div class="col-md-4">-->
-<!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
-<!--                        <i class="icon-action-undo"></i>-->
+    <!--                <div class="col-md-4">-->
+    <!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
+    <!--                        <i class="icon-action-undo"></i>-->
 
-<!--                        <div class="feature-box-content">-->
-<!--                            <h3 class="m-b-1">Powerful Admin</h3>-->
-<!--                            <h5 class="m-b-3">Made To Help You</h5>-->
+    <!--                        <div class="feature-box-content">-->
+    <!--                            <h3 class="m-b-1">Powerful Admin</h3>-->
+    <!--                            <h5 class="m-b-3">Made To Help You</h5>-->
 
-<!--                            <p>Porto has very powerful admin features to help customer to build their own shop in minutes without any special skills in web development.</p>-->
-<!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
-<!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
-<!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
-<!--            </div>&lt;!&ndash; End .row &ndash;&gt;-->
-<!--        </div>&lt;!&ndash; End .container&ndash;&gt;-->
-<!--    </section>&lt;!&ndash; End .feature-boxes-container &ndash;&gt;-->
+    <!--                            <p>Porto has very powerful admin features to help customer to build their own shop in minutes without any special skills in web development.</p>-->
+    <!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
+    <!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
+    <!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
+    <!--            </div>&lt;!&ndash; End .row &ndash;&gt;-->
+    <!--        </div>&lt;!&ndash; End .container&ndash;&gt;-->
+    <!--    </section>&lt;!&ndash; End .feature-boxes-container &ndash;&gt;-->
 
     <section class="blog-section">
         <div class="container">
@@ -300,25 +314,25 @@
 					}">
                 <th:block th:each="post : ${posts}">
                     <article class="post">
-                    <div class="post-media">
-                        <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}">
-                            <img th:src="@{${post.thumbnail}}" alt="Post" width="225" height="280">
-                        </a>
-                        <div class="post-date">
-                            <span th:text="${#dates.format(post.publishedAt, 'MM yyyy')}"></span></p>
-                        </div>
-                    </div><!-- End .post-media -->
+                        <div class="post-media">
+                            <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}">
+                                <img th:src="@{${post.thumbnail}}" alt="Post" width="225" height="280">
+                            </a>
+                            <div class="post-date">
+                                <span th:text="${#dates.format(post.publishedAt, 'MM yyyy')}"></span></p>
+                            </div>
+                        </div><!-- End .post-media -->
 
-                    <div class="post-body">
-                        <h2 class="post-title">
-                            <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}" th:text="${post.title}"></a>
-                        </h2>
-                        <div class="post-content">
-                            <p th:utext="${post.content}"></p>
-                        </div><!-- End .post-content -->
-<!--                        <a href="single.html" class="post-comment">0 Comments</a>-->
-                    </div><!-- End .post-body -->
-                </article><!-- End .post -->
+                        <div class="post-body">
+                            <h2 class="post-title">
+                                <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}" th:text="${post.title}"></a>
+                            </h2>
+                            <div class="post-content">
+                                <p th:utext="${post.content}"></p>
+                            </div><!-- End .post-content -->
+                            <!--                        <a href="single.html" class="post-comment">0 Comments</a>-->
+                        </div><!-- End .post-body -->
+                    </article><!-- End .post -->
                 </th:block>
             </div>
 
@@ -332,3 +346,6 @@
 </th:block>
 </body>
 </html>
+
+
+

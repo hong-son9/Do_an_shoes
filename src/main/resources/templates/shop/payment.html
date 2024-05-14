@@ -54,10 +54,23 @@
                         </table>
                         <!-- Pricing Section-->
                         <div class="pricing childs">
+                            <input type="hidden" th:value="${saveId}" id="saveId">
+                            <input type="hidden" th:value="${saveSize}" id="saveSize">
+
                             <h6 class="not-found-size" style="margin-top: 5px; color: #dc3545;"  th:styleappend="${notFoundSize} == true ? '' : 'display:none'">Size giày này đã hết. Vui lòng chọn size khác.</h6>
                             <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
                                 <button class="btn btn-primary size trans-btn"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details">9US | 42.5VN | 26.2CM</span><i class="fas dropdown-arrow"></i></button>
                             </div>
+
+                            <div class="input-group" style="margin-top:30px">
+                                <input type="text" class="form-control" placeholder="Nhập số lượng" id="in-quantity" th:value="${product.quantity}">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button" id="btn-apply-quantity">Áp dụng</button>
+                                </div>
+                            </div>
+
+
+
                             <div class="input-group" style="margin-top:30px">
                                 <input type="text" class="form-control" placeholder="Nhập mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
                                 <div class="input-group-append">
@@ -234,6 +247,13 @@
             });
         })
 
+        $('#btn-apply-quantity').click(function() {
+            let quantity = document.getElementById('in-quantity').value;
+            let size = document.getElementById('saveSize').value;
+            let id = document.getElementById('saveId').value;
+            window.location.href = 'http://localhost:8081/dat-hang?id=' + id + '&size=' + size + '&quantity=' + quantity;
+        })
+
         $('#btn-buy-now').click(function() {
             let receiverName = $('#receiver_name').val();
             let receiverPhone = $('#receiver_phone').val();
@@ -270,11 +290,13 @@
                 $('.not-found-size').show();
                 isValid = false;
             }
+            let quantity = document.getElementById('in-quantity').value;
 
             if (isValid) {
                 req = {
                     product_id: [[${product.id}]],
                     size: size,
+                    quantity: quantity,
                     receiver_name: receiverName,
                     receiver_phone: receiverPhone,
                     receiver_address: receiverAddress,
