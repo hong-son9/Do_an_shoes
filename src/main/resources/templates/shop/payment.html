@@ -37,9 +37,9 @@
                             <tr>
                                 <td class="product-col">
                                     <figure class="product-image-container">
-<!--                                        <a href="product.html" class="product-image">-->
-                                            <img th:src="@{${product.productImages[0]}}" th:alt="${product.name}">
-<!--                                        </a>-->
+                                        <!--                                        <a href="product.html" class="product-image">-->
+                                        <img th:src="@{${product.productImages[0]}}" th:alt="${product.name}">
+                                        <!--                                        </a>-->
                                     </figure>
                                     <div>
                                         <h2 class="product-title">
@@ -59,29 +59,22 @@
 
                             <h6 class="not-found-size" style="margin-top: 5px; color: #dc3545;"  th:styleappend="${notFoundSize} == true ? '' : 'display:none'">Size giày này đã hết. Vui lòng chọn size khác.</h6>
                             <div class="size-btn" data-toggle="modal" data-target="#modal-size-Choose">
-                                <button class="btn btn-primary size trans-btn"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details">9US | 42.5VN | 26.2CM</span><i class="fas dropdown-arrow"></i></button>
+                                <button class="btn btn-primary size trans-btn" style="border-radius: 10px;"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details">9US | 42.5VN | 26.2CM</span><i class="fas dropdown-arrow"></i></button>
                             </div>
 
                             <div class="input-group" style="margin-top:30px">
-<<<<<<< HEAD
-                                <input type="text" class="form-control" placeholder="Nhập số lượng" id="in-quantity" th:value="${product.quantity}">
-=======
-                                <input type="text" class="form-control" placeholder="Nhập số lượng" id="in-quantity">
->>>>>>> 649e986db1b653461dc68b5cbcfc5a94e6fd331c
+                                <input type="text" class="form-control" placeholder="Nhập số lượng" style="border-radius: 10px;" id="in-quantity" th:value="${product.quantity}">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="btn-apply-quantity">Áp dụng</button>
+                                    <button class="btn btn-outline-secondary" type="button" style="border-radius: 10px;" id="btn-apply-quantity">Áp dụng</button>
                                 </div>
                             </div>
 
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 649e986db1b653461dc68b5cbcfc5a94e6fd331c
-                            <div class="input-group" style="margin-top:30px">
-                                <input type="text" class="form-control" placeholder="Nhập mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
+                            <div class="input-group" style="margin-top:30px;">
+                                <input type="text" class="form-control" style="border-radius: 10px;" placeholder="Nhập mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" id="btn-apply-coupon">Áp dụng</button>
+                                    <button class="btn btn-outline-secondary" style="border-radius: 10px;" type="button" id="btn-apply-coupon">Áp dụng</button>
                                 </div>
                             </div>
                             <div class="coupon price-include">
@@ -98,8 +91,16 @@
                             </div>
                         </div>
                         <a th:href="@{/{slug}/{id}(id=${product.id}, slug=${product.slug})}">
-                            <button class="btn btn-secondary confirm-btn">Quay lại</button>
+                            <button class="btn btn-secondary confirm-btn" style="border-radius: 10px;">Quay lại</button>
                         </a>
+                        <style>
+                            .btn-primary.confirm-btn.red-btn{
+                                border-radius: 10px;
+                            }
+                            .btn-primary.confirm-btn.red-btn:hover{
+                                background-color: red;
+                            }
+                        </style>
                         <button type="button" class="btn btn-primary confirm-btn red-btn" id="btn-buy-now" th:style="${notFoundSize} ? 'display:none': ''">ĐẶT HÀNG</button>
                     </div><!-- End #order-cart-section -->
                 </div><!-- End .order-summary -->
@@ -112,25 +113,25 @@
                         <form action="#">
                             <div class="form-group required-field">
                                 <label>Tên người nhận </label>
-                                <input type="text" class="form-control" th:value="${user_fullname}" name="receiver_name" id="receiver_name" required>
+                                <input style="border-radius: 10px;" type="text" class="form-control" th:value="${user_fullname}" name="receiver_name" id="receiver_name" required>
                                 <div class="invalid-feedback"></div>
                             </div><!-- End .form-group -->
 
                             <div class="form-group required-field">
                                 <label>Số điện thoại </label>
-                                <input type="text" class="form-control" th:value="${user_phone}" name="receiver_phone" id="receiver_phone">
+                                <input style="border-radius: 10px;" type="text" class="form-control" th:value="${user_phone}" name="receiver_phone" id="receiver_phone">
                                 <div class="invalid-feedback"></div>
                             </div><!-- End .form-group -->
 
                             <div class="form-group required-field">
                                 <label>Địa chỉ nhận hàng</label>
-                                <textarea type="text" class="form-control" th:text="${user_address}" name="receiver_address" id="receiver_address" required></textarea>
+                                <textarea style="border-radius: 10px;" type="text" class="form-control" th:text="${user_address}" name="receiver_address" id="receiver_address" required></textarea>
                                 <div class="invalid-feedback"></div>
                             </div><!-- End .form-group -->
 
                             <div class="form-group">
                                 <label>Ghi chú </label>
-                                <textarea type="text" class="form-control" id="notes"></textarea>
+                                <textarea style="border-radius: 10px;" type="text" class="form-control" id="notes"></textarea>
                             </div><!-- End .form-group -->
                         </form>
                     </div><!-- End #new-checkout-address -->

@@ -21,16 +21,23 @@
         <div class="col-lg-3">
             <div class="left-sidebar">
                 <div class="header">
-                    <div class="avatar"><img class="img-fluid" th:src="@{/shop/images/avatar/avatar.png}" alt="avatar"/></div>
+                    <div class="avatar"><img class="img-fluid" th:src="@{/shop/images/avatar/avatar7.png}" alt="avatar"/></div>
                     <div class="user-info">
-                        <div class="user-name" th:text="${user_fullname}"></div>
-                        <div class="edit-profile">Chỉnh sửa tài khoản</div>
+                        <div class="user-name" style="color: black;" th:text="${user_fullname}"></div>
                     </div>
                 </div>
                 <div class="break-line"></div>
                 <div class="nav-sidebar">
                     <a class="account nav-item" href="/tai-khoan">Quản lý tài khoản</a>
                     <a class="buying-order nav-item" href="/tai-khoan/lich-su-giao-dich">Quản lý đơn hàng</a>
+                    <style>
+                        .btn-primary.red-btn.sign-out-btn{
+                           border-radius: 10px;
+                        }
+                        .btn-primary.red-btn.sign-out-btn:hover{
+                            background-color: red;
+                        }
+                    </style>
                     <a class="btn btn-primary red-btn sign-out-btn" href="/api/logout">Đăng xuất</a>
                 </div>
             </div>
@@ -44,36 +51,41 @@
                             <div class="full-name item-row col-md-10">
                                 <div class="text required-label">Họ tên</div>
                                 <div>
-                                    <input class="form-control" th:value="${user_fullname}" id="in-user-fullname"/>
+                                    <input style="border-radius: 10px;" class="form-control" th:value="${user_fullname}" id="in-user-fullname"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="email item-row col-md-10">
                                 <div class="text required-label">Email</div>
-                                <input class="form-control" disabled="disabled" th:value="${user_email}"/>
+                                <input style="border-radius: 10px;" class="form-control" disabled="disabled" th:value="${user_email}"/>
                             </div>
                             <div class="password item-row col-md-10">
                                 <div class="text required-label">Mật khẩu</div>
                                 <div class="password-wrapper">
-                                    <input class="form-control" type="password" disabled="disabled" autocomplete="autocomplete" value="******"/>
+                                    <input style="border-radius: 10px;" class="form-control" type="password" disabled="disabled" autocomplete="autocomplete" value="******"/>
+                                    <style>
+                                        .change-password.text-btn:hover{
+                                            color: red;
+                                        }
+                                    </style>
                                     <a class="change-password text-btn" href="" data-toggle="modal" data-target="#changePassword">Đổi mật khẩu</a>
                                 </div>
                             </div>
                             <div class="phone item-row col-md-10">
                                 <div class="text required-label">Số điện thoại</div>
                                 <div>
-                                    <input class="form-control" th:value="${user_phone}" id="in-user-phone"/>
+                                    <input style="border-radius: 10px;" class="form-control" th:value="${user_phone}" id="in-user-phone"/>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="address item-row col-md-10">
                                 <div class="text">Địa chỉ</div>
                                 <div>
-                                    <textarea class="form-control" rows="5" th:text="${user_address}" id="in-user-address"></textarea>
+                                    <textarea style="border-radius: 10px;" class="form-control" rows="5" th:text="${user_address}" id="in-user-address"></textarea>
                                 </div>
                             </div>
                             <div class="update-btn-wrapper item-row col-md-10">
-                                <div class="btn btn-primary red-btn update-btn">Cập nhật</div>
+                                <div class="btn btn-primary red-btn update-btn" style="border-radius: 10px; margin-left: 70px;">Cập nhật</div>
                             </div>
                         </form>
                     </div>

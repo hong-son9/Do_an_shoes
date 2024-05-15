@@ -94,8 +94,9 @@
 
             <div class="sidebar-overlay"></div>
             <div class="sidebar-toggle"><i class="fas fa-sliders-h"></i></div>
-            <aside class="sidebar-shop col-lg-3 order-lg-first mobile-sidebar">
-                <div class="sidebar-wrapper filter-bar small-size">
+            <aside class="sidebar-shop col-lg-3 order-lg-first mobile-sidebar" >
+                <div class="sidebar-wrapper filter-bar small-size" >
+                <div class="sidebar-wrapper filter-bar small-size" >
                     <div class="filter-header content">
                         <div class="left-side d-flex align-items-center"><i class="fas fa-sliders-h"></i>
                             <div class="text">Lọc</div>
@@ -169,10 +170,18 @@
                             <div class="widget-body">
                                 <!-- Price -->
                                 <div class="price-range content">
-                                    <input class="form-control price-input" id="from-price" type="text" placeholder="Từ">
-                                    <input class="form-control price-input" id="to-price" type="text" placeholder="Đến"pattern="[0-9]">
-                                    <button class="btn btn-primary apply-price red-btn" id="apply-price-web">Áp dụng
-                                    </button>
+                                    <input class="form-control price-input" id="from-price" type="text" style="border-radius: 10px;" placeholder="Từ">
+                                    <input class="form-control price-input" id="to-price" type="text" style="border-radius: 10px;" placeholder="Đến"pattern="[0-9]">
+                                    <style>
+                                        .btn-primary.apply-price.red-btn{
+                                            margin-left: 30px;
+                                            border-radius: 10px;
+                                        }
+                                        .btn-primary.apply-price.red-btn:hover{
+                                            background-color: red;
+                                        }
+                                    </style>
+                                    <button class="btn btn-primary apply-price red-btn" id="apply-price-web">Áp dụng</button>
                                 </div>
                             </div><!-- End .widget-body -->
                         </div><!-- End .collapse -->

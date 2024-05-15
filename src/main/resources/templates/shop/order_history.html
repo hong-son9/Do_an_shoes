@@ -37,16 +37,23 @@
         <div class="col-lg-3">
             <div class="left-sidebar">
                 <div class="header">
-                    <div class="avatar"><img class="img-fluid" th:src="@{/shop/images/avatar/avatar.png}" alt="avatar"/></div>
+                    <div class="avatar"><img class="img-fluid" th:src="@{/shop/images/avatar/avatar7.png}" alt="avatar"/></div>
                     <div class="user-info">
-                        <div class="user-name" th:text="${user_fullname}"></div>
-                        <div class="edit-profile">Chỉnh sửa tài khoản</div>
+                        <div class="user-name" style="color: black;" th:text="${user_fullname}"></div>
                     </div>
                 </div>
                 <div class="break-line"></div>
                 <div class="nav-sidebar">
                     <a class="account nav-item" href="/tai-khoan">Quản lý tài khoản</a>
                     <a class="buying-order nav-item" href="/tai-khoan/lich-su-giao-dich">Quản lý đơn hàng</a>
+                    <style>
+                        .btn-primary.red-btn.sign-out-btn{
+                            border-radius: 10px;
+                        }
+                        .btn-primary.red-btn.sign-out-btn:hover{
+                            background-color: red;
+                        }
+                    </style>
                     <a class="btn btn-primary red-btn sign-out-btn" href="/api/logout">Đăng xuất</a>
                 </div>
             </div>
