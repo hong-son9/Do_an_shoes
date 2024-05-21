@@ -86,7 +86,7 @@ public class OrderServiceImpl implements OrderService {
         order.setNote(createOrderRequest.getNote());
         order.setSize(createOrderRequest.getSize());
         order.setPrice(createOrderRequest.getProductPrice());
-        order.setTotalPrice(createOrderRequest.getTotalPrice());
+        order.setTotalPrice(createOrderRequest.getProductPrice() - createOrderRequest.getTotalPrice());
         order.setStatus(ORDER_STATUS);
         order.setQuantity(createOrderRequest.getQuantity());
         order.setProduct(product.get());

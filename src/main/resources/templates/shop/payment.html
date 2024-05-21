@@ -83,11 +83,11 @@
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Khuyến mãi</div>
-                                <input class="form-control text-price-input" id="in-promotion-value" type="text" readonly/>
+                                <input class="form-control text-price-input" id="in-promotion-value" type="text" th:value="${product.price - product.promotionPrice}" readonly/>
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Tổng thanh toán</div>
-                                <input class="form-control text-price-input" id="in-total-price" type="text" readonly/>
+                                <input class="form-control text-price-input" id="in-total-price" type="text" th:value="${product.promotionPrice}" readonly/>
                             </div>
                         </div>
                         <a th:href="@{/{slug}/{id}(id=${product.id}, slug=${product.slug})}">
@@ -234,16 +234,14 @@
     <script th:src="@{/shop/js/size-choose.js}"></script>
     <script th:inline="javascript">
         let price = [[${product.price}]];
-
         let promotionValue = 0;
         let totalPrice = price;
-
         if ([[${product.couponCode}]] != null && [[${product.couponCode}]] != "") {
             totalPrice = [[${product.promotionPrice}]];
             promotionValue = price - totalPrice;
         }
-        $('#in-total-price').val(totalPrice);
-        $('#in-promotion-value').val(promotionValue);
+        $('#in-total-price').val(promotionValue);
+        $('#in-promotion-value').val(totalPrice);
 
         let couponCode = [[${product.couponCode}]];
 
