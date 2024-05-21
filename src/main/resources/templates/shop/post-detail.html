@@ -77,7 +77,92 @@
 <!--                                </a>-->
 <!--                            </div>&lt;!&ndash; End .social-icons &ndash;&gt;-->
 <!--                        </div>&lt;!&ndash; End .post-share &ndash;&gt;-->
+                        <div class="zalo-button">
+                            <a href="https://zalo.me/0365454643">
+                                <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
+                            </a>
+                        </div>
+                        <div class="call-button">
+                            <a href="tel:0365454643">
+                                <img th:src="@{/shop/images/dienthoai.jpg}" alt="hotline">
+                            </a>
+                        </div>
+                        <style>
 
+                            .zalo-button {
+                                position: fixed;
+                                bottom: 80px;
+                                left: 20px;
+                                cursor: pointer;
+                                z-index: 999;
+                                overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
+                            }
+                            .zalo-button::before {
+                                content: "";
+                                position: absolute;
+                                width: 100%;
+                                height: 100%;
+                                border-radius: 50%;
+                                border: 2px solid rgba(0, 123, 255, 0.7);
+                                animation: pulse 1s infinite;
+                                box-sizing: border-box;
+                                pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
+                            }
+
+                            .zalo-button img {
+                                width: 70px;
+                                height: auto;
+                                border-radius: 50%;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                                position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+                                z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+                            }
+
+                            @keyframes pulse {
+                                0% {
+                                    transform: scale(0.9);
+                                    opacity: 0.7;
+                                }
+                                50% {
+                                    transform: scale(1.2);
+                                    opacity: 0;
+                                }
+                                100% {
+                                    transform: scale(0.9);
+                                    opacity: 0.7;
+                                }
+                            }
+
+                            .call-button {
+                                position: fixed;
+                                bottom: 5px;
+                                left: 25px;
+                                cursor: pointer;
+                                z-index: 999;
+                                overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
+                            }
+                            .call-button::before {
+                                content: "";
+                                position: absolute;
+                                width: 100%;
+                                height: 100%;
+                                border-radius: 50%;
+                                border: 2px solid red;
+                                animation: pulse 1s infinite;
+                                box-sizing: border-box;
+                                pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
+                            }
+
+                            .call-button img {
+                                width: 60px;
+                                height: auto;
+                                border-radius: 50%;
+                                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                                position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+                                z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+                            }
+
+                        </style>
                         <div class="list-comment">
                             <th:block th:each="comment : ${post.comments}">
                                 <div class="post-author">
