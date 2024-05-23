@@ -128,7 +128,8 @@ public class HomeController {
         }
         product.setQuantity(quantity);
         product.setPrice(product.getPrice() * quantity);
-        product.setPromotionPrice(product.getPrice() / quantity - product.getPromotionPrice());
+        long price = product.getPrice() / quantity;
+        product.setPromotionPrice((price - product.getPromotionPrice()) * quantity);
         model.addAttribute("product", product);
 
         //Validate size

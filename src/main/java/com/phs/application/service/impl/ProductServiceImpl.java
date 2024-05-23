@@ -228,6 +228,7 @@ public class ProductServiceImpl implements ProductService {
             dto.setPromotionPrice(promotionService.calculatePromotionPrice(dto.getPrice(), promotion));
         } else {
             dto.setCouponCode("");
+            dto.setPromotionPrice(dto.getPrice());
         }
         return dto;
 

@@ -72,10 +72,10 @@
 
 
                             <div class="input-group" style="margin-top:30px;">
-                                <input type="text" class="form-control" style="border-radius: 10px;" placeholder="Nhập mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" style="border-radius: 10px;" type="button" id="btn-apply-coupon">Áp dụng</button>
-                                </div>
+                                <input type="text" class="form-control" style="border-radius: 10px;" placeholder="Khong có mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}">
+<!--                                <div class="input-group-append">-->
+<!--                                    <button class="btn btn-outline-secondary" style="border-radius: 10px;" type="button" id="btn-apply-coupon">Áp dụng</button>-->
+<!--                                </div>-->
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Tạm tính</div>
@@ -83,7 +83,7 @@
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Khuyến mãi</div>
-                                <input class="form-control text-price-input" id="in-promotion-value" type="text" th:value="${product.price - product.promotionPrice}" readonly/>
+                                <input class="form-control text-price-input" id="in-promotion-value" type="text" readonly/>
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Tổng thanh toán</div>
@@ -239,6 +239,10 @@
         if ([[${product.couponCode}]] != null && [[${product.couponCode}]] != "") {
             totalPrice = [[${product.promotionPrice}]];
             promotionValue = price - totalPrice;
+        }
+        else {
+            totalPrice = 0;
+            promotionValue = price;
         }
         $('#in-total-price').val(promotionValue);
         $('#in-promotion-value').val(totalPrice);

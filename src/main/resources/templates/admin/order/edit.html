@@ -142,9 +142,10 @@
                                                     <tr>
                                                         <th>Sản phẩm</th>
                                                         <th>Kích cỡ</th>
+                                                        <th>Số lượng</th>
                                                         <th>Giá tiền</th>
-                                                        <th>Khuyến mãi</th>
-                                                        <th>Mức giảm</th>
+<!--                                                        <th>Khuyến mãi</th>-->
+<!--                                                        <th>Mức giảm</th>-->
                                                         <th>Thành tiền</th>
                                                     </tr>
                                                     </thead>
@@ -160,21 +161,24 @@
                                                             </th:block>
                                                         </td>
                                                         <td>
+                                                            <span class="text-price" th:text="${order.quantity}"></span>
+                                                        </td>
+                                                        <td>
                                                             <span class="text-price" th:text="${order.price}"></span> đ
                                                         </td>
-                                                        <td>
-                                                            <span th:if="${order.promotion} != null" th:text="${order.promotion.couponCode}"></span>
-                                                        </td>
-                                                        <td>
-                                                            <div th:if="${order.promotion} != null">
-                                                                <th:block th:if="${order.promotion.discountType} == 1">
-                                                                    <span th:text="${order.promotion.discountValue}"></span> %
-                                                                </th:block>
-                                                                <th:block th:if="${order.promotion.discountType} == 2">
-                                                                    <span class="text-price" th:text="${order.promotion.discountValue}"></span> đ
-                                                                </th:block>
-                                                            </div>
-                                                        </td>
+<!--                                                        <td>-->
+<!--                                                            <span th:if="${order.promotion} != null" th:text="${order.promotion.couponCode}"></span>-->
+<!--                                                        </td>-->
+<!--                                                        <td>-->
+<!--                                                            <div th:if="${order.promotion} != null">-->
+<!--                                                                <th:block th:if="${order.promotion.discountType} == 1">-->
+<!--                                                                    <span th:text="${order.promotion.discountValue}"></span> %-->
+<!--                                                                </th:block>-->
+<!--                                                                <th:block th:if="${order.promotion.discountType} == 2">-->
+<!--                                                                    <span class="text-price" th:text="${order.promotion.discountValue}"></span> đ-->
+<!--                                                                </th:block>-->
+<!--                                                            </div>-->
+<!--                                                        </td>-->
                                                         <td>
                                                             <span class="text-price" th:text="${order.totalPrice}"></span> đ
                                                         </td>
