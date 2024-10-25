@@ -28,6 +28,25 @@
                 </div>
                 <div class="break-line"></div>
                 <div class="nav-sidebar">
+                    <style>
+                        .account.nav-item, .buying-order.nav-item{
+                            border: 1px solid #000; /* Đặt khung dày 2px màu đen */
+                            padding: 5px; /* Thêm khoảng đệm xung quanh nội dung */
+                            border-radius: 5px; /* Bo tròn các góc của khung */
+                            color: black;
+                            display: inline-block;
+                            align-items: center; /* Căn giữa theo chiều dọc */
+                            justify-content: center; /* Căn giữa theo chiều ngang */
+                            text-align: center;
+
+                        }
+                        .account.nav-item:hover{
+                            background-color: aqua;
+                        }
+                        .buying-order.nav-item:hover{
+                            background-color: aqua;
+                        }
+                    </style>
                     <a class="account nav-item" href="/tai-khoan">Quản lý tài khoản</a>
                     <a class="buying-order nav-item" href="/tai-khoan/lich-su-giao-dich">Quản lý đơn hàng</a>
                     <style>
@@ -38,9 +57,9 @@
                             background-color: red;
                         }
                     </style>
-                    <a class="btn btn-primary red-btn sign-out-btn" href="/api/logout">Đăng xuất</a>
                 </div>
             </div>
+            <a class="btn btn-primary red-btn sign-out-btn" style="margin-left: 50px; margin-top: -20px;" href="/api/logout">Đăng xuất</a>
         </div>
         <div class="col-lg-9 main-content-wrapper">
             <div class="main-content">
