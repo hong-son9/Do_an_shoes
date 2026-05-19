@@ -228,6 +228,36 @@
     <div class="mb-6"></div><!-- margin -->
     <!-- Modals-->
     <th:block th:replace="~{fragment/size_choose_modal :: size-choose-modal}"></th:block>
+
+    <!-- Modal chon phuong thuc thanh toan -->
+    <div class="modal fade" id="modal-payment-method" tabindex="-1" role="dialog" aria-labelledby="modal-payment-method-title" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content" style="border-radius: 10px;">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-payment-method-title">Chọn phương thức thanh toán</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 mb-3">
+                            <button type="button" class="btn btn-outline-secondary btn-block payment-option" id="btn-pay-cod" style="border-radius: 10px; padding: 15px; text-align: left;">
+                                <strong>Thanh toán trực tiếp (COD)</strong><br>
+                                <small class="text-muted">Thanh toán khi nhận hàng</small>
+                            </button>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-outline-primary btn-block payment-option" id="btn-pay-vnpay" style="border-radius: 10px; padding: 15px; text-align: left;">
+                                <strong>Thanh toán qua VNPay</strong><br>
+                                <small class="text-muted">Thẻ ATM/Visa/Master/QR Pay (sandbox)</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </main><!-- End .main -->
 
 <th:block id="js-resources">
@@ -349,33 +379,32 @@
             window.location.href = 'http://localhost:8081/dat-hang?id=' + id + '&size=' + size + '&quantity=' + quantity;
         })
 
-        $('#btn-buy-now').click(function() {
+        function validateOrderForm() {
             let receiverName = $('#receiver_name').val();
             let receiverPhone = $('#receiver_phone').val();
             let receiverAddress = $('#receiver_address').val();
-            let notes = $('#notes').val();
             let isValid = true;
             if (receiverName.length == 0) {
-                fullNameInvalid = $('#receiver_name').next();
+                let fullNameInvalid = $('#receiver_name').next();
                 fullNameInvalid.css('display', 'block');
                 fullNameInvalid.html('Vui lòng nhập họ tên người nhận hàng');
                 isValid = false;
             }
             if (receiverPhone.length == 0) {
-                phoneInvalid = $('#receiver_phone').next();
+                let phoneInvalid = $('#receiver_phone').next();
                 phoneInvalid.css('display', 'block');
                 phoneInvalid.html('Vui lòng nhập số điện thoại người nhận hàng');
                 isValid = false;
             }
             let phoneFormat = new RegExp(/((09|03|07|08|05)+([0-9]{8})\b)/g);
             if (!phoneFormat.test(receiverPhone)) {
-                phoneInvalid = $('#in-user-phone').next();
+                let phoneInvalid = $('#receiver_phone').next();
                 phoneInvalid.css('display', 'block');
                 phoneInvalid.html('Số điện thoại không hợp lệ');
                 isValid = false;
             }
             if (receiverAddress.length == 0) {
-                addressInvalid = $('#receiver_address').next();
+                let addressInvalid = $('#receiver_address').next();
                 addressInvalid.css('display', 'block');
                 addressInvalid.html('Vui lòng nhập địa chỉ nhận hàng');
                 isValid = false;
@@ -385,39 +414,76 @@
                 $('.not-found-size').show();
                 isValid = false;
             }
-            let quantity = document.getElementById('in-quantity').value;
+            return isValid;
+        }
 
-            if (isValid) {
-                req = {
-                    product_id: [[${product.id}]],
-                    size: size,
-                    quantity: quantity,
-                    receiver_name: receiverName,
-                    receiver_phone: receiverPhone,
-                    receiver_address: receiverAddress,
-                    coupon_code: couponCode,
-                    total_price: totalPrice,
-                    product_price: price,
-                    note:notes
-                }
-                var myJSON = JSON.stringify(req);
-                $.ajax({
-                    url: '/api/orders',
-                    type: 'POST',
-                    data: myJSON,
-                    contentType: "application/json; charset=utf-8",
-                    success: function(data) {
-                        toastr.success("Đặt hàng thành công");
-                        setTimeout(function() {
-                            location.href = "/tai-khoan/lich-su-giao-dich/"+data;
-                        }, 1000)
-                    },
-                    error: function(data) {
-                        toastr.warning(data.responseJSON.message);
-                    },
-                });
+        function buildOrderRequest() {
+            return {
+                product_id: [[${product.id}]],
+                size: $('.size-choose').data("id"),
+                quantity: document.getElementById('in-quantity').value,
+                receiver_name: $('#receiver_name').val(),
+                receiver_phone: $('#receiver_phone').val(),
+                receiver_address: $('#receiver_address').val(),
+                coupon_code: couponCode,
+                total_price: totalPrice,
+                product_price: price,
+                note: $('#notes').val()
+            };
+        }
+
+        $('#btn-buy-now').click(function() {
+            if (!validateOrderForm()) {
+                return;
             }
-        })
+            $('#modal-payment-method').modal('show');
+        });
+
+        // Option 1: Thanh toan truc tiep (COD) - giu nguyen logic cu
+        $('#btn-pay-cod').click(function() {
+            $('#modal-payment-method').modal('hide');
+            $.ajax({
+                url: '/api/orders',
+                type: 'POST',
+                data: JSON.stringify(buildOrderRequest()),
+                contentType: "application/json; charset=utf-8",
+                success: function(data) {
+                    toastr.success("Đặt hàng thành công");
+                    setTimeout(function() {
+                        location.href = "/tai-khoan/lich-su-giao-dich/" + data;
+                    }, 1000);
+                },
+                error: function(data) {
+                    toastr.warning(data.responseJSON.message);
+                }
+            });
+        });
+
+        // Option 2: Thanh toan qua VNPay sandbox
+        $('#btn-pay-vnpay').click(function() {
+            $('#modal-payment-method').modal('hide');
+            $.ajax({
+                url: '/api/orders',
+                type: 'POST',
+                data: JSON.stringify(buildOrderRequest()),
+                contentType: "application/json; charset=utf-8",
+                success: function(orderId) {
+                    $.ajax({
+                        url: '/api/payment/vnpay/create?order_id=' + orderId,
+                        type: 'POST',
+                        success: function(resp) {
+                            window.location.href = resp.paymentUrl;
+                        },
+                        error: function(data) {
+                            toastr.warning((data.responseJSON && data.responseJSON.message) || "Không tạo được URL thanh toán VNPay");
+                        }
+                    });
+                },
+                error: function(data) {
+                    toastr.warning(data.responseJSON.message);
+                }
+            });
+        });
 
     </script>
 </th:block>

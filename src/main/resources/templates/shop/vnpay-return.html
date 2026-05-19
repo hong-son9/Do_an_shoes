@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                                     ~{:: title},
+                                                                    'header',
+                                                                    'footer',
+                                                                     ~{:: #css-resources},
+                                                                     ~{:: #js-resources},
+                                                                     ~{:: #main-content}
+                                                                    )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả thanh toán</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/shop/css/custom.css}">
+    </th:block>
+</head>
+<body>
+<main class="main" id="main-content">
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Kết quả thanh toán VNPay</li>
+            </ol>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top:30px; margin-bottom:40px;">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="card" style="border-radius: 10px;">
+                    <div class="card-body text-center">
+                        <div th:if="${success}">
+                            <h3 style="color:#28a745;">Thanh toán thành công</h3>
+                            <p>Đơn hàng <strong th:text="${orderId}"></strong> đã được thanh toán qua VNPay.</p>
+                        </div>
+                        <div th:unless="${success}">
+                            <h3 style="color:#dc3545;">Thanh toán thất bại</h3>
+                            <p th:if="${!validSignature}">Chữ ký giao dịch không hợp lệ.</p>
+                            <p th:if="${validSignature}">
+                                Mã lỗi VNPay: <strong th:text="${responseCode}"></strong>
+                            </p>
+                        </div>
+
+                        <table class="table table-sm" style="margin-top:20px;">
+                            <tbody>
+                            <tr>
+                                <th style="width:40%; text-align:left;">Mã đơn hàng</th>
+                                <td style="text-align:left;" th:text="${orderId}"></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align:left;">Số tiền (VND)</th>
+                                <td style="text-align:left;" th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 0, 'POINT') + ' đ'}"></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align:left;">Mã giao dịch VNPay</th>
+                                <td style="text-align:left;" th:text="${transactionNo}"></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align:left;">Ngân hàng</th>
+                                <td style="text-align:left;" th:text="${bankCode}"></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align:left;">Thời gian thanh toán</th>
+                                <td style="text-align:left;" th:text="${payDate}"></td>
+                            </tr>
+                            <tr>
+                                <th style="text-align:left;">Mã phản hồi</th>
+                                <td style="text-align:left;" th:text="${responseCode}"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <div style="margin-top:20px;">
+                            <a th:if="${success and orderId > 0}"
+                               th:href="@{|/tai-khoan/lich-su-giao-dich/${orderId}|}"
+                               class="btn btn-primary" style="border-radius:10px;">Xem đơn hàng</a>
+                            <a href="/" class="btn btn-secondary" style="border-radius:10px;">Về trang chủ</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block id="js-resources"></th:block>
+</body>
+</html>
