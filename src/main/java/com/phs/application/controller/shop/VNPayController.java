@@ -2,10 +2,14 @@ package com.phs.application.controller.shop;
 
 import com.phs.application.entity.Order;
 import com.phs.application.exception.BadRequestException;
+import com.phs.application.security.CustomUserDetails;
+import com.phs.application.service.CartService;
 import com.phs.application.service.OrderService;
 import com.phs.application.service.VNPayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +29,9 @@ public class VNPayController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private CartService cartService;
 
     @PostMapping("/api/payment/vnpay/create")
     public ResponseEntity<Object> createPayment(@RequestParam("order_id") long orderId,
@@ -55,6 +62,17 @@ public class VNPayController {
         String responseCode = params.get("vnp_ResponseCode");
         long orderId = vnPayService.extractOrderId(params.get("vnp_TxnRef"));
         boolean success = validSignature && "00".equals(responseCode);
+
+        if (success) {
+            try {
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                if (auth != null && auth.getPrincipal() instanceof CustomUserDetails) {
+                    long userId = ((CustomUserDetails) auth.getPrincipal()).getUser().getId();
+                    cartService.clearCart(userId);
+                }
+            } catch (Exception ignored) {
+            }
+        }
 
         long amountDisplay = 0L;
         try {

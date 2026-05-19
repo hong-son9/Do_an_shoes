@@ -144,6 +144,11 @@
                                 </div>
                             </button>
                         </div>
+                        <div class="add-to-cart-btn" style="margin-top: 10px;" th:if="${canBuy}">
+                            <button type="button" class="btn btn-outline-primary btn-block" id="btn-add-cart" style="border-radius: 10px; padding: 12px;">
+                                <i class="icon-shopping-cart"></i>&nbsp; Thêm vào giỏ hàng
+                            </button>
+                        </div>
                         <div class="zalo-button">
                             <a href="https://zalo.me/0365454643">
                                 <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
@@ -463,6 +468,44 @@
                 }, 500);
             }
         })
+
+        $('#btn-add-cart').click(function(e) {
+            e.stopPropagation();
+            if (isLogined != true) {
+                toastr.warning("Vui lòng đăng nhập để thêm vào giỏ hàng");
+                setTimeout(function() { $('#exampleModal').modal('show'); }, 500);
+                return;
+            }
+            let size = $('.size-choose').data("id");
+            if (size == null || size == "") {
+                toastr.warning("Vui lòng chọn size trước khi thêm vào giỏ");
+                return;
+            }
+            let req = {
+                product_id: [[${product.id}]],
+                size: size,
+                quantity: 1
+            };
+            $.ajax({
+                url: '/api/cart/items',
+                type: 'POST',
+                data: JSON.stringify(req),
+                contentType: "application/json; charset=utf-8",
+                success: function() {
+                    toastr.success("Đã thêm vào giỏ hàng");
+                    $.ajax({
+                        url: '/api/cart/count',
+                        type: 'GET',
+                        success: function(data) {
+                            $('#cart-badge').text(data.count).show();
+                        }
+                    });
+                },
+                error: function(data) {
+                    toastr.warning((data.responseJSON && data.responseJSON.message) || "Không thêm được vào giỏ hàng");
+                }
+            });
+        });
 
         $("#formCommentProduct").submit(function (e) {
             e.preventDefault();

@@ -39,17 +39,21 @@ public class VNPayService {
     private String locale;
 
     public String createPaymentUrl(long orderId, long amount, String orderInfo, HttpServletRequest request) {
-        String vnp_TxnRef = orderId + "_" + System.currentTimeMillis();
+        String secret = trim(hashSecret);
+        String tmn = trim(tmnCode);
+
+        String vnp_TxnRef = sanitize(orderId + String.valueOf(System.currentTimeMillis()));
+        String safeOrderInfo = sanitize(orderInfo);
         String vnp_IpAddr = getIpAddress(request);
 
         Map<String, String> vnpParams = new HashMap<>();
         vnpParams.put("vnp_Version", version);
         vnpParams.put("vnp_Command", command);
-        vnpParams.put("vnp_TmnCode", tmnCode);
+        vnpParams.put("vnp_TmnCode", tmn);
         vnpParams.put("vnp_Amount", String.valueOf(amount * 100));
         vnpParams.put("vnp_CurrCode", currCode);
         vnpParams.put("vnp_TxnRef", vnp_TxnRef);
-        vnpParams.put("vnp_OrderInfo", orderInfo);
+        vnpParams.put("vnp_OrderInfo", safeOrderInfo);
         vnpParams.put("vnp_OrderType", "other");
         vnpParams.put("vnp_Locale", locale);
         vnpParams.put("vnp_ReturnUrl", returnUrl);
@@ -80,9 +84,27 @@ public class VNPayService {
                 }
             }
         }
-        String secureHash = hmacSHA512(hashSecret, hashData.toString());
+        String secureHash = hmacSHA512(secret, hashData.toString());
         query.append("&vnp_SecureHash=").append(secureHash);
-        return payUrl + "?" + query.toString();
+        String url = payUrl + "?" + query.toString();
+
+        System.out.println("[VNPay] tmnCode=" + tmn + " secretLen=" + secret.length()
+                + " secretHead=" + (secret.length() > 4 ? secret.substring(0, 4) : "")
+                + " secretTail=" + (secret.length() > 4 ? secret.substring(secret.length() - 4) : ""));
+        System.out.println("[VNPay] hashData=" + hashData);
+        System.out.println("[VNPay] secureHash=" + secureHash);
+        System.out.println("[VNPay] url=" + url);
+        return url;
+    }
+
+    private String sanitize(String s) {
+        if (s == null) return "";
+        // VNPay parser an toan voi alphanumeric + space + dau gach
+        return s.replaceAll("[^A-Za-z0-9 _-]", "").trim();
+    }
+
+    private String trim(String s) {
+        return s == null ? "" : s.trim();
     }
 
     public boolean verifyReturn(Map<String, String> params) {
@@ -117,8 +139,8 @@ public class VNPayService {
         if (txnRef == null) {
             return -1;
         }
-        int idx = txnRef.indexOf('_');
-        String idPart = idx > 0 ? txnRef.substring(0, idx) : txnRef;
+        // vnp_TxnRef = orderId + timestamp(13 digits). Cat 13 digit cuoi de lay orderId.
+        String idPart = txnRef.length() > 13 ? txnRef.substring(0, txnRef.length() - 13) : txnRef;
         try {
             return Long.parseLong(idPart);
         } catch (NumberFormatException e) {

@@ -79,6 +79,11 @@
                         <h6>Hotline<a href="tel:#" class="text-dark font1">036 545 4643</a></h6>
                     </div>
 
+                    <a href="/gio-hang" class="header-icon" title="Giỏ hàng" style="position: relative; margin-right: 10px;">
+                        <i class="icon-shopping-cart"></i>
+                        <span id="cart-badge" style="position:absolute; top:-6px; right:-8px; background:#f04e40; color:#fff; border-radius:50%; padding:1px 6px; font-size:11px; display:none;">0</span>
+                    </a>
+
                     <a href="" data-toggle="modal" data-target="#exampleModal" class="header-icon account-setting"><i class="icon-user-2"></i></a>
 
                 </div><!-- End .header-right -->
@@ -101,5 +106,18 @@
         </div><!-- End .header-bottom -->
     </header><!-- End .header -->
 
+    <script>
+        (function() {
+            $.ajax({
+                url: '/api/cart/count',
+                type: 'GET',
+                success: function(data) {
+                    if (data && data.count > 0) {
+                        $('#cart-badge').text(data.count).show();
+                    }
+                }
+            });
+        })();
+    </script>
 </th:block>
 

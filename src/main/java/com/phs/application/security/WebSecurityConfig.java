@@ -52,7 +52,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf()
                 .disable()
                 .authorizeRequests()
-                .antMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password", "/api/update-profile").authenticated()
+                .antMatchers("/api/cart/count").permitAll()
+                .antMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password", "/api/update-profile",
+                        "/gio-hang", "/api/cart/**").authenticated()
                 .antMatchers("/admin/**","/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and()

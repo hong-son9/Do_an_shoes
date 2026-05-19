@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                                     ~{:: title},
+                                                                    'header',
+                                                                    'footer',
+                                                                     ~{:: #css-resources},
+                                                                     ~{:: #js-resources},
+                                                                     ~{:: #main-content}
+                                                                    )}">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng</title>
+    <th:block id="css-resources">
+        <link rel="stylesheet" th:href="@{/shop/css/custom.css}">
+        <style>
+            .cart-table img { width: 70px; height: 70px; object-fit: cover; border-radius: 6px; }
+            .cart-table td { vertical-align: middle; }
+            .qty-input { width: 70px; text-align: center; }
+            .out-of-stock { color: #dc3545; font-size: 12px; }
+            .payment-card {
+                display: block;
+                width: 100%;
+                padding: 14px 16px;
+                margin-bottom: 10px;
+                border: 2px solid #ddd;
+                border-radius: 10px;
+                background: #fff;
+                cursor: pointer;
+                text-align: left;
+                transition: all 0.15s ease-in-out;
+            }
+            .payment-card:hover { border-color: #1976d2; background: #f5faff; }
+            .payment-card.active { border-color: #1976d2; background: #e3f2fd; box-shadow: 0 0 0 1px #1976d2 inset; }
+            .payment-card input[type="radio"] { margin-right: 10px; transform: scale(1.2); }
+            .payment-card .pm-title { font-weight: 600; }
+            .payment-card .pm-desc { font-size: 12px; color: #6c757d; margin-top: 2px; }
+        </style>
+    </th:block>
+</head>
+<body>
+<main class="main" id="main-content">
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item active" aria-current="page">Giỏ hàng</li>
+            </ol>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-bottom: 40px;">
+        <h2 style="margin-top: 20px;">Giỏ hàng (<span id="cart-item-count" th:text="${itemCount}">0</span>)</h2>
+
+        <div th:if="${items.isEmpty()}" class="text-center" style="padding: 40px;">
+            <h4>Giỏ hàng của bạn đang trống</h4>
+            <a href="/san-pham" class="btn btn-primary" style="border-radius: 10px; margin-top: 15px;">Mua sắm ngay</a>
+        </div>
+
+        <div th:unless="${items.isEmpty()}" class="row">
+            <div class="col-lg-8">
+                <table class="table cart-table">
+                    <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Size</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Tạm tính</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody id="cart-tbody">
+                    <tr th:each="item : ${items}" th:attr="data-item-id=${item.id},data-unit=${item.salePrice > 0 ? item.salePrice : item.price}">
+                        <td>
+                            <div style="display:flex; align-items:center;">
+                                <img th:src="${item.productImage}" th:alt="${item.productName}">
+                                <div style="margin-left:12px;">
+                                    <a th:href="@{/{slug}/{id}(id=${item.productId}, slug=${item.productSlug})}" th:text="${item.productName}" style="font-weight:500;"></a>
+                                    <div th:unless="${item.inStock}" class="out-of-stock">Sản phẩm/size đã hết hoặc không đủ tồn</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td th:text="${item.size}"></td>
+                        <td>
+                            <span class="item-unit" th:text="${#numbers.formatDecimal(item.salePrice > 0 ? item.salePrice : item.price, 0, 'COMMA', 0, 'POINT') + ' đ'}"></span>
+                        </td>
+                        <td>
+                            <input type="number" min="1" class="form-control qty-input" th:value="${item.quantity}">
+                        </td>
+                        <td>
+                            <span class="item-subtotal" th:text="${#numbers.formatDecimal(item.subTotal, 0, 'COMMA', 0, 'POINT') + ' đ'}"></span>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-link text-danger btn-remove">Xóa</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card" style="border-radius:10px;">
+                    <div class="card-body">
+                        <h5>Tổng đơn hàng</h5>
+                        <hr>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>Tạm tính</span>
+                            <strong id="cart-total" th:text="${#numbers.formatDecimal(totalAmount, 0, 'COMMA', 0, 'POINT') + ' đ'}"></strong>
+                        </div>
+                        <button type="button" id="btn-checkout" class="btn btn-primary btn-block" style="border-radius:10px; margin-top:20px;">
+                            Đặt hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal nhap thong tin nhan hang + chon phuong thuc thanh toan -->
+    <div class="modal fade" id="modal-cart-checkout" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+            <div class="modal-content" style="border-radius: 10px;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Thông tin đặt hàng</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-checkout">
+                        <div class="form-group">
+                            <label>Tên người nhận <span class="text-danger">*</span></label>
+                            <input type="text" id="ck-name" class="form-control" th:value="${user_fullname}" style="border-radius: 10px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Số điện thoại <span class="text-danger">*</span></label>
+                            <input type="text" id="ck-phone" class="form-control" th:value="${user_phone}" style="border-radius: 10px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Địa chỉ nhận hàng <span class="text-danger">*</span></label>
+                            <textarea id="ck-address" class="form-control" style="border-radius: 10px;" th:text="${user_address}"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Ghi chú</label>
+                            <textarea id="ck-note" class="form-control" style="border-radius: 10px;"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Phương thức thanh toán</label>
+                            <label class="payment-card active" for="pm-cod">
+                                <input type="radio" name="payment_method" id="pm-cod" value="cod" checked>
+                                <span class="pm-title">Thanh toán trực tiếp (COD)</span>
+                                <div class="pm-desc">Thanh toán khi nhận hàng tại nhà.</div>
+                            </label>
+                            <label class="payment-card" for="pm-vnpay">
+                                <input type="radio" name="payment_method" id="pm-vnpay" value="vnpay">
+                                <span class="pm-title">Thanh toán qua VNPay</span>
+                                <div class="pm-desc">Thẻ ATM/Visa/Master/QR Pay (sandbox). Giỏ hàng chỉ bị xóa sau khi thanh toán thành công.</div>
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" style="border-radius:10px;">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="btn-confirm-checkout" style="border-radius:10px;">Xác nhận đặt hàng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<th:block id="js-resources">
+    <script th:inline="javascript">
+        function formatMoney(n) {
+            return Number(n || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + ' đ';
+        }
+
+        function refreshTotals() {
+            let total = 0;
+            $('#cart-tbody tr').each(function() {
+                let unit = parseInt($(this).attr('data-unit'), 10) || 0;
+                let qty = parseInt($(this).find('.qty-input').val(), 10) || 0;
+                let sub = unit * qty;
+                $(this).find('.item-subtotal').text(formatMoney(sub));
+                total += sub;
+            });
+            $('#cart-total').text(formatMoney(total));
+        }
+
+        // Cap nhat so luong
+        $(document).on('change', '.qty-input', function() {
+            let row = $(this).closest('tr');
+            let itemId = row.attr('data-item-id');
+            let qty = parseInt($(this).val(), 10);
+            if (!qty || qty < 1) { qty = 1; $(this).val(1); }
+            $.ajax({
+                url: '/api/cart/items/' + itemId,
+                type: 'PUT',
+                data: JSON.stringify({ quantity: qty }),
+                contentType: "application/json; charset=utf-8",
+                success: function() {
+                    refreshTotals();
+                    toastr.success("Đã cập nhật số lượng");
+                },
+                error: function(data) {
+                    toastr.warning((data.responseJSON && data.responseJSON.message) || "Lỗi cập nhật");
+                }
+            });
+        });
+
+        // Xoa item
+        $(document).on('click', '.btn-remove', function() {
+            let row = $(this).closest('tr');
+            let itemId = row.attr('data-item-id');
+            if (!confirm('Xóa sản phẩm này khỏi giỏ hàng?')) return;
+            $.ajax({
+                url: '/api/cart/items/' + itemId,
+                type: 'DELETE',
+                success: function() {
+                    row.remove();
+                    toastr.success("Đã xóa khỏi giỏ hàng");
+                    if ($('#cart-tbody tr').length == 0) {
+                        location.reload();
+                    } else {
+                        refreshTotals();
+                        let count = parseInt($('#cart-item-count').text(), 10) - 1;
+                        $('#cart-item-count').text(count);
+                        $('#cart-badge').text(count).toggle(count > 0);
+                    }
+                },
+                error: function(data) {
+                    toastr.warning((data.responseJSON && data.responseJSON.message) || "Lỗi xóa");
+                }
+            });
+        });
+
+        // Toggle active state cua card chon phuong thuc thanh toan
+        $(document).on('change', 'input[name="payment_method"]', function() {
+            $('.payment-card').removeClass('active');
+            $(this).closest('.payment-card').addClass('active');
+        });
+
+        // Mo modal dat hang
+        $('#btn-checkout').click(function() {
+            if ($('#cart-tbody tr').length == 0) {
+                toastr.warning("Giỏ hàng trống");
+                return;
+            }
+            $('#modal-cart-checkout').modal('show');
+        });
+
+        // Xac nhan dat hang
+        $('#btn-confirm-checkout').click(function() {
+            let name = $('#ck-name').val().trim();
+            let phone = $('#ck-phone').val().trim();
+            let address = $('#ck-address').val().trim();
+            let note = $('#ck-note').val();
+            let paymentMethod = $('input[name="payment_method"]:checked').val();
+
+            if (!name) { toastr.warning("Vui lòng nhập tên người nhận"); return; }
+            let phoneRegex = /((09|03|07|08|05)+([0-9]{8})\b)/g;
+            if (!phoneRegex.test(phone)) { toastr.warning("Số điện thoại không hợp lệ"); return; }
+            if (!address) { toastr.warning("Vui lòng nhập địa chỉ"); return; }
+
+            let req = {
+                receiver_name: name,
+                receiver_phone: phone,
+                receiver_address: address,
+                note: note,
+                payment_method: paymentMethod
+            };
+
+            $('#btn-confirm-checkout').prop('disabled', true);
+            $.ajax({
+                url: '/api/cart/checkout',
+                type: 'POST',
+                data: JSON.stringify(req),
+                contentType: "application/json; charset=utf-8",
+                success: function(data) {
+                    if (paymentMethod === 'vnpay' && data.paymentUrl) {
+                        window.location.href = data.paymentUrl;
+                    } else {
+                        toastr.success("Đặt hàng thành công");
+                        setTimeout(function() {
+                            location.href = "/tai-khoan/lich-su-giao-dich";
+                        }, 1000);
+                    }
+                },
+                error: function(data) {
+                    $('#btn-confirm-checkout').prop('disabled', false);
+                    toastr.warning((data.responseJSON && data.responseJSON.message) || "Lỗi đặt hàng");
+                }
+            });
+        });
+    </script>
+</th:block>
+</body>
+</html>
