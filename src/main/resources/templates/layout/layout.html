@@ -26,6 +26,98 @@
         label.error{
             color:red;
         }
+
+        /* ===== Global font-size bump (readability) ===== */
+        /* Tăng root để mọi thứ dùng rem scale lên ~13% */
+        html { font-size: 12px !important; }
+        body { font-size: 1rem; }
+
+        body, p, span, div, td, li, label, select, a {
+            font-size: 1.05rem;
+        }
+        input, textarea, button { font-size: 1.05rem; }
+        /* Restore sizes for elements where larger inherited size breaks layout */
+        .footer-copyright, .breadcrumb-item, .breadcrumb-item a { font-size: 1.05rem; }
+        /* Headings: tăng đáng kể */
+        h1 { font-size: 2.8rem !important; }
+        h2 { font-size: 2.2rem !important; }
+        h3 { font-size: 1.85rem !important; }
+        h4 { font-size: 1.5rem !important; }
+        h5 { font-size: 1.3rem !important; }
+        h6 { font-size: 1.18rem !important; }
+        /* Form controls and buttons */
+        .form-control { font-size: 1.1rem !important; padding: 12px 16px !important; height: auto !important; }
+        .btn { font-size: 1.05rem !important; }
+        /* Header menu text */
+        .header-bottom .main-nav .menu > li > a {
+            font-size: 1.18rem !important;
+            font-weight: 700;
+        }
+        /* Header top links (Kênh người bán...) */
+        .header-links a { font-size: 1.05rem !important; }
+        /* Search input */
+        .search-input { font-size: 1.1rem !important; }
+        /* Hotline number */
+        .header-contact h6 { font-size: 0.88rem !important; }
+        .header-contact h6 a { font-size: 1.3rem !important; }
+        /* Product card text */
+        .product-title, .product-title a {
+            font-size: 1.2rem !important;
+        }
+        .product-price { font-size: 1.45rem !important; }
+        .old-price { font-size: 1.05rem !important; }
+        /* "Đã bán" / sold count */
+        .ratings-container .sold, .product-default .sold { font-size: 1rem !important; }
+        /* Section title (general) */
+        .section-title { font-size: 2.2rem !important; }
+        /* Table cells in cart / order summary */
+        .table td, .table th { font-size: 1.1rem; }
+        /* Modal text */
+        .modal-title { font-size: 1.55rem !important; }
+        .modal-body, .modal-body p, .modal-body label, .modal-body span,
+        .modal-body div, .modal-body input, .modal-body textarea {
+            font-size: 1.05rem;
+        }
+        /* Toastr notifications */
+        .toast-message { font-size: 1.1rem !important; }
+        /* Tab nav links */
+        .nav-tabs .nav-link, .nav-pills .nav-link { font-size: 1.1rem !important; }
+        /* List groups & widgets in sidebar */
+        .widget-title, .widget-title a { font-size: 1.25rem !important; }
+        /* Breadcrumb */
+        .breadcrumb { font-size: 1.05rem; }
+        /* Footer */
+        footer .contact-info li { font-size: 1.05rem !important; }
+        footer .contact-info-label { font-size: 0.92rem !important; }
+        footer .links li a { font-size: 1.1rem !important; }
+        footer .widget-title { font-size: 1.3rem !important; }
+        /* Sidebar filter / category list */
+        .sidebar-shop .cat-list li span { font-size: 1.1rem !important; }
+        .sidebar-shop .widget-title a { font-size: 1.2rem !important; }
+        .sidebar-shop .size .select-filter .item { font-size: 1.1rem !important; }
+        /* Product detail */
+        .product-single-details .product-title { font-size: 2.2rem !important; }
+        .product-single-details .product-price.price-box { font-size: 1.8rem !important; }
+        .desc-sub-title { font-size: 1.1rem !important; }
+        /* Post / news */
+        article.post .post-title a { font-size: 1.4rem !important; }
+        article.post .post-content p { font-size: 1.1rem !important; }
+        /* Step guide */
+        .step-content h3 { font-size: 1.4rem !important; }
+        .step-content p { font-size: 1.1rem !important; }
+        /* Policy */
+        .policy-section .section-header { font-size: 1.35rem !important; }
+        .policy-section .section-body p { font-size: 1.1rem !important; }
+        /* Contact / form labels */
+        .form-card label, .checkout-payment label { font-size: 1.05rem !important; }
+        /* Account form */
+        .main-content .item-row .text { font-size: 1.1rem !important; }
+        .account-title { font-size: 1.9rem !important; }
+        /* Order list */
+        .main-content .product-info .name { font-size: 1.2rem !important; }
+        .main-content .price.bid-price { font-size: 1.55rem !important; }
+        .main-content .order-number-wrapper, .main-content .order-number { font-size: 1.05rem !important; }
+        .main-content .nav-pills .nav-link { font-size: 1.1rem !important; }
     </style>
 </head>
 <body>

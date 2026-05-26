@@ -90,16 +90,148 @@
             </div><!-- End .container -->
         </div><!-- End .header-middle -->
 
+        <style>
+            /* ===== Header — sport sneaker shop palette ===== */
+            .header { background: #fff; box-shadow: 0 2px 12px rgba(13,27,42,0.05); }
+            .header-middle { padding: 8px 0; }
+
+            /* Top links */
+            .header-links a {
+                color: #0d1b2a !important;
+                font-weight: 600;
+                transition: color 0.2s ease;
+            }
+            .header-links a:hover { color: #ff6b35 !important; }
+            .header-links i { color: #ff6b35; }
+
+            /* Search bar */
+            .search-input-group {
+                border: 2px solid #eef1f5 !important;
+                border-radius: 30px !important;
+                overflow: hidden;
+                padding: 0 !important;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .search-input-group:focus-within {
+                border-color: #ff6b35 !important;
+                box-shadow: 0 0 0 4px rgba(255,107,53,0.12);
+            }
+            .search-input-group .search-input {
+                border: 0 !important;
+                background: transparent !important;
+                padding: 10px 18px !important;
+                font-size: 1rem !important;
+                height: auto !important;
+            }
+            .search-input-group .search-button {
+                background: linear-gradient(135deg, #ff6b35, #e63946) !important;
+                color: #fff !important;
+                border-radius: 0 !important;
+                padding: 0 22px !important;
+                font-size: 1.1rem !important;
+                transition: filter 0.2s ease;
+            }
+            .search-input-group .search-button:hover { filter: brightness(1.1); }
+
+            /* Brand pill list */
+            .horizontal-list {
+                gap: 8px;
+                margin-top: 14px !important;
+            }
+            .horizontal-list li {
+                margin-right: 0 !important;
+                margin-left: 0 !important;
+                background: #f7fafc;
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 0.92rem;
+                font-weight: 600;
+                color: #0d1b2a;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                border: 1.5px solid transparent;
+            }
+            .horizontal-list li:first-child { margin-left: 0 !important; }
+            .horizontal-list li:hover {
+                background: #fff;
+                border-color: #ff6b35;
+                color: #ff6b35;
+                transform: translateY(-2px);
+            }
+
+            /* Hotline section */
+            .header-contact { align-items: center; }
+            .header-contact h6 {
+                color: #6b7280 !important;
+                font-size: 0.78rem !important;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin: 0;
+                line-height: 1.2;
+            }
+            .header-contact h6 a {
+                display: block;
+                color: #ff6b35 !important;
+                font-size: 1.15rem !important;
+                font-weight: 800 !important;
+                margin-top: 2px;
+            }
+
+            /* Cart & account icons */
+            .header-icon i {
+                font-size: 1.4rem !important;
+                color: #0d1b2a !important;
+                transition: color 0.2s ease;
+            }
+            .header-icon:hover i { color: #ff6b35 !important; }
+            #cart-badge {
+                background: linear-gradient(135deg, #ff6b35, #e63946) !important;
+                font-weight: 700;
+                box-shadow: 0 3px 10px rgba(255,107,53,0.45);
+            }
+
+            /* Main nav (bottom) */
+            .header-bottom { background: #fff; border-top: 1px solid #eef1f5; }
+            .header-bottom .main-nav .menu > li > a {
+                position: relative;
+                transition: color 0.25s ease;
+                padding-bottom: 8px;
+                color: #0d1b2a !important;
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                text-transform: uppercase;
+            }
+            .header-bottom .main-nav .menu > li > a::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                bottom: 0;
+                width: 0;
+                height: 3px;
+                background: linear-gradient(90deg, #ff6b35, #ffd60a);
+                border-radius: 2px;
+                transition: width 0.3s ease, left 0.3s ease;
+            }
+            .header-bottom .main-nav .menu > li:hover > a::after,
+            .header-bottom .main-nav .menu > li.active > a::after {
+                width: 100%;
+                left: 0;
+            }
+            .header-bottom .main-nav .menu > li.active > a,
+            .header-bottom .main-nav .menu > li:hover > a {
+                color: #ff6b35 !important;
+            }
+        </style>
         <div class="header-bottom sticky-header d-none d-lg-block">
             <div class="container">
                 <nav class="main-nav w-100">
-                    <ul class="menu">
-                        <li class="active"><a href="/">Trang chủ</a></li>
-                        <li class=""><a href="/san-pham">Sản phẩm</a></li>
-                        <li class=""><a href="/lien-he" class="px-4">Liên hệ</a></li>
-                        <li class=""><a href="/tin-tuc">Tin tức</a></li>
-                        <li class=""><a href="/doi-hang">Chính sách</a></li>
-                        <li class=""><a href="/huong-dan">Hướng dẫn mua hàng</span></a></li>
+                    <ul class="menu" th:with="path=${#httpServletRequest.requestURI}">
+                        <li th:classappend="${path == '/'} ? 'active' : ''"><a href="/">Trang chủ</a></li>
+                        <li th:classappend="${#strings.startsWith(path, '/san-pham')} ? 'active' : ''"><a href="/san-pham">Sản phẩm</a></li>
+                        <li th:classappend="${#strings.startsWith(path, '/lien-he')} ? 'active' : ''"><a href="/lien-he" class="px-4">Liên hệ</a></li>
+                        <li th:classappend="${#strings.startsWith(path, '/tin-tuc')} ? 'active' : ''"><a href="/tin-tuc">Tin tức</a></li>
+                        <li th:classappend="${#strings.startsWith(path, '/doi-hang')} ? 'active' : ''"><a href="/doi-hang">Chính sách</a></li>
+                        <li th:classappend="${#strings.startsWith(path, '/huong-dan')} ? 'active' : ''"><a href="/huong-dan">Hướng dẫn mua hàng</span></a></li>
                     </ul>
                 </nav>
             </div><!-- End .container -->

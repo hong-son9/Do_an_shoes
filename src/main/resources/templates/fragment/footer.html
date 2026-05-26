@@ -1,4 +1,132 @@
 <th:block th:fragment="footer">
+    <style>
+        /* ===== Modern footer ===== */
+        footer.footer.bg-dark {
+            background: linear-gradient(135deg, #0f1a2b 0%, #1a2a44 100%) !important;
+            color: #d1d5db;
+            padding-top: 50px;
+            position: relative;
+            overflow: hidden;
+        }
+        footer.footer.bg-dark::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b35, #ffd60a, #ff6b35);
+        }
+        footer .widget-title {
+            color: #fff !important;
+            font-size: 1.2rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            position: relative;
+            padding-bottom: 12px;
+            margin-bottom: 22px;
+            text-transform: uppercase;
+        }
+        footer .widget-title::after {
+            content: "";
+            position: absolute;
+            left: 0; bottom: 0;
+            width: 36px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b35, #ffd60a);
+            border-radius: 2px;
+        }
+
+        footer .contact-info li {
+            color: #cbd5e0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        footer .contact-info li:last-child { border-bottom: 0; }
+        footer .contact-info-label {
+            display: block;
+            color: #ffd60a;
+            font-size: 0.88rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 2px;
+            font-weight: 700;
+        }
+        footer .contact-info a {
+            color: #d1d5db;
+            transition: color 0.2s ease;
+        }
+        footer .contact-info a:hover { color: #ff6b35; }
+
+        footer .links li a {
+            color: #cbd5e0;
+            padding: 8px 0;
+            display: inline-block;
+            font-size: 1.05rem;
+            transition: all 0.25s ease;
+            position: relative;
+            padding-left: 16px;
+        }
+        footer .links li a::before {
+            content: "\f105";
+            font-family: "FontAwesome";
+            position: absolute;
+            left: 0;
+            color: #ff6b35;
+            transition: transform 0.25s ease;
+        }
+        footer .links li a:hover {
+            color: #ff6b35;
+            padding-left: 22px;
+        }
+        footer .links li a:hover::before {
+            transform: translateX(4px);
+            color: #ffd60a;
+        }
+        /* Hide the original "> " prefix in text since we use FA chevron */
+        footer .links li a {
+            text-indent: -7px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        footer .social-icons {
+            margin-top: 18px;
+            display: flex;
+            gap: 10px;
+        }
+        footer .social-icons .social-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            color: #fff !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            border: none !important;
+            transition: all 0.25s ease;
+        }
+        footer .social-icons .social-facebook:hover  { background: #1877f2; transform: translateY(-3px); }
+        footer .social-icons .social-instagram:hover { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); transform: translateY(-3px); }
+        footer .social-icons .social-twitter:hover   { background: #1da1f2; transform: translateY(-3px); }
+
+        .footer-bottom-modern {
+            margin-top: 40px;
+            padding: 18px 0;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            text-align: center;
+            color: #8ab4d8;
+            font-size: 1rem;
+        }
+        .footer-bottom-modern strong { color: #ff6b35; }
+
+        @media (max-width: 768px) {
+            footer.footer.bg-dark { padding-top: 36px; }
+            footer .widget { margin-bottom: 24px; }
+        }
+    </style>
     <footer class="footer bg-dark">
         <div class="footer-middle">
             <div class="container">
@@ -34,48 +162,45 @@
                         <div class="widget">
                             <h4 class="widget-title">Thông tin</h4>
                             <ul class="links">
-                                <li><a href="/">> Trang chủ</a></li>
-                                <li><a href="/san-pham">> Sản phẩm</a></li>
-                                <li><a href="/tin-tuc">> Tin tức</a></li>
-                                <li><a href="/lien-he">> Liên hệ</a></li>
+                                <li><a href="/">Trang chủ</a></li>
+                                <li><a href="/san-pham">Sản phẩm</a></li>
+                                <li><a href="/tin-tuc">Tin tức</a></li>
+                                <li><a href="/lien-he">Liên hệ</a></li>
                             </ul>
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
 
                     <div class="col-lg-3 col-sm-6">
                         <div class="widget">
-                            <h4 class="widget-title">Hướng dẫn & chính sách</h4>
+                            <h4 class="widget-title">Hướng dẫn &amp; chính sách</h4>
                             <ul class="links">
-                                <li><a href="/huong-dan">> Hướng dẫn mua hàng</a></li>
-                                <li><a href="/doi-hang">> Chính sách đổi trả & hoàn tiền</a></li>
-<!--                                <li><a href="#">> Chính sách thanh toán</a></li>-->
-<!--                                <li><a href="#">> Chính sách vận chuyển</a></li>-->
-<!--                                <li><a href="#">> Chính sách bảo mật</a></li>-->
+                                <li><a href="/huong-dan">Hướng dẫn mua hàng</a></li>
+                                <li><a href="/doi-hang">Chính sách đổi trả &amp; hoàn tiền</a></li>
                             </ul>
                         </div><!-- End .widget -->
                     </div><!-- End .col-lg-3 -->
 
-<!--                    <div class="col-lg-3 col-sm-6">-->
-<!--                        <div class="widget widget-newsletter">-->
-<!--                            <h4 class="widget-title">Subscribe newsletter</h4>-->
-<!--                            <p>Get all the latest information on events, sales and offers. Sign up for newsletter:</p>-->
-<!--                            <form action="#" class="mb-0">-->
-<!--                                <input type="email" class="form-control m-b-3" placeholder="Email address" required>-->
-
-<!--                                <input type="submit" class="btn btn-primary shadow-none" value="Subscribe">-->
-<!--                            </form>-->
-<!--                        </div>&lt;!&ndash; End .widget &ndash;&gt;-->
-<!--                    </div>&lt;!&ndash; End .col-lg-3 &ndash;&gt;-->
+                    <div class="col-lg-3 col-sm-6">
+                        <div class="widget">
+                            <h4 class="widget-title">Phương thức thanh toán</h4>
+                            <p style="color:#cbd5e0; font-size:1rem; line-height:1.6; margin-bottom:14px;">
+                                Hỗ trợ đa dạng phương thức thanh toán linh hoạt, an toàn &amp; tiện lợi.
+                            </p>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <span style="background:#fff; color:#1a2a44; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700;">COD</span>
+                                <span style="background:linear-gradient(135deg,#08c,#035983); color:#fff; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700;">VNPAY</span>
+                                <span style="background:linear-gradient(135deg,#1877f2,#0d5fc7); color:#fff; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700;">Banking</span>
+                                <span style="background:linear-gradient(135deg,#f04e40,#d83a2d); color:#fff; padding:5px 12px; border-radius:6px; font-size:0.78rem; font-weight:700;">Momo</span>
+                            </div>
+                        </div>
+                    </div>
                 </div><!-- End .row -->
+
+                <div class="footer-bottom-modern">
+                    &copy; 2025 <strong>Sơn Shoes</strong> — All Rights Reserved.
+                </div>
             </div><!-- End .container -->
         </div><!-- End .footer-middle -->
-
-<!--        <div class="container">-->
-<!--            <div class="footer-bottom d-flex justify-content-between align-items-center flex-wrap">-->
-<!--                <p class="footer-copyright py-3 pr-4 mb-0">&copy; Porto eCommerce. 2020. All Rights Reserved</p>-->
-
-<!--                <img th:src="@{/shop/images/payments.png}" alt="payment methods" class="footer-payments py-3">-->
-<!--            </div>&lt;!&ndash; End .footer-bottom &ndash;&gt;-->
         </div><!-- End .container -->
     </footer><!-- End .footer -->
 </th:block>

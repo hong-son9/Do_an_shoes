@@ -12,38 +12,250 @@
     <meta charset="UTF-8">
     <title>Hướng dẫn mua hàng</title>
     <th:block id="css-resources">
+        <style>
+            /* ===== Buy guide page ===== */
+            .guide-hero {
+                background: linear-gradient(135deg, #08c 0%, #0a4a7a 100%);
+                color: #fff;
+                padding: 60px 0 90px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .guide-hero::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity: 0.4;
+            }
+            .guide-hero h1 {
+                font-size: 2.8rem;
+                font-weight: 700;
+                margin-bottom: 12px;
+                position: relative;
+                letter-spacing: 1px;
+            }
+            .guide-hero p {
+                font-size: 1.05rem;
+                opacity: 0.92;
+                max-width: 640px;
+                margin: 0 auto;
+                position: relative;
+            }
 
+            .guide-wrapper {
+                margin-top: -60px;
+                margin-bottom: 60px;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* Timeline / step cards */
+            .step-list {
+                position: relative;
+                padding-left: 0;
+                list-style: none;
+                margin: 0;
+            }
+            .step-list::before {
+                content: "";
+                position: absolute;
+                left: 32px;
+                top: 24px;
+                bottom: 24px;
+                width: 3px;
+                background: linear-gradient(180deg, #08c 0%, #c9e4f5 100%);
+                border-radius: 2px;
+            }
+            .step-item {
+                position: relative;
+                display: flex;
+                align-items: flex-start;
+                background: #fff;
+                border-radius: 14px;
+                padding: 24px 28px 24px 88px;
+                margin-bottom: 22px;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+                transition: transform 0.25s ease, box-shadow 0.25s ease;
+            }
+            .step-item:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.1);
+            }
+            .step-number {
+                position: absolute;
+                left: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #08c, #035983);
+                color: #fff;
+                font-weight: 700;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 12px rgba(8, 136, 204, 0.4);
+                z-index: 2;
+            }
+            .step-content h3 {
+                font-size: 1.3rem;
+                font-weight: 700;
+                color: #1f2a37;
+                margin: 0 0 10px;
+            }
+            .step-content p {
+                color: #4b5563;
+                margin: 0 0 6px;
+                line-height: 1.7;
+                font-size: 1.05rem;
+            }
+            .step-content p:last-child { margin-bottom: 0; }
+            .step-content .note {
+                background: #f0f8ff;
+                border-left: 3px solid #08c;
+                padding: 12px 16px;
+                border-radius: 6px;
+                margin-top: 10px;
+                font-size: 1rem;
+                color: #035983;
+            }
+
+            .closing-card {
+                background: linear-gradient(135deg, #fff7ed 0%, #ffe8d6 100%);
+                border-radius: 14px;
+                padding: 28px 32px;
+                margin-top: 30px;
+                text-align: center;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+            }
+            .closing-card i {
+                font-size: 2.2rem;
+                color: #f57c00;
+                margin-bottom: 10px;
+            }
+            .closing-card p {
+                font-size: 1.05rem;
+                color: #1f2a37;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            /* Floating buttons */
+            .zalo-button, .call-button {
+                position: fixed;
+                left: 22px;
+                cursor: pointer;
+                z-index: 999;
+            }
+            .zalo-button { bottom: 90px; }
+            .call-button { bottom: 18px; }
+            .zalo-button::before, .call-button::before {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                animation: pulse 1.4s infinite;
+                box-sizing: border-box;
+                pointer-events: none;
+            }
+            .zalo-button::before { border: 2px solid rgba(0, 123, 255, 0.7); }
+            .call-button::before { border: 2px solid #f04e40; }
+            .zalo-button img, .call-button img {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+                position: relative;
+                z-index: 1;
+                object-fit: cover;
+            }
+            @keyframes pulse {
+                0%   { transform: scale(0.9); opacity: 0.8; }
+                70%  { transform: scale(1.25); opacity: 0; }
+                100% { transform: scale(0.9); opacity: 0; }
+            }
+
+            @media (max-width: 768px) {
+                .guide-hero { padding: 40px 0 70px; }
+                .guide-hero h1 { font-size: 2rem; }
+                .step-item { padding: 20px 20px 20px 78px; }
+                .step-number { width: 40px; height: 40px; font-size: 1rem; left: 14px; }
+                .step-list::before { left: 28px; }
+            }
+        </style>
     </th:block>
 </head>
 <body>
 <main class="main" id="main-content">
-    <nav aria-label="breadcrumb" class="breadcrumb-nav">
-        <div class="container">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Hướng dẫn mua hàng</li>
-            </ol>
-        </div><!-- End .container -->
-    </nav>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2 class="light-title"><strong>Hướng dẫn</strong></h2>
-                <p> <strong>Bước 1: </strong>Truy cập website và lựa chọn sản phẩm cần mua để mua hàng</p>
-                <p> <strong>Bước 2: </strong>Click vào sản phẩm muốn mua, màn hình hiển thị ra trang chi tiết sản phẩm</p>
-                <p>Nếu bạn muốn đặt hàng cho sản phẩm này vui lòng bấm vào: Mua ngay</p>
-                <p> <strong>Bước 2: </strong>Lựa chọn thông tin tài khoản thanh toán</p>
-                <p>Nếu bạn đã có tài khoản vui lòng nhập thông tin tên đăng nhập là email và mật khẩu vào mục đã có tài khoản trên hệ thống</p>
-                <p>Nếu bạn chưa có tài khoản và muốn đăng ký tài khoản vui lòng điền các thông tin cá nhân để tiếp tục đăng ký tài khoản. Khi có tài khoản bạn sẽ dễ dàng theo dõi được đơn hàng của mình</p>
-                <p>Nếu bạn muốn mua hàng mà không cần tài khoản vui lòng nhấp chuột vào mục đặt hàng không cần tài khoản</p>
-                <p> <strong>Bước 4: </strong> Điền các thông tin của bạn để nhận đơn hàng, lựa chọn hình thức thanh toán và vận chuyển cho đơn hàng của mình</p>
-                <p> <strong>Bước 5: </strong> Xem lại thông tin đặt hàng, điền chú thích và gửi đơn hàng</p>
-                <p>Sau khi nhận được đơn hàng bạn gửi chúng tôi sẽ liên hệ bằng cách gọi điện lại để xác nhận lại đơn hàng và địa chỉ của bạn.</p>
-                <p>Trân trọng cảm ơn.</p>
-            </div><!-- End .col-md-8 -->
-        </div><!-- End .row -->
-    </div><!-- End .container -->
+    <!-- Hero -->
+    <section class="guide-hero">
+        <div class="container">
+            <h1>Hướng dẫn mua hàng</h1>
+            <p>Chỉ với 5 bước đơn giản, bạn đã có thể sở hữu sản phẩm yêu thích từ Sơn Shoes.</p>
+        </div>
+    </section>
+
+    <!-- Steps -->
+    <div class="container guide-wrapper">
+        <ul class="step-list">
+            <li class="step-item">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Truy cập website &amp; chọn sản phẩm</h3>
+                    <p>Truy cập website và lựa chọn sản phẩm bạn muốn mua từ danh mục đa dạng của Sơn Shoes.</p>
+                </div>
+            </li>
+
+            <li class="step-item">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Xem chi tiết sản phẩm</h3>
+                    <p>Click vào sản phẩm muốn mua để xem trang chi tiết, hình ảnh và mô tả đầy đủ.</p>
+                    <div class="note"><i class="icon-info"></i> Nếu bạn muốn đặt hàng cho sản phẩm này, vui lòng bấm vào nút <strong>“Mua ngay”</strong>.</div>
+                </div>
+            </li>
+
+            <li class="step-item">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Lựa chọn thông tin tài khoản thanh toán</h3>
+                    <p>Nếu bạn đã có tài khoản, vui lòng nhập tên đăng nhập (email) và mật khẩu vào mục <strong>“Đã có tài khoản”</strong>.</p>
+                    <p>Nếu chưa có tài khoản và muốn đăng ký, vui lòng điền các thông tin cá nhân để tiếp tục. Khi có tài khoản, bạn sẽ dễ dàng theo dõi đơn hàng của mình.</p>
+                    <p>Hoặc nhấp chọn <strong>“Đặt hàng không cần tài khoản”</strong> nếu bạn muốn mua nhanh.</p>
+                </div>
+            </li>
+
+            <li class="step-item">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Điền thông tin nhận hàng</h3>
+                    <p>Điền thông tin của bạn để nhận đơn hàng, lựa chọn hình thức thanh toán và vận chuyển phù hợp.</p>
+                </div>
+            </li>
+
+            <li class="step-item">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>Xác nhận &amp; gửi đơn hàng</h3>
+                    <p>Xem lại thông tin đặt hàng, điền chú thích nếu cần và gửi đơn hàng.</p>
+                    <div class="note"><i class="icon-phone"></i> Chúng tôi sẽ gọi điện xác nhận lại đơn hàng và địa chỉ của bạn sau khi nhận được yêu cầu.</div>
+                </div>
+            </li>
+        </ul>
+
+        <div class="closing-card">
+            <i class="icon-heart"></i>
+            <p>Trân trọng cảm ơn quý khách đã tin tưởng &amp; mua sắm tại Sơn Shoes!</p>
+        </div>
+    </div>
+
+    <!-- Floating buttons -->
     <div class="zalo-button">
         <a href="https://zalo.me/0365454643">
             <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
@@ -54,86 +266,9 @@
             <img th:src="@{/shop/images/dienthoai.jpg}" alt="hotline">
         </a>
     </div>
-    <style>
 
-        .zalo-button {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            cursor: pointer;
-            z-index: 999;
-            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
-        }
-        .zalo-button::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 123, 255, 0.7);
-            animation: pulse 1s infinite;
-            box-sizing: border-box;
-            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
-        }
-
-        .zalo-button img {
-            width: 70px;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-        }
-
-        .call-button {
-            position: fixed;
-            bottom: 5px;
-            left: 25px;
-            cursor: pointer;
-            z-index: 999;
-            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
-        }
-        .call-button::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid red;
-            animation: pulse 1s infinite;
-            box-sizing: border-box;
-            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
-        }
-
-        .call-button img {
-            width: 60px;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-        }
-
-    </style>
-    <div class="mb-8"></div><!-- margin -->
-</main><!-- End .main -->
-<th:block id="js-resources">
-
-</th:block>
+    <div class="mb-8"></div>
+</main>
+<th:block id="js-resources"></th:block>
 </body>
 </html>

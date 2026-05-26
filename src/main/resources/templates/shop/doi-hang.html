@@ -10,41 +10,292 @@
                                                                     )}">
 <head>
     <meta charset="UTF-8">
-    <title>Hướng dẫn mua hàng</title>
+    <title>Chính sách đổi trả</title>
     <th:block id="css-resources">
+        <style>
+            /* ===== Return policy page ===== */
+            .policy-hero {
+                background: linear-gradient(135deg, #08c 0%, #0a4a7a 100%);
+                color: #fff;
+                padding: 60px 0 90px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .policy-hero::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity: 0.4;
+            }
+            .policy-hero h1 {
+                font-size: 2.8rem;
+                font-weight: 700;
+                margin-bottom: 12px;
+                position: relative;
+                letter-spacing: 1px;
+            }
+            .policy-hero p {
+                font-size: 1.05rem;
+                opacity: 0.92;
+                max-width: 660px;
+                margin: 0 auto;
+                position: relative;
+            }
 
+            .policy-wrapper {
+                margin-top: -60px;
+                margin-bottom: 60px;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* Highlight summary cards (top row) */
+            .summary-row { margin-bottom: 30px; }
+            .summary-card {
+                background: #fff;
+                border-radius: 14px;
+                padding: 26px 24px;
+                text-align: center;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+                transition: transform 0.25s ease, box-shadow 0.25s ease;
+                height: 100%;
+            }
+            .summary-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.1);
+            }
+            .summary-icon {
+                width: 64px;
+                height: 64px;
+                border-radius: 50%;
+                color: #fff;
+                font-size: 1.6rem;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 14px;
+            }
+            .summary-icon.green  { background: linear-gradient(135deg, #28a745, #1e7e34); }
+            .summary-icon.blue   { background: linear-gradient(135deg, #08c, #035983); }
+            .summary-icon.orange { background: linear-gradient(135deg, #ffa726, #f57c00); }
+            .summary-card h4 {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: #1f2a37;
+                margin: 0 0 6px;
+            }
+            .summary-card p {
+                color: #6b7280;
+                font-size: 1rem;
+                margin: 0;
+                line-height: 1.55;
+            }
+
+            /* Policy sections */
+            .policy-section {
+                background: #fff;
+                border-radius: 14px;
+                margin-bottom: 24px;
+                overflow: hidden;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+            }
+            .policy-section .section-header {
+                padding: 18px 26px;
+                color: #fff;
+                font-weight: 700;
+                font-size: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+            .policy-section .section-header i {
+                font-size: 1.4rem;
+            }
+            .policy-section.theme-1 .section-header { background: linear-gradient(135deg, #08c, #035983); }
+            .policy-section.theme-2 .section-header { background: linear-gradient(135deg, #28a745, #1e7e34); }
+            .policy-section.theme-3 .section-header { background: linear-gradient(135deg, #f04e40, #d83a2d); }
+
+            .policy-section .section-body {
+                padding: 22px 26px;
+            }
+            .policy-section .section-body p {
+                color: #374151;
+                margin: 0 0 12px;
+                line-height: 1.75;
+                padding-left: 26px;
+                position: relative;
+                font-size: 1.05rem;
+            }
+            .policy-section .section-body p::before {
+                content: "\2714";
+                position: absolute;
+                left: 0;
+                top: 0;
+                color: #28a745;
+                font-weight: 700;
+            }
+            .policy-section.theme-3 .section-body p::before {
+                content: "\26A0";
+                color: #f04e40;
+            }
+            .policy-section .section-body p:last-child { margin-bottom: 0; }
+            .policy-section .section-body a {
+                color: #08c;
+                font-weight: 600;
+                text-decoration: none;
+            }
+            .policy-section .section-body a:hover { text-decoration: underline; }
+
+            .closing-card {
+                background: linear-gradient(135deg, #fff7ed 0%, #ffe8d6 100%);
+                border-radius: 14px;
+                padding: 28px 32px;
+                margin-top: 30px;
+                text-align: center;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05);
+            }
+            .closing-card i {
+                font-size: 2.2rem;
+                color: #f57c00;
+                margin-bottom: 10px;
+            }
+            .closing-card p {
+                font-size: 1.05rem;
+                color: #1f2a37;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            /* Floating buttons */
+            .zalo-button, .call-button {
+                position: fixed;
+                left: 22px;
+                cursor: pointer;
+                z-index: 999;
+            }
+            .zalo-button { bottom: 90px; }
+            .call-button { bottom: 18px; }
+            .zalo-button::before, .call-button::before {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                animation: pulse 1.4s infinite;
+                box-sizing: border-box;
+                pointer-events: none;
+            }
+            .zalo-button::before { border: 2px solid rgba(0, 123, 255, 0.7); }
+            .call-button::before { border: 2px solid #f04e40; }
+            .zalo-button img, .call-button img {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+                position: relative;
+                z-index: 1;
+                object-fit: cover;
+            }
+            @keyframes pulse {
+                0%   { transform: scale(0.9); opacity: 0.8; }
+                70%  { transform: scale(1.25); opacity: 0; }
+                100% { transform: scale(0.9); opacity: 0; }
+            }
+
+            @media (max-width: 768px) {
+                .policy-hero { padding: 40px 0 70px; }
+                .policy-hero h1 { font-size: 2rem; }
+                .summary-card { margin-bottom: 18px; }
+            }
+        </style>
     </th:block>
 </head>
 <body>
 <main class="main" id="main-content">
-    <nav aria-label="breadcrumb" class="breadcrumb-nav">
-        <div class="container">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Chính sách đổi trả</li>
-            </ol>
-        </div><!-- End .container -->
-    </nav>
 
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2 class="light-title"><strong>Chính sách đổi trả</strong></h2>
-                <h3 style="color: red">Đối với khách hàng ở Hà Nội hoặc mua hàng trực tiếp tại cửa hàng của Sơn Shoes</h3>
-                    <p>- Trong vòng 7 ngày kể từ ngày mua hàng (Theo thời gian ghi trong hoá đơn), quý khách được phép đổi size, đổi mẫu hoặc trả hàng và nhận lại tiền.</p>
-                    <p>- Khi đến đổi, quý khách vui lòng mang theo sản phẩm trong tình trạng chưa qua sử dụng.</p>
-                <h3 style="color:red;">Đối với khách hàng ở các tỉnh ngoài Hà Nội khi đặt hàng của Sơn Shoes</h3>
-                <p>- Trong vòng 7 ngày kể từ ngày nhận hàng (Theo thời gian ghi trong hoá đơn, hoặc mã đơn hàng), quý khách được phép đổi size, đổi mẫu hoặc trả lại hàng và nhận lại tiền.</p>
-                <p>- Quý khách vui lòng thông báo trước về tình trạng sản phẩm, nguyên do đổi hàng qua inbox Fanpgage:<a href="https://www.facebook.com/hongson.phi.7"> https://www.facebook.com/hongson.phi.7 </a> hoặc Hotline: 0365454643. Sau đó sẽ nhận được hướng dẫn từ đội ngũ hỗ trợ của Sơn Shoes.</p>
-                <p>- Trường hợp Sản phẩm lỗi do nhà sản xuất hoặc bên phía cửa hàng gửi nhầm Sản phẩm của Quý khách. Sơn Shoes xin chịu hoàn toàn Phí Vận Chuyển để đảm bảo quý khách có một Sản phẩm tốt nhất.</p>
-                <h3 style="color: red">Lưu ý:</h3>
-                <p>- Những sản phẩm đã qua sử dụng thì sẽ không áp dụng đổi trả.</p>
-                <p>- Các sản phẩm trong chương trình khuyến mãi, giảm giá tùy theo sự kiện mà Sơn Shoes công bố</p>
-                <p>- Điều kiện: Sản phẩm còn mới 100%</p>
-                <p>Cảm ơn Quý Khách hàng đã tin tưởng và cho Sơn Shoes cơ hội được phục vụ Quý Khách!</p>
-            </div><!-- End .col-md-8 -->
-        </div><!-- End .row -->
-    </div><!-- End .container -->
+    <!-- Hero -->
+    <section class="policy-hero">
+        <div class="container">
+            <h1>Chính sách đổi trả</h1>
+            <p>Sơn Shoes cam kết mang đến trải nghiệm mua sắm an tâm với chính sách đổi trả linh hoạt và minh bạch.</p>
+        </div>
+    </section>
+
+    <!-- Body -->
+    <div class="container policy-wrapper">
+
+        <!-- Quick highlights -->
+        <div class="row summary-row">
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <div class="summary-icon green"><i class="icon-clock"></i></div>
+                    <h4>Đổi trả trong 7 ngày</h4>
+                    <p>Kể từ ngày mua hoặc ngày nhận hàng</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <div class="summary-icon blue"><i class="icon-ok"></i></div>
+                    <h4>Sản phẩm mới 100%</h4>
+                    <p>Chưa qua sử dụng, còn nguyên hộp &amp; phụ kiện</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <div class="summary-icon orange"><i class="icon-truck"></i></div>
+                    <h4>Miễn phí vận chuyển</h4>
+                    <p>Khi sản phẩm lỗi do nhà sản xuất</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1 -->
+        <div class="policy-section theme-1">
+            <div class="section-header">
+                <i class="icon-location"></i>
+                <span>Khách hàng tại Hà Nội hoặc mua trực tiếp tại cửa hàng</span>
+            </div>
+            <div class="section-body">
+                <p>Trong vòng 7 ngày kể từ ngày mua hàng (theo thời gian ghi trong hoá đơn), quý khách được phép đổi size, đổi mẫu hoặc trả hàng và nhận lại tiền.</p>
+                <p>Khi đến đổi, quý khách vui lòng mang theo sản phẩm trong tình trạng chưa qua sử dụng.</p>
+            </div>
+        </div>
+
+        <!-- Section 2 -->
+        <div class="policy-section theme-2">
+            <div class="section-header">
+                <i class="icon-truck"></i>
+                <span>Khách hàng ở các tỉnh ngoài Hà Nội</span>
+            </div>
+            <div class="section-body">
+                <p>Trong vòng 7 ngày kể từ ngày nhận hàng (theo thời gian ghi trong hoá đơn hoặc mã đơn hàng), quý khách được phép đổi size, đổi mẫu hoặc trả lại hàng và nhận lại tiền.</p>
+                <p>Vui lòng thông báo trước về tình trạng sản phẩm &amp; nguyên do đổi hàng qua inbox Fanpage: <a href="https://www.facebook.com/hongson.phi.7" target="_blank">facebook.com/hongson.phi.7</a> hoặc hotline <a href="tel:0365454643">036 545 4643</a> để nhận hướng dẫn từ đội ngũ Sơn Shoes.</p>
+                <p>Trường hợp sản phẩm lỗi do nhà sản xuất hoặc cửa hàng gửi nhầm, Sơn Shoes xin chịu hoàn toàn phí vận chuyển để đảm bảo quý khách có một sản phẩm tốt nhất.</p>
+            </div>
+        </div>
+
+        <!-- Section 3 -->
+        <div class="policy-section theme-3">
+            <div class="section-header">
+                <i class="icon-attention"></i>
+                <span>Lưu ý quan trọng</span>
+            </div>
+            <div class="section-body">
+                <p>Những sản phẩm đã qua sử dụng sẽ không áp dụng chính sách đổi trả.</p>
+                <p>Các sản phẩm trong chương trình khuyến mãi, giảm giá tùy theo sự kiện mà Sơn Shoes công bố.</p>
+                <p>Điều kiện áp dụng: sản phẩm còn mới 100%, nguyên tem mác và hộp đựng.</p>
+            </div>
+        </div>
+
+        <div class="closing-card">
+            <i class="icon-heart"></i>
+            <p>Cảm ơn Quý khách đã tin tưởng &amp; cho Sơn Shoes cơ hội được phục vụ!</p>
+        </div>
+    </div>
+
+    <!-- Floating buttons -->
     <div class="zalo-button">
         <a href="https://zalo.me/0365454643">
             <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
@@ -55,86 +306,9 @@
             <img th:src="@{/shop/images/dienthoai.jpg}" alt="hotline">
         </a>
     </div>
-    <style>
 
-        .zalo-button {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            cursor: pointer;
-            z-index: 999;
-            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
-        }
-        .zalo-button::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 123, 255, 0.7);
-            animation: pulse 1s infinite;
-            box-sizing: border-box;
-            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
-        }
-
-        .zalo-button img {
-            width: 70px;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-        }
-
-        .call-button {
-            position: fixed;
-            bottom: 5px;
-            left: 25px;
-            cursor: pointer;
-            z-index: 999;
-            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
-        }
-        .call-button::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid red;
-            animation: pulse 1s infinite;
-            box-sizing: border-box;
-            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
-        }
-
-        .call-button img {
-            width: 60px;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-        }
-
-    </style>
-    <div class="mb-8"></div><!-- margin -->
-</main><!-- End .main -->
-<th:block id="js-resources">
-
-</th:block>
+    <div class="mb-8"></div>
+</main>
+<th:block id="js-resources"></th:block>
 </body>
 </html>

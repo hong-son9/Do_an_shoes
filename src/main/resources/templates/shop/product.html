@@ -14,6 +14,240 @@
     <th:block id="css-resources">
         <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
         <link rel="stylesheet" th:href="@{/shop/css/custom.css}">
+        <style>
+            /* ===== Product listing page — modern styling ===== */
+            .product-page-hero {
+                background: linear-gradient(135deg, #08c 0%, #0a4a7a 100%);
+                color: #fff;
+                padding: 50px 0 70px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+                margin-bottom: 0;
+            }
+            .product-page-hero::before {
+                content:"";
+                position:absolute;
+                inset:0;
+                background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity:0.4;
+            }
+            .product-page-hero h1 {
+                position: relative;
+                font-size: 2.8rem;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+            .product-page-hero p {
+                position: relative;
+                opacity: 0.92;
+                margin: 0;
+                font-size: 1.1rem;
+            }
+
+            .product-page-wrapper {
+                margin-top: -40px;
+                position: relative;
+                z-index: 2;
+            }
+
+            /* Breadcrumb */
+            .breadcrumb-nav {
+                background: #fff;
+                border-radius: 12px;
+                padding: 12px 22px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            }
+            .breadcrumb-nav .breadcrumb { background: transparent; margin: 0; padding: 0; }
+            .breadcrumb-nav .breadcrumb-item a { color: #08c; }
+            .breadcrumb-nav .breadcrumb-item.active { color: #5a6373; font-weight: 600; }
+
+            /* Sidebar filter card */
+            .sidebar-shop .sidebar-wrapper {
+                background: #fff;
+                border-radius: 14px;
+                padding: 22px 22px;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+            }
+            .sidebar-shop .filter-header {
+                padding-bottom: 14px;
+                border-bottom: 1px solid #eef1f5;
+                margin-bottom: 18px;
+            }
+            .sidebar-shop .filter-header .left-side { color: #1f2a37; font-weight: 700; font-size: 1.2rem; }
+            .breadcrumb-nav .breadcrumb-item { font-size: 1rem; }
+            .sidebar-shop .filter-header .left-side i { color: #08c; margin-right: 8px; }
+            .sidebar-shop .clear-filter.btn-primary {
+                background: #f04e40 !important;
+                border: 0 !important;
+                border-radius: 8px !important;
+                padding: 7px 16px !important;
+                font-size: 0.92rem !important;
+                font-weight: 600 !important;
+                text-transform: none !important;
+                line-height: 1.4 !important;
+                margin: 0 !important;
+            }
+            .sidebar-shop .clear-filter.btn-primary:disabled {
+                background: #d5d6d6 !important;
+                opacity: 0.7;
+            }
+            .sidebar-shop .widget {
+                padding-top: 16px;
+                padding-bottom: 6px;
+                border-bottom: 1px solid #eef1f5;
+            }
+            .sidebar-shop .widget:last-child { border-bottom: 0; }
+            .sidebar-shop .widget-title a {
+                color: #1f2a37 !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Category & brand check list */
+            .sidebar-shop .cat-list li {
+                display: flex;
+                align-items: center;
+                padding: 6px 0;
+                cursor: pointer;
+            }
+            .sidebar-shop .cat-list li span {
+                color: #374151;
+                font-size: 1.05rem;
+                margin-left: 8px;
+            }
+            .sidebar-shop .cat-list li:hover span { color: #08c; }
+            .sidebar-shop .filter-checkbox {
+                width: 16px; height: 16px;
+                accent-color: #08c;
+                cursor: pointer;
+            }
+
+            /* Size buttons */
+            .sidebar-shop .size .select-filter { display: flex; flex-wrap: wrap; gap: 8px; }
+            .sidebar-shop .size .select-filter .item {
+                width: calc(25% - 6px);
+                margin: 0 !important;
+                padding: 10px 0 !important;
+                font-size: 1.05rem !important;
+                font-weight: 600;
+                border: 1px solid #d5d6d6;
+                border-radius: 6px;
+                color: #374151;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+            .sidebar-shop .size .select-filter .item:hover {
+                border-color: #08c;
+                color: #08c;
+            }
+            .sidebar-shop .size .select-filter .item.size-choose {
+                background: linear-gradient(135deg, #08c, #035983) !important;
+                color: #fff !important;
+                border-color: transparent !important;
+            }
+
+            /* Price inputs */
+            .sidebar-shop .price-range .price-input {
+                border-radius: 8px !important;
+                border: 1px solid #d5d6d6 !important;
+                padding: 11px 14px !important;
+                font-size: 1rem !important;
+                margin-bottom: 8px !important;
+            }
+            .sidebar-shop .price-range .apply-price.red-btn {
+                margin-left: 0 !important;
+                width: 100%;
+                border-radius: 8px !important;
+                background: linear-gradient(135deg, #08c, #035983) !important;
+                border: 0 !important;
+                padding: 11px !important;
+                font-weight: 600 !important;
+                font-size: 1rem !important;
+                color: #fff !important;
+            }
+            .sidebar-shop .price-range .apply-price.red-btn:hover {
+                background: linear-gradient(135deg, #035983, #023049) !important;
+            }
+
+            /* Product grid cards */
+            .product-default {
+                background: #fff;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-bottom: 24px;
+            }
+            .product-default:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 14px 36px rgba(0,0,0,0.12);
+            }
+            .product-default figure { overflow: hidden; background: #f7fafc; }
+            .product-default figure img { transition: transform 0.5s ease; width: 100%; }
+            .product-default:hover figure img { transform: scale(1.08); }
+            .product-default .product-details { padding: 14px 16px 16px; }
+            .product-default .product-title a {
+                color: #1f2a37 !important;
+                font-weight: 600 !important;
+                font-size: 1.1rem !important;
+            }
+            .product-default:hover .product-title a { color: #08c !important; }
+            .product-default .price-box .product-price {
+                color: #f04e40 !important;
+                font-weight: 700 !important;
+                font-size: 1.25rem !important;
+            }
+            .product-default .price-box .old-price {
+                color: #9ca3af !important;
+                font-size: 0.95rem !important;
+            }
+
+            /* No products */
+            .no-products {
+                background: #fff;
+                border-radius: 14px;
+                padding: 40px 20px;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.05);
+            }
+            .no-products h4 {
+                color: #6b7280;
+                font-weight: 600;
+                font-size: 1.2rem;
+                margin-top: 16px;
+            }
+
+            /* Pagination */
+            ul.pagination li a, ul.pagination li.active a {
+                border-radius: 8px !important;
+                margin: 0 4px;
+                padding: 9px 16px;
+                color: #374151;
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.2s ease;
+            }
+            ul.pagination li.active a {
+                background: linear-gradient(135deg, #08c, #035983) !important;
+                color: #fff !important;
+                border-color: transparent !important;
+                box-shadow: 0 4px 12px rgba(8,136,204,0.3);
+            }
+            ul.pagination li a:hover {
+                background: #f0f8ff;
+                color: #08c;
+            }
+
+            @media (max-width: 768px) {
+                .product-page-hero { padding: 36px 0 56px; }
+                .product-page-hero h1 { font-size: 1.6rem; }
+            }
+        </style>
     </th:block>
 
 </head>
@@ -128,10 +362,17 @@
         }
 
     </style>
-    <div class="container">
+    <section class="product-page-hero">
+        <div class="container">
+            <h1>Bộ sưu tập sản phẩm</h1>
+            <p>Khám phá hàng trăm mẫu giày chính hãng từ những thương hiệu hàng đầu.</p>
+        </div>
+    </section>
+
+    <div class="container product-page-wrapper">
         <nav aria-label="breadcrumb" class="breadcrumb-nav">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i> Trang chủ</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Sản phẩm</li>
             </ol>
         </nav>

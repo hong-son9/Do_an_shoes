@@ -13,23 +13,315 @@
     <title>Thanh toán</title>
     <th:block id="css-resources">
         <link rel="stylesheet" th:href="@{/shop/css/custom.css}">
+        <style>
+            /* ===== Checkout page — modern ===== */
+            .checkout-hero {
+                background: linear-gradient(135deg, #08c 0%, #0a4a7a 100%);
+                color: #fff;
+                padding: 40px 0 70px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .checkout-hero::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity: 0.4;
+            }
+            .checkout-hero h1 {
+                position: relative;
+                font-size: 2.4rem;
+                font-weight: 700;
+                margin-bottom: 8px;
+            }
+            .checkout-hero p {
+                position: relative;
+                opacity: 0.92;
+                font-size: 1.05rem;
+                margin: 0;
+            }
+            .checkout-wrapper {
+                margin-top: -40px;
+                margin-bottom: 60px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .breadcrumb-nav-checkout {
+                background: #fff;
+                border-radius: 12px;
+                padding: 12px 22px;
+                margin-bottom: 22px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            }
+            .breadcrumb-nav-checkout .breadcrumb { background: transparent; margin: 0; padding: 0; }
+            .breadcrumb-nav-checkout .breadcrumb-item a { color: #08c; }
+            .breadcrumb-nav-checkout .breadcrumb-item.active { color: #5a6373; font-weight: 600; }
+
+            /* Section cards */
+            .checkout-card {
+                background: #fff;
+                border-radius: 14px;
+                padding: 26px 28px;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+                margin-bottom: 24px;
+            }
+            .checkout-card h2.step-title,
+            .checkout-card h3 {
+                font-size: 1.5rem !important;
+                font-weight: 700 !important;
+                color: #1f2a37 !important;
+                margin-bottom: 6px;
+                padding-bottom: 14px;
+                border-bottom: 2px solid #eef1f5;
+                position: relative;
+            }
+            .checkout-card h2.step-title::after,
+            .checkout-card h3::after {
+                content: "";
+                position: absolute;
+                left: 0; bottom: -2px;
+                width: 50px; height: 3px;
+                background: linear-gradient(90deg, #08c, #00d4ff);
+                border-radius: 2px;
+            }
+
+            /* Receiver form */
+            .checkout-payment .form-group { margin-bottom: 18px; }
+            .checkout-payment label {
+                font-weight: 600;
+                font-size: 1rem;
+                color: #374151;
+                margin-bottom: 8px;
+            }
+            .checkout-payment .form-control {
+                border: 1px solid #e5e7eb !important;
+                border-radius: 10px !important;
+                padding: 12px 16px !important;
+                font-size: 1rem !important;
+                height: auto !important;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .checkout-payment .form-control:focus {
+                border-color: #08c !important;
+                box-shadow: 0 0 0 3px rgba(0,136,204,0.15) !important;
+                outline: none;
+            }
+            .checkout-payment .required-field label::after {
+                content: " *";
+                color: #f04e40;
+            }
+            .checkout-payment .invalid-feedback { font-size: 0.88rem; }
+
+            /* Order summary product row */
+            .table-mini-cart {
+                margin-bottom: 18px;
+            }
+            .table-mini-cart td {
+                border: 0 !important;
+                padding: 12px 0 !important;
+                vertical-align: middle !important;
+            }
+            .table-mini-cart .product-image-container {
+                background: #f7fafc;
+                border-radius: 10px;
+                padding: 6px;
+                margin-right: 14px;
+                width: 80px; height: 80px;
+                display: flex; align-items: center; justify-content: center;
+                float: left;
+            }
+            .table-mini-cart .product-image-container img {
+                max-width: 100%; max-height: 100%; object-fit: contain;
+            }
+            .table-mini-cart .product-title span {
+                font-size: 1.02rem !important;
+                font-weight: 600 !important;
+                color: #1f2a37 !important;
+            }
+            .table-mini-cart .price-col {
+                font-size: 1.1rem;
+                font-weight: 700;
+                color: #f04e40;
+                text-align: right;
+                white-space: nowrap;
+            }
+
+            /* Size button inside payment */
+            .pricing .btn.btn-primary.size.trans-btn {
+                background: #fff !important;
+                border: 1.5px solid #e5e7eb !important;
+                color: #1f2a37 !important;
+                padding: 14px 18px !important;
+                width: 100%;
+            }
+            .pricing .btn.btn-primary.size.trans-btn .size-text {
+                font-size: 0.78rem !important;
+                text-transform: uppercase;
+                color: #9ca3af !important;
+                letter-spacing: 1px;
+                font-weight: 600 !important;
+            }
+            .pricing .btn.btn-primary.size.trans-btn .size-details {
+                font-size: 1.05rem !important;
+                color: #1f2a37 !important;
+                font-weight: 700 !important;
+            }
+            .pricing .btn.btn-primary.size.trans-btn .dropdown-arrow::before {
+                content: "\f078";
+                font-family: "FontAwesome";
+                color: #9ca3af;
+            }
+
+            /* Quantity & coupon input groups */
+            .pricing .input-group .form-control {
+                border-radius: 10px 0 0 10px !important;
+                border: 1.5px solid #e5e7eb !important;
+                padding: 12px 16px !important;
+                font-size: 1rem !important;
+                height: auto !important;
+            }
+            .pricing .input-group .btn-outline-secondary {
+                border-radius: 0 10px 10px 0 !important;
+                background: linear-gradient(135deg, #08c, #035983) !important;
+                border: 0 !important;
+                color: #fff !important;
+                font-weight: 600 !important;
+                padding: 12px 20px !important;
+            }
+            .pricing .input-group .btn-outline-secondary:hover {
+                background: linear-gradient(135deg, #035983, #023049) !important;
+            }
+            .pricing .input-group input[id="in-coupon"] {
+                border-radius: 10px !important;
+                background: #f7fafc;
+            }
+
+            /* Price summary rows */
+            .pricing .coupon.price-include {
+                display: grid;
+                grid-template-columns: 1fr 1.2fr;
+                align-items: center;
+                padding: 12px 0;
+                border-bottom: 1px dashed #eef1f5;
+            }
+            .pricing .coupon.price-include .text {
+                color: #6b7280;
+                font-size: 1rem;
+                font-weight: 500;
+            }
+            .pricing .coupon.price-include .form-control {
+                border: 0 !important;
+                background: transparent !important;
+                color: #1f2a37 !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+                text-align: right;
+                padding: 0 !important;
+            }
+            .pricing .coupon.price-include:last-of-type .form-control {
+                color: #f04e40 !important;
+                font-size: 1.35rem !important;
+            }
+            .pricing .not-found-size {
+                background: #fee2e2;
+                color: #991b1b !important;
+                padding: 10px 14px;
+                border-radius: 8px;
+                font-size: 0.95rem !important;
+                margin-bottom: 14px;
+                font-weight: 600;
+            }
+
+            /* Action buttons */
+            .order-summary .btn.btn-secondary.confirm-btn {
+                background: #fff !important;
+                color: #374151 !important;
+                border: 1.5px solid #e5e7eb !important;
+                border-radius: 10px !important;
+                padding: 12px 26px !important;
+                font-weight: 600 !important;
+                margin: 18px 12px 0 0;
+                transition: all 0.2s ease;
+            }
+            .order-summary .btn.btn-secondary.confirm-btn:hover {
+                border-color: #08c !important;
+                color: #08c !important;
+            }
+            .order-summary .btn.btn-primary.confirm-btn.red-btn {
+                background: linear-gradient(135deg, #f04e40, #d83a2d) !important;
+                border: 0 !important;
+                border-radius: 10px !important;
+                padding: 13px 32px !important;
+                font-weight: 700 !important;
+                font-size: 1.05rem !important;
+                color: #fff !important;
+                margin-top: 18px;
+                box-shadow: 0 8px 22px rgba(240,78,64,0.3);
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .order-summary .btn.btn-primary.confirm-btn.red-btn:hover {
+                background: linear-gradient(135deg, #d83a2d, #b91c1c) !important;
+                transform: translateY(-2px);
+                box-shadow: 0 12px 28px rgba(240,78,64,0.4);
+            }
+
+            /* Payment method modal options */
+            #modal-payment-method .modal-content {
+                border-radius: 14px !important;
+                border: 0 !important;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            }
+            #modal-payment-method .modal-header {
+                border-bottom: 1px solid #eef1f5;
+                padding: 18px 24px;
+            }
+            #modal-payment-method .modal-title { font-size: 1.25rem; font-weight: 700; color: #1f2a37; }
+            #modal-payment-method .payment-option {
+                border: 2px solid #e5e7eb !important;
+                background: #fff !important;
+                color: #1f2a37 !important;
+                transition: all 0.2s ease;
+            }
+            #modal-payment-method .payment-option:hover {
+                border-color: #08c !important;
+                background: #f0f8ff !important;
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            }
+            #modal-payment-method .payment-option strong { font-size: 1.05rem; }
+            #modal-payment-method .payment-option small { font-size: 0.88rem; }
+
+            @media (max-width: 768px) {
+                .checkout-hero { padding: 32px 0 56px; }
+                .checkout-hero h1 { font-size: 1.7rem; }
+            }
+        </style>
     </th:block>
 </head>
 <body>
 <main class="main" id="main-content">
-    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+    <section class="checkout-hero">
         <div class="container">
+            <h1>Hoàn tất đơn hàng</h1>
+            <p>Vui lòng điền thông tin nhận hàng &amp; xác nhận đơn hàng để hoàn tất giao dịch.</p>
+        </div>
+    </section>
+
+    <div class="container checkout-wrapper">
+        <nav aria-label="breadcrumb" class="breadcrumb-nav-checkout">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i> Trang chủ</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Thanh toán</li>
             </ol>
-        </div><!-- End .container -->
-    </nav>
-
-    <div class="container">
+        </nav>
         <div class="row">
             <div class="col-lg-6">
-                <div class="order-summary">
+                <div class="order-summary checkout-card">
                     <h3>Đơn hàng</h3>
                     <div class="collapse show" id="order-cart-section">
                         <table class="table table-mini-cart">
@@ -107,7 +399,7 @@
             </div><!-- End .col-lg-4 -->
 
             <div class="col-lg-6 order-lg-first">
-                <div class="checkout-payment">
+                <div class="checkout-payment checkout-card">
                     <h2 class="step-title">Thông tin nhận hàng</h2>
                     <div id="new-checkout-address" class="show">
                         <form action="#">

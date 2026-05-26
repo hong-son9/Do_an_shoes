@@ -12,74 +12,392 @@
     <meta charset="UTF-8">
     <title>Liên hệ</title>
     <th:block id="css-resources">
+        <style>
+            /* ===== Contact page — modern redesign ===== */
+            .contact-hero {
+                background: linear-gradient(135deg, #08c 0%, #0a4a7a 100%);
+                color: #fff;
+                padding: 60px 0 80px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .contact-hero::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity: 0.4;
+            }
+            .contact-hero h1 {
+                font-size: 2.8rem;
+                font-weight: 700;
+                margin-bottom: 12px;
+                position: relative;
+                letter-spacing: 1px;
+            }
+            .contact-hero p {
+                font-size: 1.05rem;
+                opacity: 0.92;
+                max-width: 620px;
+                margin: 0 auto;
+                position: relative;
+            }
 
+            .breadcrumb-modern {
+                background: #f7f9fc;
+                padding: 14px 0;
+                margin-bottom: 0;
+                border-bottom: 1px solid #eef1f5;
+            }
+            .breadcrumb-modern .breadcrumb {
+                background: transparent;
+                margin: 0;
+                padding: 0;
+            }
+            .breadcrumb-modern .breadcrumb-item a {
+                color: #08c;
+                text-decoration: none;
+            }
+            .breadcrumb-modern .breadcrumb-item.active {
+                color: #5a6373;
+                font-weight: 600;
+            }
+
+            .contact-wrapper {
+                margin-top: -50px;
+                margin-bottom: 60px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .map-card {
+                background: #fff;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 12px 40px rgba(8, 80, 130, 0.12);
+                margin-bottom: 36px;
+            }
+            .map-card iframe {
+                display: block;
+                width: 100%;
+                height: 420px;
+                border: 0;
+            }
+
+            .info-card {
+                background: #fff;
+                border-radius: 14px;
+                padding: 32px 28px;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+                height: 100%;
+                transition: transform 0.25s ease, box-shadow 0.25s ease;
+            }
+            .info-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 14px 36px rgba(0, 0, 0, 0.1);
+            }
+            .info-card .card-title {
+                font-size: 1.7rem;
+                font-weight: 700;
+                color: #1f2a37;
+                margin-bottom: 6px;
+            }
+            .info-card .card-subtitle {
+                color: #6b7280;
+                font-size: 1.02rem;
+                margin-bottom: 24px;
+            }
+
+            .contact-item {
+                display: flex;
+                align-items: center;
+                padding: 14px 0;
+                border-bottom: 1px solid #eef1f5;
+            }
+            .contact-item:last-child {
+                border-bottom: none;
+            }
+            .contact-icon {
+                flex-shrink: 0;
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 16px;
+                font-size: 1.2rem;
+                color: #fff;
+                transition: transform 0.25s ease;
+            }
+            .contact-item:hover .contact-icon {
+                transform: scale(1.08);
+            }
+            .contact-icon.phone   { background: linear-gradient(135deg, #f04e40, #d83a2d); }
+            .contact-icon.email   { background: linear-gradient(135deg, #08c, #035983); }
+            .contact-icon.address { background: linear-gradient(135deg, #28a745, #1e7e34); }
+            .contact-icon.fb      { background: linear-gradient(135deg, #0084ff, #0066cc); }
+            .contact-icon.clock   { background: linear-gradient(135deg, #ffa726, #f57c00); }
+
+            .contact-text .label {
+                font-size: 0.88rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                color: #9ca3af;
+                margin-bottom: 2px;
+            }
+            .contact-text .value,
+            .contact-text .value a {
+                font-size: 1.1rem;
+                color: #1f2a37;
+                font-weight: 600;
+                text-decoration: none;
+            }
+            .contact-text .value a:hover {
+                color: #08c;
+            }
+
+            /* Contact form */
+            .form-card {
+                background: #fff;
+                border-radius: 14px;
+                padding: 32px 28px;
+                box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+                height: 100%;
+            }
+            .form-card .form-control {
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                padding: 12px 14px;
+                height: auto;
+                font-size: 1.05rem;
+                transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            }
+            .form-card .form-control:focus {
+                border-color: #08c;
+                box-shadow: 0 0 0 3px rgba(0, 136, 204, 0.15);
+                outline: none;
+            }
+            .form-card label {
+                font-weight: 600;
+                font-size: 1rem;
+                color: #374151;
+                margin-bottom: 6px;
+            }
+            .form-card .btn-send {
+                background: linear-gradient(135deg, #08c, #035983);
+                color: #fff;
+                border: none;
+                border-radius: 8px;
+                padding: 13px 34px;
+                font-weight: 600;
+                font-size: 1.1rem;
+                transition: transform 0.2s ease, box-shadow 0.2s ease;
+            }
+            .form-card .btn-send:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(8, 136, 204, 0.35);
+                color: #fff;
+            }
+
+            /* Social row */
+            .social-row {
+                display: flex;
+                gap: 10px;
+                margin-top: 22px;
+            }
+            .social-row a {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: #f3f4f6;
+                color: #4b5563;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.25s ease;
+            }
+            .social-row a:hover {
+                transform: translateY(-3px);
+                color: #fff;
+            }
+            .social-row a.fb:hover       { background: #1877f2; }
+            .social-row a.ig:hover       { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+            .social-row a.tw:hover       { background: #1da1f2; }
+            .social-row a.messenger:hover{ background: #0084ff; }
+
+            /* Floating buttons (kept from original, lightly refined) */
+            .zalo-button, .call-button {
+                position: fixed;
+                left: 22px;
+                cursor: pointer;
+                z-index: 999;
+            }
+            .zalo-button { bottom: 90px; }
+            .call-button { bottom: 18px; }
+            .zalo-button::before, .call-button::before {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                animation: pulse 1.4s infinite;
+                box-sizing: border-box;
+                pointer-events: none;
+            }
+            .zalo-button::before { border: 2px solid rgba(0, 123, 255, 0.7); }
+            .call-button::before { border: 2px solid #f04e40; }
+            .zalo-button img, .call-button img {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+                position: relative;
+                z-index: 1;
+                object-fit: cover;
+            }
+            @keyframes pulse {
+                0%   { transform: scale(0.9); opacity: 0.8; }
+                70%  { transform: scale(1.25); opacity: 0; }
+                100% { transform: scale(0.9); opacity: 0; }
+            }
+
+            @media (max-width: 768px) {
+                .contact-hero { padding: 40px 0 70px; }
+                .contact-hero h1 { font-size: 2rem; }
+                .map-card iframe { height: 280px; }
+                .info-card, .form-card { padding: 24px 20px; }
+            }
+        </style>
     </th:block>
 </head>
 <body>
 <main class="main" id="main-content">
-    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+
+    <!-- Hero -->
+    <section class="contact-hero">
+        <div class="container">
+            <h1>Liên hệ với chúng tôi</h1>
+            <p>Chúng tôi luôn sẵn sàng lắng nghe và hỗ trợ bạn. Hãy để lại lời nhắn hoặc liên hệ trực tiếp qua các kênh dưới đây.</p>
+        </div>
+    </section>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-modern" style="display:none;">
         <div class="container">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i></a></li>
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i> Trang chủ</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Liên hệ</li>
             </ol>
-        </div><!-- End .container -->
+        </div>
     </nav>
 
-    <div class="container">
-        <div id="map"> <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.528630805789!2d105.7354376740098!3d21.051538586998262!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345505b3a9b17b%3A0x88f486a3e3476506!2zNyBQLiBOZ3V5w6puIFjDoSwgTmd1ecOqbiBYw6EsIELhuq9jIFThu6sgTGnDqm0sIEjDoCBO4buZaSwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1711437507858!5m2!1svi!2s" width="1200" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><!-- End #map -->
+    <!-- Main content -->
+    <div class="container contact-wrapper">
+        <!-- Map -->
+        <div class="map-card">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3723.528630805789!2d105.7354376740098!3d21.051538586998262!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31345505b3a9b17b%3A0x88f486a3e3476506!2zNyBQLiBOZ3V5w6puIFjDoSwgTmd1ecOqbiBYw6EsIELhuq9jIFThu6sgTGnDqm0sIEjDoCBO4buZaSwgVmnhu4d0IE5hbQ!5e0!3m2!1svi!2s!4v1711437507858!5m2!1svi!2s"
+                    allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
 
         <div class="row">
-<!--            <div class="col-md-8">-->
-<!--                <h2 class="light-title">Write <strong>Us</strong></h2>-->
+            <!-- Contact info -->
+            <div class="col-lg-5 mb-4">
+                <div class="info-card">
+                    <h2 class="card-title">Thông tin liên hệ</h2>
+                    <p class="card-subtitle">Liên hệ ngay để được hỗ trợ và tư vấn miễn phí.</p>
 
-<!--                <form action="#">-->
-<!--                    <div class="form-group required-field">-->
-<!--                        <label for="contact-name">Name</label>-->
-<!--                        <input type="text" class="form-control" id="contact-name" name="contact-name" required>-->
-<!--                    </div>&lt;!&ndash; End .form-group &ndash;&gt;-->
-
-<!--                    <div class="form-group required-field">-->
-<!--                        <label for="contact-email">Email</label>-->
-<!--                        <input type="email" class="form-control" id="contact-email" name="contact-email" required>-->
-<!--                    </div>&lt;!&ndash; End .form-group &ndash;&gt;-->
-
-<!--                    <div class="form-group">-->
-<!--                        <label for="contact-phone">Phone Number</label>-->
-<!--                        <input type="tel" class="form-control" id="contact-phone" name="contact-phone">-->
-<!--                    </div>&lt;!&ndash; End .form-group &ndash;&gt;-->
-
-<!--                    <div class="form-group required-field">-->
-<!--                        <label for="contact-message">What’s on your mind?</label>-->
-<!--                        <textarea cols="30" rows="1" id="contact-message" class="form-control" name="contact-message" required></textarea>-->
-<!--                    </div>&lt;!&ndash; End .form-group &ndash;&gt;-->
-
-<!--                    <div class="form-footer">-->
-<!--                        <button type="submit" class="btn btn-primary">Submit</button>-->
-<!--                    </div>&lt;!&ndash; End .form-footer &ndash;&gt;-->
-<!--                </form>-->
-<!--            </div>&lt;!&ndash; End .col-md-8 &ndash;&gt;-->
-
-            <div class="col-md-4">
-                <h2 class="light-title"><strong>Thông tin liên hệ</strong></h2>
-
-                <div class="contact-info">
-                    <div>
-                        <i class="icon-mobile"></i>
-                        <p><a href="tel:">036 545 4643</a></p>
+                    <div class="contact-item">
+                        <div class="contact-icon phone"><i class="icon-phone"></i></div>
+                        <div class="contact-text">
+                            <div class="label">Hotline</div>
+                            <div class="value"><a href="tel:0365454643">036 545 4643</a></div>
+                        </div>
                     </div>
-                    <div>
-                        <i class="icon-mail-alt"></i>
-                        <p><a href="mailto:#">phihongson15102002@gmail.com</a></p>
+
+                    <div class="contact-item">
+                        <div class="contact-icon email"><i class="icon-mail-alt"></i></div>
+                        <div class="contact-text">
+                            <div class="label">Email</div>
+                            <div class="value"><a href="mailto:phihongson15102002@gmail.com">phihongson15102002@gmail.com</a></div>
+                        </div>
                     </div>
-                    <div>
-                        <i class="fab fa-facebook-messenger"></i>
-                        <p><a href="https://www.messenger.com/t/100016363180729">Phí Hồng Sơn</a></p>
+
+                    <div class="contact-item">
+                        <div class="contact-icon address"><i class="icon-location"></i></div>
+                        <div class="contact-text">
+                            <div class="label">Địa chỉ</div>
+                            <div class="value">Chợ Nguyên Xá, 7 P. Nguyên Xá, Bắc Từ Liêm, Hà Nội</div>
+                        </div>
                     </div>
-                </div><!-- End .contact-info -->
-            </div><!-- End .col-md-4 -->
-        </div><!-- End .row -->
-    </div><!-- End .container -->
+
+                    <div class="contact-item">
+                        <div class="contact-icon fb"><i class="fab fa-facebook-messenger"></i></div>
+                        <div class="contact-text">
+                            <div class="label">Messenger</div>
+                            <div class="value"><a href="https://www.messenger.com/t/100016363180729" target="_blank">Phí Hồng Sơn</a></div>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon clock"><i class="icon-clock"></i></div>
+                        <div class="contact-text">
+                            <div class="label">Giờ làm việc</div>
+                            <div class="value">T2 – CN: 8:00 – 22:00</div>
+                        </div>
+                    </div>
+
+                    <div class="social-row">
+                        <a href="#" class="fb"  title="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="ig"  title="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="tw"  title="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="https://www.messenger.com/t/100016363180729" class="messenger" title="Messenger" target="_blank"><i class="fab fa-facebook-messenger"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact form -->
+            <div class="col-lg-7 mb-4">
+                <div class="form-card">
+                    <h2 class="card-title">Gửi tin nhắn cho chúng tôi</h2>
+                    <p class="card-subtitle">Chúng tôi sẽ phản hồi bạn trong vòng 24 giờ.</p>
+
+                    <form action="#" method="post">
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="contact-name">Họ và tên <span style="color:#f04e40">*</span></label>
+                                <input type="text" class="form-control" id="contact-name" name="name" placeholder="Nguyễn Văn A" required>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="contact-email">Email <span style="color:#f04e40">*</span></label>
+                                <input type="email" class="form-control" id="contact-email" name="email" placeholder="email@example.com" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group col-md-6">
+                                <label for="contact-phone">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="contact-phone" name="phone" placeholder="0123 456 789">
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="contact-subject">Tiêu đề</label>
+                                <input type="text" class="form-control" id="contact-subject" name="subject" placeholder="Bạn cần hỗ trợ gì?">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="contact-message">Nội dung <span style="color:#f04e40">*</span></label>
+                            <textarea rows="5" id="contact-message" class="form-control" name="message" placeholder="Nhập nội dung tin nhắn..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-send">
+                            <i class="icon-paper-plane"></i> Gửi tin nhắn
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating buttons -->
     <div class="zalo-button">
         <a href="https://zalo.me/0365454643">
             <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
@@ -90,86 +408,9 @@
             <img th:src="@{/shop/images/dienthoai.jpg}" alt="hotline">
         </a>
     </div>
-    <style>
 
-        .zalo-button {
-            position: fixed;
-            bottom: 80px;
-            left: 20px;
-            cursor: pointer;
-            z-index: 999;
-            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
-        }
-        .zalo-button::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid rgba(0, 123, 255, 0.7);
-            animation: pulse 1s infinite;
-            box-sizing: border-box;
-            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
-        }
-
-        .zalo-button img {
-            width: 70px;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-            50% {
-                transform: scale(1.2);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(0.9);
-                opacity: 0.7;
-            }
-        }
-
-        .call-button {
-            position: fixed;
-            bottom: 5px;
-            left: 25px;
-            cursor: pointer;
-            z-index: 999;
-            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
-        }
-        .call-button::before {
-            content: "";
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            border: 2px solid red;
-            animation: pulse 1s infinite;
-            box-sizing: border-box;
-            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
-        }
-
-        .call-button img {
-            width: 60px;
-            height: auto;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
-        }
-
-    </style>
-    <div class="mb-8"></div><!-- margin -->
-</main><!-- End .main -->
-<th:block id="js-resources">
-
-</th:block>
+    <div class="mb-8"></div>
+</main>
+<th:block id="js-resources"></th:block>
 </body>
 </html>

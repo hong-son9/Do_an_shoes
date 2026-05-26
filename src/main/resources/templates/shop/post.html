@@ -13,19 +13,180 @@
     <title>Tin tức</title>
     <th:block id="css-resources">
         <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <style>
+            /* ===== News page — modern styling ===== */
+            .news-hero {
+                background: linear-gradient(135deg, #08c 0%, #0a4a7a 100%);
+                color: #fff;
+                padding: 50px 0 80px;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .news-hero::before {
+                content:"";
+                position:absolute;
+                inset:0;
+                background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity:0.4;
+            }
+            .news-hero h1 {
+                position: relative;
+                font-size: 2.8rem;
+                font-weight: 700;
+                margin-bottom: 10px;
+            }
+            .news-hero p {
+                position: relative;
+                opacity: 0.92;
+                margin: 0;
+                font-size: 1.1rem;
+            }
+            .breadcrumb-nav.modern .breadcrumb-item { font-size: 1rem; }
+
+            .news-wrapper {
+                margin-top: -50px;
+                margin-bottom: 60px;
+                position: relative;
+                z-index: 2;
+            }
+
+            .breadcrumb-nav.modern {
+                background: #fff;
+                border-radius: 12px;
+                padding: 12px 22px;
+                margin-bottom: 24px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            }
+            .breadcrumb-nav.modern .breadcrumb { background: transparent; margin: 0; padding: 0; }
+            .breadcrumb-nav.modern .breadcrumb-item a { color: #08c; }
+            .breadcrumb-nav.modern .breadcrumb-item.active { color: #5a6373; font-weight: 600; }
+
+            /* Post cards */
+            article.post {
+                background: #fff;
+                border-radius: 14px;
+                overflow: hidden;
+                box-shadow: 0 6px 22px rgba(0,0,0,0.06);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                margin-bottom: 30px;
+                display: flex;
+                flex-direction: row;
+                align-items: stretch;
+            }
+            article.post:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 14px 36px rgba(0,0,0,0.12);
+            }
+            article.post .post-media {
+                flex: 0 0 340px;
+                position: relative;
+                overflow: hidden;
+            }
+            article.post .post-media img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+            article.post:hover .post-media img { transform: scale(1.06); }
+
+            article.post .post-body {
+                flex: 1;
+                padding: 22px 26px;
+                display: flex;
+                flex-direction: column;
+            }
+            article.post .post-date {
+                display: inline-block;
+                background: linear-gradient(135deg, #08c, #035983);
+                color: #fff;
+                border-radius: 6px;
+                padding: 6px 14px;
+                font-size: 0.9rem;
+                font-weight: 700;
+                margin-bottom: 12px;
+                width: max-content;
+            }
+            article.post .post-date .month { color: #fff !important; }
+            article.post .post-title {
+                margin-bottom: 10px;
+            }
+            article.post .post-title a {
+                color: #1f2a37 !important;
+                font-weight: 700 !important;
+                font-size: 1.5rem !important;
+                line-height: 1.4 !important;
+                transition: color 0.2s ease;
+            }
+            article.post:hover .post-title a { color: #08c !important; }
+            article.post .post-content p {
+                color: #6b7280;
+                font-size: 1.05rem;
+                line-height: 1.65;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                margin-bottom: 12px;
+            }
+            article.post .read-more {
+                color: #08c !important;
+                font-weight: 600;
+                font-size: 1rem;
+                text-decoration: none;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: gap 0.25s ease;
+            }
+            article.post .read-more:hover { gap: 12px; }
+            article.post .post-meta {
+                margin-top: auto;
+                padding-top: 14px;
+                border-top: 1px solid #eef1f5;
+                color: #9ca3af;
+                font-size: 0.95rem;
+            }
+            article.post .post-meta i { color: #08c; margin-right: 4px; }
+            article.post .post-meta span { margin-right: 14px; }
+
+            /* Pagination */
+            ul.pagination li a, ul.pagination li.active a {
+                border-radius: 8px !important;
+                margin: 0 4px;
+                padding: 9px 16px;
+                color: #374151;
+                background: #fff;
+                border: 1px solid #e5e7eb;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.2s ease;
+            }
+            ul.pagination li.active a {
+                background: linear-gradient(135deg, #08c, #035983) !important;
+                color: #fff !important;
+                border-color: transparent !important;
+                box-shadow: 0 4px 12px rgba(8,136,204,0.3);
+            }
+            ul.pagination li a:hover { background: #f0f8ff; color: #08c; }
+
+            @media (max-width: 768px) {
+                article.post { flex-direction: column; }
+                article.post .post-media { flex: 0 0 auto; height: 220px; }
+                .news-hero h1 { font-size: 1.8rem; }
+            }
+        </style>
     </th:block>
 </head>
 <body>
 <main class="main" id="main-content">
-    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+    <section class="news-hero">
         <div class="container">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="index-2.html"><i class="icon-home"></i></a></li>
-                <li class="breadcrumb-item active" aria-current="page">Tin tức</li>
-            </ol>
+            <h1>Tin tức &amp; Bài viết</h1>
+            <p>Cập nhật xu hướng giày mới nhất, mẹo phối đồ và những câu chuyện thú vị từ Sơn Shoes.</p>
         </div>
-        <!-- End .container -->
-    </nav>
+    </section>
     <div class="zalo-button">
         <a href="https://zalo.me/0365454643">
             <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
@@ -112,7 +273,13 @@
         }
 
     </style>
-    <div class="container">
+    <div class="container news-wrapper">
+        <nav aria-label="breadcrumb" class="breadcrumb-nav modern">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/"><i class="icon-home"></i> Trang chủ</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tin tức</li>
+            </ol>
+        </nav>
         <form method="GET" id="search-form">
             <div class="row">
             <div class="col-lg-12">
