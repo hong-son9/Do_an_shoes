@@ -1,0 +1,526 @@
+<th:block th:fragment="chatbot">
+<style>
+    /* ===== Sneaker Bot widget ===== */
+    #sneakerbot-launcher {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #e63946);
+        color: #fff;
+        border: 0;
+        cursor: pointer;
+        box-shadow: 0 12px 32px rgba(255, 107, 53, 0.45);
+        z-index: 9998;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    #sneakerbot-launcher:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 18px 40px rgba(255, 107, 53, 0.6);
+    }
+    #sneakerbot-launcher::before {
+        content: "";
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 107, 53, 0.6);
+        animation: sb-pulse 1.6s infinite;
+        pointer-events: none;
+    }
+    #sneakerbot-launcher.is-open::before { display: none; }
+    @keyframes sb-pulse {
+        0%   { transform: scale(0.92); opacity: 0.8; }
+        70%  { transform: scale(1.25); opacity: 0; }
+        100% { transform: scale(0.92); opacity: 0; }
+    }
+    #sneakerbot-badge {
+        position: absolute;
+        top: -4px; right: -4px;
+        width: 18px; height: 18px;
+        background: #ffd60a;
+        color: #0d1b2a;
+        border-radius: 50%;
+        font-size: 0.7rem;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid #fff;
+    }
+
+    /* Chat panel */
+    #sneakerbot-panel {
+        position: fixed;
+        bottom: 100px;
+        right: 24px;
+        width: 380px;
+        max-width: calc(100vw - 32px);
+        height: 560px;
+        max-height: calc(100vh - 140px);
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 24px 60px rgba(13, 27, 42, 0.3);
+        z-index: 9997;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        transform: translateY(20px) scale(0.95);
+        opacity: 0;
+        transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    #sneakerbot-panel.is-open {
+        display: flex;
+        animation: sb-slide-in 0.25s ease forwards;
+    }
+    @keyframes sb-slide-in {
+        to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    /* Header */
+    .sb-header {
+        background: linear-gradient(135deg, #0d1b2a, #1a2944);
+        color: #fff;
+        padding: 18px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
+    }
+    .sb-header::before {
+        content: "";
+        position: absolute;
+        top: 0; right: 0;
+        width: 140px; height: 100%;
+        background: radial-gradient(circle at top right, rgba(255,107,53,0.3), transparent 70%);
+    }
+    .sb-avatar {
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #ffd60a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        color: #fff;
+        flex-shrink: 0;
+        position: relative;
+        z-index: 1;
+    }
+    .sb-avatar::after {
+        content: "";
+        position: absolute;
+        bottom: 0; right: 0;
+        width: 12px; height: 12px;
+        background: #22c55e;
+        border: 2px solid #1a2944;
+        border-radius: 50%;
+    }
+    .sb-header-info { flex: 1; position: relative; z-index: 1; }
+    .sb-header-info .sb-title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin: 0;
+    }
+    .sb-header-info .sb-subtitle {
+        font-size: 0.78rem;
+        color: #cbd5e0;
+        margin-top: 2px;
+    }
+    .sb-header-actions {
+        display: flex;
+        gap: 6px;
+        position: relative;
+        z-index: 1;
+    }
+    .sb-icon-btn {
+        background: rgba(255,255,255,0.12);
+        color: #fff;
+        border: 0;
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.2s ease, color 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sb-icon-btn:hover { background: rgba(255,255,255,0.25); }
+    .sb-icon-btn.sb-clear:hover { color: #ffd60a; }
+    .sb-icon-btn.sb-close-btn:hover { color: #ff6b35; }
+
+    /* Messages area */
+    .sb-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        background: linear-gradient(180deg, #f7fafc 0%, #f0f4f8 100%);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .sb-messages::-webkit-scrollbar { width: 6px; }
+    .sb-messages::-webkit-scrollbar-thumb {
+        background: rgba(13,27,42,0.18);
+        border-radius: 3px;
+    }
+    .sb-msg {
+        max-width: 82%;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        word-wrap: break-word;
+        animation: sb-msg-in 0.2s ease;
+    }
+    @keyframes sb-msg-in {
+        from { opacity: 0; transform: translateY(4px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .sb-msg.bot {
+        background: #fff;
+        color: #1f2a37;
+        border-bottom-left-radius: 4px;
+        align-self: flex-start;
+        box-shadow: 0 2px 8px rgba(13,27,42,0.05);
+    }
+    .sb-msg.user {
+        background: linear-gradient(135deg, #ff6b35, #e63946);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+        align-self: flex-end;
+        box-shadow: 0 4px 12px rgba(255,107,53,0.25);
+    }
+    .sb-msg a {
+        color: inherit;
+        text-decoration: underline;
+        font-weight: 600;
+    }
+    .sb-typing {
+        display: inline-flex;
+        gap: 4px;
+        padding: 12px 16px;
+        background: #fff;
+        border-radius: 14px;
+        border-bottom-left-radius: 4px;
+        align-self: flex-start;
+        box-shadow: 0 2px 8px rgba(13,27,42,0.05);
+    }
+    .sb-typing span {
+        width: 8px; height: 8px;
+        background: #ff6b35;
+        border-radius: 50%;
+        animation: sb-bounce 1.2s infinite ease-in-out;
+    }
+    .sb-typing span:nth-child(2) { animation-delay: 0.15s; }
+    .sb-typing span:nth-child(3) { animation-delay: 0.3s; }
+    @keyframes sb-bounce {
+        0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+        30%           { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* Quick suggestions */
+    .sb-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding: 10px 14px;
+        background: #fff;
+        border-top: 1px solid #eef1f5;
+    }
+    .sb-suggestions button {
+        background: #fff5ed;
+        color: #ff6b35;
+        border: 1px solid #ffd5be;
+        border-radius: 16px;
+        padding: 6px 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .sb-suggestions button:hover {
+        background: #ff6b35;
+        color: #fff;
+        border-color: transparent;
+    }
+
+    /* Input area */
+    .sb-input-area {
+        display: flex;
+        gap: 8px;
+        padding: 12px 14px;
+        background: #fff;
+        border-top: 1px solid #eef1f5;
+    }
+    .sb-input-area input {
+        flex: 1;
+        border: 1.5px solid #e5e7eb;
+        border-radius: 22px;
+        padding: 10px 16px;
+        font-size: 0.95rem;
+        background: #f9fafb;
+        transition: border-color 0.2s ease, background 0.2s ease;
+        outline: none;
+    }
+    .sb-input-area input:focus {
+        border-color: #ff6b35;
+        background: #fff;
+    }
+    .sb-send-btn {
+        width: 42px; height: 42px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ff6b35, #e63946);
+        color: #fff;
+        border: 0;
+        cursor: pointer;
+        font-size: 1rem;
+        flex-shrink: 0;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        box-shadow: 0 4px 12px rgba(255,107,53,0.3);
+    }
+    .sb-send-btn:hover:not(:disabled) {
+        transform: scale(1.05);
+        box-shadow: 0 6px 18px rgba(255,107,53,0.45);
+    }
+    .sb-send-btn:disabled {
+        background: #9ca3af;
+        box-shadow: none;
+        cursor: not-allowed;
+    }
+
+    @media (max-width: 480px) {
+        #sneakerbot-panel {
+            right: 12px; left: 12px; bottom: 90px;
+            width: auto; max-width: none;
+        }
+        #sneakerbot-launcher { bottom: 18px; right: 18px; width: 56px; height: 56px; font-size: 1.4rem; }
+    }
+</style>
+
+<!-- Launcher button -->
+<button id="sneakerbot-launcher" type="button" aria-label="Mở chat tư vấn">
+    <i class="fas fa-comments"></i>
+    <span id="sneakerbot-badge">1</span>
+</button>
+
+<!-- Chat panel -->
+<div id="sneakerbot-panel" role="dialog" aria-labelledby="sb-title">
+    <div class="sb-header">
+        <div class="sb-avatar"><i class="fas fa-shoe-prints"></i></div>
+        <div class="sb-header-info">
+            <p class="sb-title" id="sb-title">Sneaker Bot</p>
+            <div class="sb-subtitle">Tư vấn giày · Online</div>
+        </div>
+        <div class="sb-header-actions">
+            <button class="sb-icon-btn sb-clear" id="sb-clear" type="button" aria-label="Xoá lịch sử chat" title="Xoá lịch sử chat">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+            <button class="sb-icon-btn sb-close-btn sb-close" type="button" aria-label="Đóng">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="sb-messages" id="sb-messages">
+        <div class="sb-msg bot">
+            Xin chào! Mình là <b>Sneaker Bot</b> của Sơn Shoes. Mình có thể giúp bạn chọn size, gợi ý mẫu giày phù hợp, hoặc giải đáp về đổi trả & vận chuyển. Bạn cần hỗ trợ gì ạ?
+        </div>
+    </div>
+
+    <div class="sb-suggestions" id="sb-suggestions">
+        <button type="button" data-q="Cho mình xem các mẫu Nike đang hot nhất">Mẫu Nike hot</button>
+        <button type="button" data-q="Cách chọn size giày chuẩn?">Chọn size</button>
+        <button type="button" data-q="Chính sách đổi trả như thế nào?">Đổi trả</button>
+        <button type="button" data-q="Cách bảo quản giày để bền lâu?">Bảo quản giày</button>
+    </div>
+
+    <form class="sb-input-area" id="sb-form">
+        <input type="text" id="sb-input" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" maxlength="500"/>
+        <button type="submit" class="sb-send-btn" id="sb-send" aria-label="Gửi">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+
+<script>
+    (function() {
+        var launcher  = document.getElementById('sneakerbot-launcher');
+        var panel     = document.getElementById('sneakerbot-panel');
+        var closeBtn  = panel.querySelector('.sb-close');
+        var clearBtn  = document.getElementById('sb-clear');
+        var messages  = document.getElementById('sb-messages');
+        var form      = document.getElementById('sb-form');
+        var input     = document.getElementById('sb-input');
+        var sendBtn   = document.getElementById('sb-send');
+        var badge     = document.getElementById('sneakerbot-badge');
+        var suggestionsBox = document.getElementById('sb-suggestions');
+
+        var STORAGE_KEY = 'sneakerbot.history.v1';
+        var MAX_PERSIST = 50;          // tối đa 50 cặp tin nhắn được lưu
+        var WELCOME_HTML = messages.innerHTML;   // giữ nguyên welcome bubble ban đầu
+
+        var history = [];   // {role, content}
+        var busy = false;
+
+        /* ========== Persistence ========== */
+        function loadHistory() {
+            try {
+                var raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return [];
+                var arr = JSON.parse(raw);
+                return Array.isArray(arr) ? arr : [];
+            } catch (e) { return []; }
+        }
+        function saveHistory() {
+            try {
+                var toSave = history;
+                if (toSave.length > MAX_PERSIST) {
+                    toSave = toSave.slice(toSave.length - MAX_PERSIST);
+                }
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+            } catch (e) { /* quota / private mode — ignore */ }
+        }
+        function clearHistory() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+            history = [];
+            messages.innerHTML = WELCOME_HTML;
+            if (suggestionsBox) suggestionsBox.style.display = '';
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        /* ========== Rendering ========== */
+        function escapeHtml(s) {
+            return s.replace(/[&<>"']/g, function(c) {
+                return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'})[c];
+            });
+        }
+        function linkify(s) {
+            return s.replace(/(https?:\/\/[^\s]+)/g, function(u) {
+                return '<a href="' + u + '" target="_blank" rel="noopener">' + u + '</a>';
+            }).replace(/(^|\s)(\/[a-zA-Z0-9_\-\/]+)/g, function(m, pre, path) {
+                return pre + '<a href="' + path + '">' + path + '</a>';
+            });
+        }
+        function renderMessage(role, text) {
+            var div = document.createElement('div');
+            div.className = 'sb-msg ' + (role === 'user' ? 'user' : 'bot');
+            div.innerHTML = linkify(escapeHtml(text)).replace(/\n/g, '<br>');
+            messages.appendChild(div);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        function appendTyping() {
+            var el = document.createElement('div');
+            el.className = 'sb-typing';
+            el.id = 'sb-typing';
+            el.innerHTML = '<span></span><span></span><span></span>';
+            messages.appendChild(el);
+            messages.scrollTop = messages.scrollHeight;
+        }
+        function removeTyping() {
+            var el = document.getElementById('sb-typing');
+            if (el) el.remove();
+        }
+
+        function restoreFromStorage() {
+            history = loadHistory();
+            if (history.length === 0) return;
+            // Clear initial welcome bubble — we already had a real conversation
+            messages.innerHTML = '';
+            for (var i = 0; i < history.length; i++) {
+                var m = history[i];
+                renderMessage(m.role === 'user' ? 'user' : 'bot', m.content);
+            }
+            // Hide quick suggestions since user already chatted
+            if (suggestionsBox) suggestionsBox.style.display = 'none';
+            // Also hide the new-message badge since they've already seen it
+            if (badge) badge.style.display = 'none';
+        }
+
+        /* ========== Panel toggle ========== */
+        function openPanel() {
+            panel.classList.add('is-open');
+            launcher.classList.add('is-open');
+            if (badge) badge.style.display = 'none';
+            setTimeout(function() { input.focus(); }, 200);
+        }
+        function closePanel() {
+            panel.classList.remove('is-open');
+            launcher.classList.remove('is-open');
+        }
+        launcher.addEventListener('click', function() {
+            if (panel.classList.contains('is-open')) closePanel(); else openPanel();
+        });
+        closeBtn.addEventListener('click', closePanel);
+
+        clearBtn.addEventListener('click', function() {
+            if (confirm('Bạn có chắc muốn xoá toàn bộ lịch sử chat?')) {
+                clearHistory();
+            }
+        });
+
+        /* ========== Send message ========== */
+        function sendMessage(text) {
+            if (busy) return;
+            text = (text || '').trim();
+            if (!text) return;
+
+            renderMessage('user', text);
+            history.push({ role: 'user', content: text });
+            saveHistory();
+            input.value = '';
+            busy = true;
+            sendBtn.disabled = true;
+            appendTyping();
+
+            if (suggestionsBox) suggestionsBox.style.display = 'none';
+
+            fetch('/api/chatbot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, history: history.slice(0, -1) })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                removeTyping();
+                var reply = (data && data.reply) ? data.reply : 'Xin lỗi, mình chưa trả lời được lúc này.';
+                renderMessage('bot', reply);
+                history.push({ role: 'assistant', content: reply });
+                saveHistory();
+            })
+            .catch(function() {
+                removeTyping();
+                renderMessage('bot', 'Có lỗi kết nối. Bạn vui lòng thử lại sau hoặc gọi hotline 036 545 4643.');
+            })
+            .finally(function() {
+                busy = false;
+                sendBtn.disabled = false;
+                input.focus();
+            });
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            sendMessage(input.value);
+        });
+
+        // Quick suggestions
+        suggestionsBox.querySelectorAll('button[data-q]').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                sendMessage(btn.getAttribute('data-q'));
+            });
+        });
+
+        // Boot: restore previous chat
+        restoreFromStorage();
+    })();
+</script>
+</th:block>
