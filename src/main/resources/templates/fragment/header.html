@@ -70,13 +70,15 @@
                                 <li>Puma</li>
                                 <li>Converse</li>
                                 <li>Balenciaga</li>
+                                <li>Gucci</li>
+                                <li>Fake</li>
                             </ul>
                         </div><!-- End .header-search-wrapper -->
                     </div><!-- End .header-search -->
 
                     <div class="header-contact d-none d-lg-flex pl-4 ml-3 mr-xl-5 pr-4">
                         <img alt="phone" th:src="@{/shop/images/icon-phone.png}" width="30" height="30" class="pb-1">
-                        <h6>Hotline<a href="tel:#" class="text-dark font1">036 545 4643</a></h6>
+                        <h6>Hotline<a href="tel:#" class="text-dark font1">036xxxxxxx</a></h6>
                     </div>
 
                     <a href="/gio-hang" class="header-icon" title="Giỏ hàng" style="position: relative; margin-right: 10px;">
@@ -93,7 +95,54 @@
         <style>
             /* ===== Header — sport sneaker shop palette ===== */
             .header { background: #fff; box-shadow: 0 2px 12px rgba(13,27,42,0.05); }
-            .header-middle { padding: 8px 0; }
+            .header-middle { padding: 6px 0 4px !important; }
+            /* Remove the huge inline margin-bottom: 45px on header-right */
+            .header-middle .header-right { margin-bottom: 0 !important; }
+            .header-middle .container { align-items: center !important; }
+            /* Bottom nav row tighter */
+            .header-bottom { padding: 0 !important; }
+            .header-bottom .main-nav .menu { padding: 6px 0 !important; margin: 0 !important; }
+            /* Logo column not too wide */
+            .header-left .logo img { max-height: 80px; }
+
+            /* Hide the small magnifier toggle (we always show the full search bar) */
+            .header-search > .search-toggle { display: none !important; }
+
+            /* Force the .header-search container itself to display properly */
+            .header-icon.header-search {
+                display: block !important;
+                position: static !important;
+                flex: 1 1 auto !important;
+                max-width: 700px !important;
+                text-align: left !important;
+                padding: 0 16px !important;
+            }
+
+            /* Force search wrapper visible (override Porto theme's hide-by-default) */
+            .header-search .header-search-wrapper {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 4px !important;
+                position: static !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 100% !important;
+                height: auto !important;
+                max-height: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: 0 !important;
+                box-shadow: none !important;
+                transform: none !important;
+            }
+            .header-search .header-search-wrapper > * { margin: 0 !important; }
+            .header-search .header-links {
+                margin-bottom: 0 !important;
+                padding: 0 !important;
+                line-height: 1.2 !important;
+            }
 
             /* Top links */
             .header-links a {
@@ -104,47 +153,101 @@
             .header-links a:hover { color: #ff6b35 !important; }
             .header-links i { color: #ff6b35; }
 
-            /* Search bar */
-            .search-input-group {
+            /* Search bar — strong override against Porto theme */
+            .header-search .search-input-group,
+            .header .search-input-group {
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                width: 600px !important;
+                max-width: 100% !important;
+                height: 44px !important;
+                min-height: 44px !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 border: 2px solid #eef1f5 !important;
                 border-radius: 30px !important;
-                overflow: hidden;
-                padding: 0 !important;
+                background: #fff !important;
+                overflow: hidden !important;
+                position: static !important;
+                transform: none !important;
                 transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                box-shadow: 0 2px 8px rgba(13,27,42,0.04) !important;
             }
-            .search-input-group:focus-within {
+            .header-search .search-input-group:focus-within {
                 border-color: #ff6b35 !important;
-                box-shadow: 0 0 0 4px rgba(255,107,53,0.12);
+                box-shadow: 0 0 0 4px rgba(255,107,53,0.12) !important;
             }
-            .search-input-group .search-input {
+            .header-search .search-input-group .search-input,
+            .header-search .search-input-group input.form-control {
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                min-width: 0 !important;
+                height: 42px !important;
+                line-height: 42px !important;
+                margin: 0 !important;
+                padding: 0 20px !important;
                 border: 0 !important;
                 background: transparent !important;
-                padding: 10px 18px !important;
                 font-size: 1rem !important;
-                height: auto !important;
+                color: #0d1b2a !important;
+                outline: none !important;
+                box-shadow: none !important;
             }
-            .search-input-group .search-button {
+            .header-search .search-input-group input.search-input::placeholder {
+                color: #9ca3af;
+                opacity: 1;
+            }
+            .header-search .search-input-group button.search-button,
+            .header-search .search-input-group .btn.search-button {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex-shrink: 0 !important;
+                width: 64px !important;
+                height: 42px !important;
+                min-width: 64px !important;
+                margin: 0 !important;
+                padding: 0 !important;
                 background: linear-gradient(135deg, #ff6b35, #e63946) !important;
                 color: #fff !important;
+                border: 0 !important;
                 border-radius: 0 !important;
-                padding: 0 22px !important;
-                font-size: 1.1rem !important;
+                font-size: 1.15rem !important;
+                cursor: pointer;
+                box-shadow: none !important;
                 transition: filter 0.2s ease;
             }
-            .search-input-group .search-button:hover { filter: brightness(1.1); }
+            .header-search .search-input-group button.search-button:hover { filter: brightness(1.1); }
+            /* Disable Porto's broken icon font glyph */
+            .header-search .search-input-group .icon-search-3::before { content: "" !important; }
+            /* Then force FontAwesome magnifier (higher specificity + !important, placed AFTER) */
+            .header-search .search-input-group button.btn.search-button.icon-search-3::before,
+            .header-search .search-input-group button.btn.search-button::before {
+                content: "\f002" !important;
+                font-family: "Font Awesome 5 Free", "Font Awesome 6 Free", "FontAwesome" !important;
+                font-weight: 900 !important;
+                color: #fff !important;
+                font-size: 1.05rem !important;
+                line-height: 1 !important;
+                display: inline-block !important;
+            }
 
             /* Brand pill list */
             .horizontal-list {
-                gap: 8px;
-                margin-top: 14px !important;
+                gap: 6px !important;
+                margin: 4px 0 0 !important;
+                padding: 0 !important;
             }
             .horizontal-list li {
-                margin-right: 0 !important;
-                margin-left: 0 !important;
+                margin: 0 !important;
                 background: #f7fafc;
-                padding: 6px 16px;
+                padding: 4px 14px;
                 border-radius: 20px;
-                font-size: 0.92rem;
+                font-size: 0.88rem;
                 font-weight: 600;
                 color: #0d1b2a;
                 cursor: pointer;

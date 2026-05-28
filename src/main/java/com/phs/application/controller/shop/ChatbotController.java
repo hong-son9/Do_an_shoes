@@ -121,10 +121,10 @@ public class ChatbotController {
             return ResponseEntity.ok(resp);
 
         } catch (RestClientException ex) {
-            resp.put("reply", "Hiện chatbot đang gặp sự cố kết nối. Bạn vui lòng thử lại sau ít phút hoặc gọi hotline 036 545 4643 để được hỗ trợ trực tiếp nhé!");
+            resp.put("reply", "Hiện chatbot đang gặp sự cố kết nối. Bạn vui lòng thử lại sau ít phút hoặc gọi hotline 036xxxxxxx để được hỗ trợ trực tiếp nhé!");
             return ResponseEntity.ok(resp);
         } catch (Exception ex) {
-            resp.put("reply", "Đã có lỗi xảy ra. Bạn vui lòng thử lại sau hoặc gọi hotline 036 545 4643.");
+            resp.put("reply", "Đã có lỗi xảy ra. Bạn vui lòng thử lại sau hoặc gọi hotline 036xxxxxxx.");
             return ResponseEntity.ok(resp);
         }
     }
@@ -160,7 +160,7 @@ public class ChatbotController {
 
         sb.append("THÔNG TIN CỬA HÀNG:\n");
         sb.append("- Tên: Sơn Shoes (Giày Phong Cách - Phí Hồng Sơn)\n");
-        sb.append("- Hotline: 036 545 4643 | Zalo: 0365454643\n");
+        sb.append("- Hotline: 036xxxxxxx | Zalo: 036xxxxxxx\n");
         sb.append("- Địa chỉ: 8 ngõ 7, Nguyên Xá, Minh Khai, Hà Nội\n");
         sb.append("- Giờ làm việc: T2 - CN, 9:00 - 20:00\n");
         sb.append("- Size có sẵn: 35 - 42 (chuẩn VN)\n\n");
