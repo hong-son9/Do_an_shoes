@@ -86,7 +86,33 @@ public class OrderServiceImpl implements OrderService {
         order.setNote(createOrderRequest.getNote());
         order.setSize(createOrderRequest.getSize());
         order.setPrice(createOrderRequest.getProductPrice());
-        order.setTotalPrice(createOrderRequest.getProductPrice() - createOrderRequest.getTotalPrice());
+        // Convention: order.totalPrice lưu SỐ TIỀN ĐƯỢC KHUYẾN MÃI (discount).
+        // Nếu request.totalPrice = 0 (không có coupon) hoặc >= productPrice (data lỗi) thì discount = 0.
+        long reqTotal = createOrderRequest.getTotalPrice();
+        long discount = 0;
+        if (reqTotal > 0 && reqTotal < createOrderRequest.getProductPrice()) {
+            discount = createOrderRequest.getProductPrice() - reqTotal;
+        }
+        order.setTotalPrice(discount);
+
+        // Lưu thông tin promotion vào order để edit modal hiển thị đúng
+        String couponCode = createOrderRequest.getCouponCode();
+        if (couponCode != null && !couponCode.trim().isEmpty()) {
+            try {
+                Promotion promotion = promotionService.checkPromotion(couponCode);
+                if (promotion != null) {
+                    Order.UsedPromotion usedPromotion = new Order.UsedPromotion(
+                            couponCode,
+                            promotion.getDiscountType(),
+                            promotion.getDiscountValue(),
+                            promotion.getMaximumDiscountValue()
+                    );
+                    order.setPromotion(usedPromotion);
+                }
+            } catch (Exception ignore) {
+                // Nếu promotion không hợp lệ thì bỏ qua, không chặn tạo đơn
+            }
+        }
         order.setStatus(ORDER_STATUS);
         order.setQuantity(createOrderRequest.getQuantity());
         order.setProduct(product.get());

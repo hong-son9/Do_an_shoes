@@ -466,10 +466,16 @@
                             <div class="shipping-address" th:text="${order.receiverAddress}"></div>
                             <div class="phone" th:text="${order.receiverPhone}"></div>
                         </div>
-                        <div class="price-wrapper">
+                        <div class="price-wrapper"
+                             th:with="v1=${order.totalPrice},
+                                      v2=${order.productPrice - order.totalPrice},
+                                      discount=${v1 < v2 ? v1 : v2},
+                                      finalPrice=${v1 < v2 ? v2 : v1}">
+                            <!-- Heuristic: giá trị nhỏ hơn trong (totalPrice, price-totalPrice) = khuyến mãi,
+                                 giá trị lớn hơn = thành tiền (vì discount < 50% giá là phổ biến) -->
                             <div class="sub-price-wrapper price">Tạm tính<span><span class="text-price" th:text="${order.productPrice}"></span> &#x20AB;</span></div>
-                            <div class="shipping-price-wrapper price">Khuyến mãi<span><span class="text-price" th:text="${order.productPrice} - ${order.totalPrice}"></span> &#x20AB;</span></div>
-                            <div class="total-price-wrapper price">Thành tiền<span class="total-price"><span class="text-price" th:text="${order.totalPrice}"></span> &#x20AB;</span></div>
+                            <div class="shipping-price-wrapper price">Khuyến mãi<span><span class="text-price" th:text="${discount}"></span> &#x20AB;</span></div>
+                            <div class="total-price-wrapper price">Thành tiền<span class="total-price"><span class="text-price" th:text="${finalPrice}"></span> &#x20AB;</span></div>
                         </div>
                     </div>
                     <button th:if="${canCancel} == true" class="btn btn-primary red-btn cancel-btn" th:data-order="${order.id}">Hủy đơn hàng</button>
@@ -577,9 +583,21 @@
                                 <div class="phone" th:text="${order.receiverPhone}"></div>
                             </div>
                             <div class="price-wrapper">
-                                <div class="sub-price-wrapper price">Tạm tính<span><span class="text-price" th:text="${order.productPrice}"></span> &#x20AB;</span></div>
-                                <div class="shipping-price-wrapper price">Khuyến mãi<span><span class="text-price" th:text="${order.productPrice} - ${order.totalPrice}"></span> &#x20AB;</span></div>
-                                <div class="total-price-wrapper price">Thành tiền<span class="total-price"><span class="text-price" th:text="${order.totalPrice}"></span> &#x20AB;</span></div>
+                                <div class="sub-price-wrapper price">
+                                    Tạm tính<span><span class="text-price" th:text="${order.productPrice}"></span> &#x20AB;</span>
+                                </div>
+                                <div class="shipping-price-wrapper price"
+                                     th:with="v1=${order.totalPrice},
+                                              v2=${order.productPrice - order.totalPrice},
+                                              discount=${v1 < v2 ? v1 : v2}">
+                                    Khuyến mãi<span><span class="text-price" th:text="${discount}"></span> &#x20AB;</span>
+                                </div>
+                                <div class="total-price-wrapper price"
+                                     th:with="v1=${order.totalPrice},
+                                              v2=${order.productPrice - order.totalPrice},
+                                              finalPrice=${v1 < v2 ? v2 : v1}">
+                                    Thành tiền<span class="total-price"><span class="text-price" th:text="${finalPrice}"></span> &#x20AB;</span>
+                                </div>
                             </div>
                         </div>
 

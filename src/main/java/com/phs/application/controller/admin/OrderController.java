@@ -1,6 +1,7 @@
 package com.phs.application.controller.admin;
 
 import com.phs.application.entity.Order;
+import com.phs.application.entity.ProductSize;
 import com.phs.application.entity.Promotion;
 import com.phs.application.entity.User;
 import com.phs.application.exception.BadRequestException;
@@ -23,7 +24,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.phs.application.config.Contant.*;
 
@@ -83,6 +86,19 @@ public class OrderController {
         User user = ((CustomUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUser();
         Order order = orderService.createOrder(createOrderRequest, user.getId());
         return ResponseEntity.ok(order);
+    }
+
+    // Trả về map { size : quantity } để admin check tồn kho khi tạo đơn
+    @GetMapping("/api/admin/products/{id}/stock-by-size")
+    public ResponseEntity<Map<Integer, Integer>> getProductStockBySize(@PathVariable String id) {
+        List<ProductSize> sizes = productService.getListSizeOfProduct(id);
+        Map<Integer, Integer> stock = new HashMap<>();
+        if (sizes != null) {
+            for (ProductSize ps : sizes) {
+                stock.put(ps.getSize(), ps.getQuantity());
+            }
+        }
+        return ResponseEntity.ok(stock);
     }
 
     @GetMapping("/admin/orders/update/{id}")

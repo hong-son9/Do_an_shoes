@@ -62,7 +62,7 @@
                             <div class="card-body pad">
                                 <h3>Chi tiết đơn hàng</h3>
                                 <div class="row">
-                                    <div class="col-md-9">
+                                    <div class="col-md-7">
                                         <div class="form-group">
                                             <label for="product">Sản phẩm</label>
                                             <select name="product" class="form-control thuy-search-select" id="product">
@@ -73,12 +73,20 @@
                                             <span class="invalid-feedback" id="invalid-feedback-product">Sản phẩm đã hết size</span>
                                         </div>
                                     </div>
-                                    <div class="col-md-3">
+                                    <div class="col-md-2">
                                         <div class="form-group">
                                             <label for="size">Kích cỡ</label>
                                             <select class="form-control" id="size">
 
                                             </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-group">
+                                            <label for="quantity">Số lượng <small id="stock-hint" style="color:#6b7280; font-weight:500;"></small></label>
+                                            <input type="number" class="form-control" id="quantity" min="1" value="1">
+                                            <span class="invalid-feedback" id="invalid-feedback-quantity">Số lượng không hợp lệ</span>
+                                            <small id="stock-warning" style="display:none; color:#dc3545; font-weight:600; margin-top:4px;"></small>
                                         </div>
                                     </div>
                                     <div class="col-12">
@@ -180,6 +188,44 @@
         let productPrice = 0;
         let promotionPrice = 0;
         let totalPrice = 0;
+        let stockBySize = {};  // { size: quantity } cho sản phẩm hiện tại
+
+        // ===== Toastr config — đảm bảo notification luôn hiện đều =====
+        if (typeof toastr !== 'undefined') {
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                positionClass: 'toast-top-right',
+                preventDuplicates: false,
+                timeOut: 3500,
+                extendedTimeOut: 1500,
+                showDuration: 200,
+                hideDuration: 300
+            };
+        }
+
+        // Helper hiển thị toast nhất quán
+        function notifyError(msg) {
+            if (typeof toastr !== 'undefined') toastr.error(msg || 'Có lỗi xảy ra');
+            else alert(msg || 'Có lỗi xảy ra');
+        }
+        function notifySuccess(msg) {
+            if (typeof toastr !== 'undefined') toastr.success(msg || 'Thành công');
+        }
+        function notifyWarning(msg) {
+            if (typeof toastr !== 'undefined') toastr.warning(msg || 'Cảnh báo');
+        }
+        // Parse message an toàn từ AJAX error
+        function parseErrorMessage(xhr, fallback) {
+            try {
+                if (xhr && xhr.responseJSON && xhr.responseJSON.message) return xhr.responseJSON.message;
+                if (xhr && xhr.responseText) {
+                    var j = JSON.parse(xhr.responseText);
+                    if (j && j.message) return j.message;
+                }
+            } catch (e) {}
+            return fallback || 'Có lỗi xảy ra, vui lòng thử lại';
+        }
 
         $(function () {
             $('#product').val(products[0].id);
@@ -209,38 +255,105 @@
                 $("#size").append(new Option(size, size));
             }
 
+            // Reset stock cache + fetch lại theo sản phẩm
+            stockBySize = {};
+            $('#stock-hint').text('');
+            fetchStockBySize(idProduct);
+
             calculatePrice();
         }
+
+        function fetchStockBySize(productId) {
+            if (!productId) return;
+            $.ajax({
+                url: '/api/admin/products/' + encodeURIComponent(productId) + '/stock-by-size',
+                type: 'GET',
+                success: function (data) {
+                    stockBySize = data || {};
+                    validateStock();
+                },
+                error: function () {
+                    stockBySize = {};
+                }
+            });
+        }
+
+        // Hiển thị "Còn N đôi" sau label số lượng + cảnh báo nếu vượt
+        function validateStock() {
+            let size = $('#size').val();
+            let qty = parseInt($('#quantity').val());
+            let available = (size != null && stockBySize[size] != null) ? parseInt(stockBySize[size]) : null;
+
+            if (available != null) {
+                $('#stock-hint').text('(Còn ' + available + ' đôi)');
+            } else {
+                $('#stock-hint').text('');
+            }
+
+            if (available != null && !isNaN(qty) && qty > available) {
+                $('#stock-warning').text('Trong kho chỉ còn ' + available + ' đôi cho size ' + size).show();
+                $('#quantity').css('border-color', '#dc3545');
+                $('.btn-create-order').prop('disabled', true).css('opacity', '0.6');
+                return false;
+            } else {
+                $('#stock-warning').hide();
+                $('#quantity').css('border-color', '');
+                $('.btn-create-order').prop('disabled', false).css('opacity', '');
+                return true;
+            }
+        }
+
+        $('#size').on('change', function () {
+            validateStock();
+        });
 
         $('#promotion').change(function () {
             calculatePrice();
         });
 
+        // Recalculate + check stock khi đổi số lượng
+        $('#quantity').on('input change', function () {
+            calculatePrice();
+            validateStock();
+        });
+
+        function getQuantity() {
+            let q = parseInt($('#quantity').val());
+            if (isNaN(q) || q < 1) q = 1;
+            return q;
+        }
+
         function calculatePrice() {
             let codePromotion = $('#promotion').val();
-            if (codePromotion.length > 0) {
+            let quantity = getQuantity();
+            // Tổng giá sản phẩm = giá đơn vị × số lượng
+            let subTotal = productPrice * quantity;
+
+            // RESET promotionPrice mỗi lần tính lại để tránh giữ giá trị cũ
+            promotionPrice = 0;
+
+            if (codePromotion && codePromotion.length > 0) {
                 for (promotion of promotions) {
                     if (promotion.couponCode === codePromotion) {
                         if (promotion.discountType === 1) {
-                            promotionPrice = productPrice * promotion.discountValue / 100;
+                            promotionPrice = subTotal * promotion.discountValue / 100;
                             if (promotionPrice > promotion.maximumDiscountValue) {
                                 promotionPrice = promotion.maximumDiscountValue;
                             }
                         } else {
                             promotionPrice = promotion.discountValue;
                         }
-                        totalPrice = productPrice - promotionPrice;
-                        if (totalPrice < 0) {
-                            totalPrice = 0;
-                        }
                         break;
                     }
                 }
-            } else {
-                totalPrice = productPrice;
             }
 
-            $('#product-price').text(productPrice);
+            totalPrice = subTotal - promotionPrice;
+            if (totalPrice < 0) {
+                totalPrice = 0;
+            }
+
+            $('#product-price').text(subTotal);
             $('#promotion-price').text(promotionPrice);
             $('#total-price').text(totalPrice);
 
@@ -249,13 +362,14 @@
 
         $('.btn-create-order').click(function () {
             $('.invalid-feedback').hide();
-            let receiverName = $('#receiver-name').val();
-            let receiverPhone = $('#receiver-phone').val();
-            let receiverAddress = $('#receiver-address').val();
-            let note = $('#receiver-note').val();
+            let receiverName = ($('#receiver-name').val() || '').trim();
+            let receiverPhone = ($('#receiver-phone').val() || '').trim();
+            let receiverAddress = ($('#receiver-address').val() || '').trim();
+            let note = $('#receiver-note').val() || '';
             let product = $('#product').val();
             let size = $('#size').val();
             let promotion = $('#promotion').val();
+            let quantity = getQuantity();
             let isValid = true;
 
             if (receiverName.length === 0) {
@@ -274,36 +388,57 @@
                 $('#invalid-feedback-product').show();
                 isValid = false;
             }
-
-            if (isValid) {
-                req = {
-                    product_id: product,
-                    size: parseInt(size),
-                    receiver_name: receiverName,
-                    receiver_phone: receiverPhone,
-                    receiver_address: receiverAddress,
-                    coupon_code: promotion,
-                    total_price: totalPrice,
-                    product_price: productPrice,
-                    note: note,
-                }
-                let myJSON = JSON.stringify(req);
-                $.ajax({
-                    url: '/api/admin/orders',
-                    type: 'POST',
-                    data: myJSON,
-                    contentType: "application/json; charset=utf-8",
-                    success: function (data) {
-                        toastr.success("Tạo đơn hàng thành công");
-                        setTimeout(function () {
-                            location.href = "/admin/orders/";
-                        }, 1000)
-                    },
-                    error: function (data) {
-                        toastr.warning(data.responseJSON.message);
-                    },
-                });
+            let rawQty = parseInt($('#quantity').val());
+            if (isNaN(rawQty) || rawQty < 1) {
+                $('#invalid-feedback-quantity').show();
+                isValid = false;
             }
+
+            // Kiểm tra tồn kho lần cuối trước khi submit
+            if (!validateStock()) {
+                let avail = stockBySize[size];
+                notifyWarning('Trong kho chỉ còn ' + (avail != null ? avail : 0) + ' đôi cho size ' + size);
+                isValid = false;
+            }
+
+            if (!isValid) {
+                notifyWarning('Vui lòng kiểm tra lại thông tin đơn hàng');
+                return;
+            }
+
+            const req = {
+                product_id: product,
+                size: parseInt(size),
+                quantity: quantity,
+                receiver_name: receiverName,
+                receiver_phone: receiverPhone,
+                receiver_address: receiverAddress,
+                coupon_code: promotion,
+                total_price: totalPrice,
+                product_price: productPrice * quantity,
+                note: note,
+            };
+
+            // Disable nút trong lúc gửi để tránh double-click
+            const $btn = $('.btn-create-order');
+            $btn.prop('disabled', true).css('opacity', '0.6');
+
+            $.ajax({
+                url: '/api/admin/orders',
+                type: 'POST',
+                data: JSON.stringify(req),
+                contentType: "application/json; charset=utf-8",
+                success: function () {
+                    notifySuccess('Tạo đơn hàng thành công');
+                    setTimeout(function () {
+                        location.href = '/admin/orders/';
+                    }, 1200);
+                },
+                error: function (xhr) {
+                    notifyError(parseErrorMessage(xhr, 'Tạo đơn hàng thất bại'));
+                    $btn.prop('disabled', false).css('opacity', '');
+                }
+            });
         })
     </script>
 </th:block>
