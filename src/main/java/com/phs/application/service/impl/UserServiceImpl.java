@@ -66,6 +66,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findOrCreateOAuthUser(String email, String fullName) {
+        if (email == null || email.trim().isEmpty()) {
+            throw new BadRequestException("Email từ Google không hợp lệ");
+        }
+        String normalized = email.trim();
+        User existing = userRepository.findByEmail(normalized);
+        if (existing != null) {
+            return existing;
+        }
+        // Tao user moi voi mat khau random (user chi login qua Google)
+        User user = new User();
+        user.setEmail(normalized);
+        user.setFullName(fullName != null && !fullName.isEmpty() ? fullName : normalized.split("@")[0]);
+        String randomPassword = java.util.UUID.randomUUID().toString();
+        user.setPassword(BCrypt.hashpw(randomPassword, BCrypt.gensalt(12)));
+        user.setRoles(new java.util.ArrayList<>(java.util.Collections.singletonList("USER")));
+        user.setStatus(true);
+        user.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        userRepository.save(user);
+        return user;
+    }
+
+    @Override
     public void resetPasswordByEmail(String email, String newPassword) {
         if (email == null || newPassword == null) {
             throw new BadRequestException("Thông tin không hợp lệ");

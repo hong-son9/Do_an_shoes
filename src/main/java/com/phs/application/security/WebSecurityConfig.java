@@ -28,6 +28,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtUserDetailsService jwtUserDetailsService;
 
+    @Autowired
+    private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -58,10 +61,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .disable()
                 .authorizeRequests()
                 .antMatchers("/api/cart/count").permitAll()
+                .antMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 .antMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password", "/api/update-profile",
                         "/gio-hang", "/api/cart/**").authenticated()
                 .antMatchers("/admin/**","/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
+                .and()
+                .oauth2Login()
+                .successHandler(oauth2LoginSuccessHandler)
+                .failureUrl("/?oauthError=auth_failed")
                 .and()
                 .logout()
                 .logoutUrl("/api/logout")
@@ -71,8 +79,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 .and()
+                // IF_REQUIRED: OAuth2 redirect dance can session de luu state.
+                // JWT van hoat dong binh thuong vi JwtRequestFillter doc cookie JWT_TOKEN
+                // va set SecurityContext khong dua vao session.
                 .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .headers()
                 // Bao ve XSS/clickjacking co ban

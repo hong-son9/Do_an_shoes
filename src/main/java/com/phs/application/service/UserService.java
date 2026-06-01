@@ -26,5 +26,8 @@ public interface UserService {
     /** Dat lai mat khau truc tiep (sau khi da verify OTP). */
     void resetPasswordByEmail(String email, String newPassword);
 
+    /** Tim user theo email; neu chua co thi tao moi tu thong tin Google OAuth2. */
+    User findOrCreateOAuthUser(String email, String fullName);
+
     User updateProfile(User user, UpdateProfileRequest updateProfileRequest);
 }

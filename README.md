@@ -123,7 +123,7 @@ Một số thẻ test khác (dùng cho các case lỗi):
 
 ## 6. Email & OTP (đăng ký / quên mật khẩu)
 
-Ứng dụng dùng **Gmail SMTP** để gửi mã OTP 6 số khi user **đăng ký tài khoản** hoặc **quên mật khẩu**. OTP có hiệu lực **5 phút**, mỗi email có cooldown **60 giây** giữa các lần gửi.
+Ứng dụng dùng **Gmail SMTP** để gửi mã OTP 6 số khi user **đăng ký tài khoản** hoặc **quên mật khẩu**. OTP có hiệu lực **1 phút**, mỗi email có cooldown **60 giây** giữa các lần gửi.
 
 ### 6.1. Chế độ dev (không cần SMTP)
 
@@ -231,11 +231,132 @@ otp.resend-cooldown-seconds=60  # Bắt user chờ X giây trước khi gửi l�
 | POST   | `/api/forgot-password/reset`     | Đặt lại mật khẩu mới             |
 
 
-## 8. Cấu hình Chatbot AI
-1. Vào: https://console.groq.com/keys đăng kí tài khoản
-2. Sau đó tạo API Key. Rồi copy
-3. Paste vào: groq.api-key=${GROQ_API_KEY:} trong application-dev.properties
-## 7. Cấu trúc dự án
+## 7. Chatbot AI (Groq)
+
+Cửa hàng tích hợp **Sneaker Bot** — chatbot tư vấn giày dùng LLM (mặc định `llama-3.3-70b-versatile`) qua [Groq Cloud](https://groq.com). Bot biết cấu trúc DB: list brand, category, sản phẩm đang bán, khuyến mãi → giúp khách chọn giày, hỏi size, tư vấn theo dịp/ngân sách. Nếu chưa cấu hình, chatbot vẫn hiện nhưng trả lời "chưa được cấu hình".
+
+### 7.1. Lấy API key
+
+1. Đăng ký tài khoản tại <https://console.groq.com> (Groq cho **free tier** thoải mái).
+2. Vào <https://console.groq.com/keys> → **Create API Key** → đặt tên (vd `shoes-shop`).
+3. Copy key dạng `gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx` — **chỉ hiện 1 lần**.
+
+### 7.2. Set biến môi trường
+
+> **KHÔNG** paste API key vào `application-dev.properties` → tránh lộ khi commit Git (GitHub có push protection sẽ tự chặn).
+
+**Windows (PowerShell):**
+
+```powershell
+[Environment]::SetEnvironmentVariable("GROQ_API_KEY", "gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", "User")
+```
+
+**Linux/macOS:**
+
+```bash
+export GROQ_API_KEY="gsk_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# Thêm vào ~/.bashrc hoặc ~/.zshrc để persist
+```
+
+### 7.3. Tuỳ chỉnh model / token
+
+Trong [application-dev.properties](src/main/resources/application-dev.properties):
+
+```properties
+groq.api-key=${GROQ_API_KEY:}
+groq.api-url=https://api.groq.com/openai/v1/chat/completions
+groq.model=llama-3.3-70b-versatile  # hoặc llama-3.1-8b-instant (nhanh hơn, kém thông minh hơn)
+groq.max-tokens=600
+groq.temperature=0.5                # 0=máy móc, 1=sáng tạo
+```
+
+### 7.4. Test
+
+1. Restart Spring Boot (mở terminal mới sau khi set env var).
+2. Vào <http://localhost:8081> → icon chat 💬 góc dưới phải → mở Sneaker Bot.
+3. Thử các câu hỏi:
+   - "Có Nike size 40 nào hot không?"
+   - "Mình đi học, recommend giày dưới 2 triệu"
+   - "Cách giặt giày Vans?"
+
+Chatbot có **rate limit 20 req/phút/IP** để tránh đốt quota Groq.
+
+---
+
+## 8. Đăng nhập bằng Google (OAuth 2.0)
+
+Cho phép user đăng nhập bằng tài khoản Google chỉ với 1 click. Nếu email Google chưa có trong DB, hệ thống tự tạo user mới (role `USER`, password ngẫu nhiên).
+
+### 8.1. Tạo OAuth Client trên Google Cloud Console
+
+1. Vào <https://console.cloud.google.com/apis/credentials>.
+2. Tạo project mới nếu chưa có (vd `Sơn Shoes`).
+3. Nếu chưa cấu hình **OAuth consent screen**:
+   - **User Type**: External
+   - App name: `Shoes`
+   - User support email + Developer contact email: email của bạn
+   - Scopes: không cần thêm (mặc định đã đủ `email` + `profile`)
+   - **Test users**: thêm các Gmail dùng để test trong giai đoạn dev
+4. Quay lại Credentials → **+ CREATE CREDENTIALS** → **OAuth client ID**:
+   - **Application type**: Web application
+   - **Name**: `Shoes Local Dev`
+   - **Authorized JavaScript origins**: `http://localhost:8081`
+   - **Authorized redirect URIs**: `http://localhost:8081/login/oauth2/code/google`
+5. Click **Create** → popup hiện **Client ID** + **Client Secret** → copy cả 2.
+
+### 8.2. Set biến môi trường
+
+```powershell
+# Windows
+[Environment]::SetEnvironmentVariable("GOOGLE_CLIENT_ID", "1234567890-xxxxxxxxxx.apps.googleusercontent.com", "User")
+[Environment]::SetEnvironmentVariable("GOOGLE_CLIENT_SECRET", "GOCSPX-xxxxxxxxxxxxxxxxxx", "User")
+```
+
+```bash
+# Linux/macOS
+export GOOGLE_CLIENT_ID="1234567890-xxxxxxxxxx.apps.googleusercontent.com"
+export GOOGLE_CLIENT_SECRET="GOCSPX-xxxxxxxxxxxxxxxxxx"
+```
+
+### 8.3. Cấu hình tự động
+
+Phần config trong properties đã chuẩn:
+
+```properties
+spring.security.oauth2.client.registration.google.client-id=${GOOGLE_CLIENT_ID:placeholder-client-id}
+spring.security.oauth2.client.registration.google.client-secret=${GOOGLE_CLIENT_SECRET:placeholder-secret}
+spring.security.oauth2.client.registration.google.scope=email,profile
+spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+```
+
+> Khi chưa set env var, app vẫn chạy (dùng `placeholder-*`) nhưng click nút Google sẽ lỗi `401 invalid_client` từ Google. Set env var → restart → hoạt động.
+
+### 8.4. Luồng hoạt động
+
+1. User click **"Đăng nhập bằng Google"** trên modal đăng nhập.
+2. Browser redirect đến Google OAuth.
+3. User chọn tài khoản + đồng ý cho phép truy cập email + profile.
+4. Google redirect về `http://localhost:8081/login/oauth2/code/google?code=xxx`.
+5. Spring Security đổi `code` lấy token Google → gọi userinfo lấy email + tên.
+6. [OAuth2LoginSuccessHandler](src/main/java/com/phs/application/security/OAuth2LoginSuccessHandler.java):
+   - Tìm user theo email; nếu chưa có thì **tạo mới** (password random, role USER).
+   - Sinh JWT, set cookie `JWT_TOKEN` (HttpOnly + SameSite=Lax).
+   - Redirect về `/?oauth=success`.
+7. Trang chủ load lại với header hiện tên user → đã đăng nhập ✅.
+
+### 8.5. Khắc phục sự cố
+
+| Lỗi | Nguyên nhân | Fix |
+|---|---|---|
+| `redirect_uri_mismatch` từ Google | Authorized redirect URI sai | Phải khớp **chính xác** `http://localhost:8081/login/oauth2/code/google` |
+| 404 ở `/oauth2/authorization/google` | Chưa restart sau khi thêm dependency | `mvn spring-boot:run` lại |
+| Redirect về `/?oauthError=auth_failed` | Client ID/Secret sai hoặc env var chưa load | Verify `echo $env:GOOGLE_CLIENT_ID`, mở terminal mới |
+| `Access blocked: This app's request is invalid` | App ở chế độ Testing, email chưa thêm vào Test users | Add Test user trong OAuth consent screen hoặc Publish app |
+| User Google đã có account password sẵn | Service lookup theo email → trả user cũ | Tài khoản đó dùng được cả 2 cách login |
+
+---
+
+## 9. Cấu trúc dự án
 
 ```
 src/main/java/com/phs/application/
@@ -265,7 +386,7 @@ src/main/resources/
     └── shop/                  # View phía user
 ```
 
-## 8. Một số endpoint quan trọng
+## 10. Một số endpoint quan trọng
 
 | Method | URL                              | Mô tả                                    |
 |--------|----------------------------------|------------------------------------------|
@@ -284,7 +405,7 @@ src/main/resources/
 | GET    | `/tai-khoan/lich-su-giao-dich`   | Lịch sử giao dịch                        |
 | GET    | `/admin/**`                      | Trang admin (yêu cầu role ADMIN)         |
 
-## 9. Khắc phục sự cố
+## 11. Khắc phục sự cố
 
 - **`Sai chữ ký` (VNPay code 70)**: Kiểm tra lại `vnpay.tmn-code` và `vnpay.hash-secret` trong properties. Đảm bảo copy chính xác, không có ký tự space ở đầu/cuối, và đúng cặp được VNPay gửi qua email.
 - **`localhost` bị từ chối khi đăng ký merchant**: VNPay không cho URL localhost. Khi đăng ký dùng domain giả như `http://shoes-demo.com`. Còn `vnp_ReturnUrl` trong code vẫn để `http://localhost:8081/...` được.
