@@ -300,7 +300,61 @@
         <div class="col-lg-3">
             <div class="left-sidebar">
                 <div class="header">
-                    <div class="avatar"><img class="img-fluid" th:src="@{/shop/images/avatar/avatar7.png}" alt="avatar"/></div>
+                    <style>
+                        .avatar-uploader {
+                            position: relative;
+                            width: 110px;
+                            height: 110px;
+                            margin: 0 auto;
+                            cursor: pointer;
+                        }
+                        .avatar-uploader img {
+                            width: 110px;
+                            height: 110px;
+                            border-radius: 50%;
+                            object-fit: cover;
+                            border: 3px solid #fff;
+                            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+                            transition: filter 0.2s;
+                        }
+                        .avatar-uploader:hover img { filter: brightness(0.7); }
+                        .avatar-uploader .upload-overlay {
+                            position: absolute;
+                            inset: 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: #fff;
+                            font-size: 12px;
+                            font-weight: 600;
+                            opacity: 0;
+                            transition: opacity 0.2s;
+                            pointer-events: none;
+                            border-radius: 50%;
+                        }
+                        .avatar-uploader:hover .upload-overlay { opacity: 1; }
+                        .avatar-uploader .camera-icon {
+                            position: absolute;
+                            bottom: 4px;
+                            right: 4px;
+                            background: #ff6b35;
+                            color: white;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            border: 2px solid #fff;
+                            font-size: 14px;
+                        }
+                    </style>
+                    <div class="avatar-uploader" id="avatarUploader" title="Click để đổi ảnh đại diện">
+                        <img class="img-fluid" id="avatarPreview" th:src="${user_avatar}" alt="avatar"/>
+                        <div class="upload-overlay"><i class="fas fa-camera"></i>&nbsp;Đổi ảnh</div>
+                        <div class="camera-icon"><i class="fas fa-camera"></i></div>
+                    </div>
+                    <input type="file" id="avatarFileInput" accept="image/png,image/jpeg,image/jpg,image/gif,image/webp" style="display:none">
                     <div class="user-info">
                         <div class="user-name" style="color: black;" th:text="${user_fullname}"></div>
                     </div>
@@ -518,6 +572,46 @@
 
 <th:block id="js-resources">
     <script th:inline="javascript">
+        // ===== Avatar upload =====
+        $('#avatarUploader').on('click', function () {
+            $('#avatarFileInput').click();
+        });
+        $('#avatarFileInput').on('change', function () {
+            const file = this.files && this.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                toastr.warning('Ảnh không được vượt quá 5MB');
+                return;
+            }
+            const allowed = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+            if (allowed.indexOf(file.type) === -1) {
+                toastr.warning('Chỉ chấp nhận PNG, JPG, JPEG, GIF, WEBP');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('file', file);
+            const $img = $('#avatarPreview');
+            const oldSrc = $img.attr('src');
+            $.ajax({
+                url: '/api/update-avatar',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (resp) {
+                    // cache-bust query string de browser load anh moi
+                    $img.attr('src', resp.avatar + '?t=' + Date.now());
+                    toastr.success(resp.message || 'Cập nhật ảnh thành công');
+                },
+                error: function (xhr) {
+                    $img.attr('src', oldSrc);
+                    let msg = 'Có lỗi xảy ra';
+                    try { msg = JSON.parse(xhr.responseText).message || msg; } catch (e) {}
+                    toastr.error(msg);
+                }
+            });
+        });
+
         $('.btn-confirm-change-password').click(function() {
             let oldPassword = $('#old-password').val();
             let newPassword = $('#new-password').val();

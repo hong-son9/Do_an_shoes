@@ -27,11 +27,20 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 @Controller
 public class UserController {
@@ -195,5 +204,57 @@ public class UserController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return ResponseEntity.ok("Cập nhật thành công");
+    }
+
+    private static final String AVATAR_UPLOAD_DIR = System.getProperty("user.home") + "/media/upload";
+    private static final List<String> ALLOWED_AVATAR_EXT = Arrays.asList("png", "jpg", "jpeg", "gif", "webp");
+    private static final long MAX_AVATAR_SIZE = 5 * 1024 * 1024; // 5MB
+
+    @PostMapping("/api/update-avatar")
+    public ResponseEntity<Object> updateAvatar(@RequestParam("file") MultipartFile file) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !(auth.getPrincipal() instanceof CustomUserDetails)) {
+            throw new BadRequestException("Bạn cần đăng nhập để cập nhật ảnh đại diện");
+        }
+        if (file == null || file.isEmpty()) {
+            throw new BadRequestException("Vui lòng chọn file ảnh");
+        }
+        if (file.getSize() > MAX_AVATAR_SIZE) {
+            throw new BadRequestException("Ảnh không được vượt quá 5MB");
+        }
+        String original = file.getOriginalFilename();
+        if (original == null || !original.contains(".")) {
+            throw new BadRequestException("File không hợp lệ");
+        }
+        String ext = original.substring(original.lastIndexOf(".") + 1).toLowerCase();
+        if (!ALLOWED_AVATAR_EXT.contains(ext)) {
+            throw new BadRequestException("Chỉ chấp nhận định dạng PNG, JPG, JPEG, GIF, WEBP");
+        }
+
+        File dir = new File(AVATAR_UPLOAD_DIR);
+        if (!dir.exists()) dir.mkdirs();
+
+        String filename = "avatar-" + UUID.randomUUID() + "." + ext;
+        File dest = new File(AVATAR_UPLOAD_DIR + "/" + filename);
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(dest))) {
+            bos.write(file.getBytes());
+        } catch (Exception e) {
+            throw new BadRequestException("Có lỗi khi lưu ảnh");
+        }
+
+        String publicUrl = "/media/static/" + filename;
+        User user = ((CustomUserDetails) auth.getPrincipal()).getUser();
+        user.setAvatar(publicUrl);
+        user = userService.updateAvatar(user);
+
+        // Refresh principal trong SecurityContext de cac request sau lay duoc avatar moi
+        UserDetails userDetails = new CustomUserDetails(user);
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
+
+        Map<String, Object> resp = new HashMap<>();
+        resp.put("avatar", publicUrl);
+        resp.put("message", "Cập nhật ảnh đại diện thành công");
+        return ResponseEntity.ok(resp);
     }
 }

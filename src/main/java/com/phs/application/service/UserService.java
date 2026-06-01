@@ -33,4 +33,7 @@ public interface UserService {
 
     /** Toggle active/inactive cho user. Tra ve user sau khi update. */
     User toggleUserStatus(long id, long currentAdminId);
+
+    /** Cap nhat avatar cho user hien tai. */
+    User updateAvatar(User user);
 }

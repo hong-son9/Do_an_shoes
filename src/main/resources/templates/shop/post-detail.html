@@ -163,19 +163,57 @@
                             }
 
                         </style>
+                        <style>
+                            /* Override CSS cu cho phan avatar comment bai post */
+                            .list-comment .post-author { padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+                            .list-comment .post-author figure {
+                                width: 60px !important;
+                                max-width: 60px !important;
+                                height: 60px !important;
+                                margin-right: 1.5rem !important;
+                                margin-bottom: 0 !important;
+                                border-radius: 50%;
+                                overflow: hidden;
+                                float: left;
+                                background: #f1f5f9;
+                            }
+                            .list-comment .post-author figure img {
+                                width: 60px !important;
+                                height: 60px !important;
+                                object-fit: cover !important;
+                                border-radius: 50% !important;
+                                display: block;
+                                filter: none !important;
+                            }
+                            .list-comment .post-author .author-content { overflow: hidden; }
+                            .list-comment .post-author h5 {
+                                margin: 0 0 .25rem 0;
+                                font-weight: 600;
+                                color: #2c3e50;
+                                display: inline-block;
+                            }
+                            .list-comment .post-author .comment-date {
+                                font-size: 12px;
+                                color: #94a3b8;
+                                margin-left: .5rem;
+                            }
+                        </style>
                         <div class="list-comment">
                             <th:block th:each="comment : ${post.comments}">
                                 <div class="post-author">
-                                    <!--                                    <h3 class="icon-user" th:text="${comment.user.email}"></h3>-->
                                     <figure>
-                                       <img th:src="@{/shop/images/avatar/avatar.png}" width="30px" height="30px" alt="author">
+                                       <img
+                                            th:src="${comment.user.avatar != null and !#strings.isEmpty(comment.user.avatar) ? comment.user.avatar : '/shop/images/avatar/avatar.png'}"
+                                            alt="author"
+                                            onerror="this.onerror=null;this.src='/shop/images/avatar/avatar.png';">
                                     </figure>
                                     <div class="author-content">
                                         <h5 th:text="${comment.user.fullName}"></h5>
+                                        <span class="comment-date"
+                                              th:text="${comment.createdAt != null} ? '• ' + ${#dates.format(comment.createdAt, 'dd-MM-yyyy HH:mm')} : ''"></span>
                                         <p th:text="${comment.content}"></p>
-                                    </div><!-- End .author.content -->
-
-                                </div><!-- End .post-author -->
+                                    </div>
+                                </div>
                             </th:block>
                         </div>
 
@@ -268,15 +306,20 @@
                     data: myJson,
                     contentType: "application/json; charset=utf-8",
                     success: function (data) {
+                        const userAvatar = (/*[[${user_avatar}]]*/ '/shop/images/avatar/avatar.png') || '/shop/images/avatar/avatar.png';
+                        const userFullName = (/*[[${user_fullname}]]*/ 'Bạn') || 'Bạn';
+                        const now = new Date();
+                        const pad = n => String(n).padStart(2, '0');
+                        const formattedDate = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
                         $(".list-comment").append(`
                                 <div class="post-author">
                                         <figure>
-                                            <a href="#">
-                                                <img src="/shop/images/blog/author.jpg" width="30px" height="30px" alt="author">
-                                            </a>
+                                            <img src="${userAvatar}" alt="author"
+                                                 onerror="this.onerror=null;this.src='/shop/images/avatar/avatar.png';">
                                         </figure>
                                         <div class="author-content">
-<!--                                            <h4>${data.user.fullName}</h4>-->
+                                            <h5>${userFullName}</h5>
+                                            <span class="comment-date">• ${formattedDate}</span>
                                             <p>${data.content}</p>
                                         </div>
                                 </div>

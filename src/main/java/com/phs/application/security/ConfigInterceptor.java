@@ -26,8 +26,12 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
             modelAndView.addObject("user_phone", principal.getUser().getPhone());
             modelAndView.addObject("user_email", principal.getUser().getEmail());
             modelAndView.addObject("user_address", principal.getUser().getAddress());
+            String avatar = principal.getUser().getAvatar();
+            modelAndView.addObject("user_avatar",
+                    (avatar != null && !avatar.trim().isEmpty()) ? avatar : "/shop/images/avatar/avatar.png");
             modelAndView.addObject("isLogined", true);
         } else {
+            modelAndView.addObject("user_avatar", "/shop/images/avatar/avatar.png");
             modelAndView.addObject("isLogined", false);
         }
     }

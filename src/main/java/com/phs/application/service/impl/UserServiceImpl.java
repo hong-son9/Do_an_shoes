@@ -125,6 +125,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User updateAvatar(User user) {
+        user.setModifiedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        return userRepository.save(user);
+    }
+
+    @Override
     public User toggleUserStatus(long id, long currentAdminId) {
         if (id == currentAdminId) {
             throw new BadRequestException("Không thể tự khóa tài khoản của chính mình");

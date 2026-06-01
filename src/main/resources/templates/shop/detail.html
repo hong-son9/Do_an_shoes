@@ -567,7 +567,11 @@
                                     <th:block th:each="comment : ${product.comments}">
                                         <li class="comment-container">
                                             <div class="comment-avatar">
-                                                <img th:src="@{/shop/images/avatar/avatar.png}" width="65" height="65" alt="avatar"/>
+                                                <img
+                                                    th:src="${comment.user.avatar != null and !#strings.isEmpty(comment.user.avatar) ? comment.user.avatar : '/shop/images/avatar/avatar.png'}"
+                                                    width="65" height="65" alt="avatar"
+                                                    style="border-radius: 50%; object-fit: cover;"
+                                                    onerror="this.onerror=null;this.src='/shop/images/avatar/avatar.png';"/>
                                             </div><!-- End .comment-avatar-->
                                             <div class="comment-box">
 <!--                                                <div class="ratings-container">-->
@@ -810,12 +814,24 @@
                     data: myJson,
                     contentType: "application/json; charset=utf-8",
                     success: function (data) {
+                        const userAvatar = (/*[[${user_avatar}]]*/ '/shop/images/avatar/avatar.png') || '/shop/images/avatar/avatar.png';
+                        const userFullName = (/*[[${user_fullname}]]*/ 'Bạn') || 'Bạn';
+                        const today = new Date();
+                        const dd = String(today.getDate()).padStart(2, '0');
+                        const mm = String(today.getMonth() + 1).padStart(2, '0');
+                        const yyyy = today.getFullYear();
+                        const formattedDate = `${dd}-${mm}-${yyyy}`;
                         $(".comment-list").append(`
                                 <li class="comment-container">
                                             <div class="comment-avatar">
-                                                <img src="/shop/images/avatar/avatar.png" width="65" height="65" alt="avatar"/>
+                                                <img src="${userAvatar}" width="65" height="65" alt="avatar"
+                                                     style="border-radius: 50%; object-fit: cover;"
+                                                     onerror="this.onerror=null;this.src='/shop/images/avatar/avatar.png';"/>
                                             </div>
                                             <div class="comment-box">
+                                                <div class="comment-info mb-1">
+                                                    <h4 class="avatar-name">${userFullName}</h4> - <span class="comment-date">${formattedDate}</span>
+                                                </div>
                                                 <div class="comment-text">
                                                     <p>${data.content}</p>
                                                 </div>
