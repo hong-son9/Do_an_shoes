@@ -353,32 +353,49 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.count();
     }
 
+    // Heuristic: order.totalPrice co semantic khong nhat quan (shop = discount, admin = final paid).
+    // Lay max(totalPrice, price - totalPrice) lam doanh thu thuc te — khop voi cach OrderInfoDTO.getFinalPrice().
+    private long actualRevenue(Order order) {
+        long stored = order.getTotalPrice();
+        long listed = order.getPrice();
+        return Math.max(stored, listed - stored);
+    }
+
+    // Product chua co cot import_price (gia von). Tam dung margin gop 30% — tieu chuan nganh giay ban le.
+    // Khi nao them cot gia von, tinh: profit = sales - sum(importPrice * quantity).
+    private static final double GROSS_MARGIN = 0.30;
+    private long estimateProfit(long revenue) {
+        return Math.round(revenue * GROSS_MARGIN);
+    }
+
     public void statistic(long amount, int quantity, Order order) {
+        long revenue = actualRevenue(order);
         Statistic statistic = statisticRepository.findByCreatedAT();
         if (statistic != null){
             statistic.setOrder(order);
-            statistic.setSales(statistic.getSales() + amount);
+            statistic.setSales(statistic.getSales() + revenue);
             statistic.setQuantity(statistic.getQuantity() + quantity);
-            statistic.setProfit(statistic.getSales() - (statistic.getQuantity() * order.getProduct().getPrice()));
+            statistic.setProfit(estimateProfit(statistic.getSales()));
             statisticRepository.save(statistic);
         }else {
             Statistic statistic1 = new Statistic();
             statistic1.setOrder(order);
-            statistic1.setSales(amount);
+            statistic1.setSales(revenue);
             statistic1.setQuantity(quantity);
-            statistic1.setProfit(amount - (quantity * order.getProduct().getPrice()));
+            statistic1.setProfit(estimateProfit(revenue));
             statistic1.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             statisticRepository.save(statistic1);
         }
     }
 
     public void updateStatistic(long amount, int quantity, Order order) {
+        long revenue = actualRevenue(order);
         Statistic statistic = statisticRepository.findByCreatedAT();
         if (statistic != null) {
             statistic.setOrder(order);
-            statistic.setSales(statistic.getSales() - amount);
-            statistic.setQuantity(statistic.getQuantity() - quantity);
-            statistic.setProfit(statistic.getSales() - (statistic.getQuantity() * order.getProduct().getPrice()));
+            statistic.setSales(Math.max(0, statistic.getSales() - revenue));
+            statistic.setQuantity(Math.max(0, statistic.getQuantity() - quantity));
+            statistic.setProfit(estimateProfit(statistic.getSales()));
             statisticRepository.save(statistic);
         }
     }

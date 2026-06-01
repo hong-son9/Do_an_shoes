@@ -11,30 +11,62 @@
 <head>
     <title>Trang quản trị </title>
     <th:block id="css-resources">
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
         <style>
-            #barChart {
-                display: block;
-                box-sizing: border-box;
-                height: 411px !important;
-                width: 411px !important;
-                margin: auto;
+            /* === Dashboard chart polish === */
+            .chart-card .card-body {
+                padding: 24px;
+                background: #fff;
+                border-radius: 0 0 8px 8px;
             }
-
-            #doughnutBrand {
-                display: block;
-                box-sizing: border-box;
-                height: 411px !important;
-                width: 411px !important;
-                margin: auto;
+            .chart-card .card-header {
+                background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+                border-bottom: 1px solid #eef0f5;
+                padding: 16px 24px;
             }
-
-            #myChartProduct {
-                display: block;
-                box-sizing: border-box;
-                height: 409px !important;
-                width: 775px;
+            .chart-card .card-title {
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 14px;
+                letter-spacing: 0.3px;
             }
+            .chart-wrapper {
+                position: relative;
+                width: 100%;
+                height: 340px;
+            }
+            .chart-wrapper-square {
+                position: relative;
+                width: 100%;
+                height: 340px;
+                display: flex;
+                justify-content: center;
+            }
+            .dashboard-filter-bar {
+                display: flex;
+                gap: 8px;
+                margin-top: 12px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+            .dashboard-filter-bar input[type="date"] {
+                max-width: 160px;
+                border-radius: 6px;
+                border: 1px solid #e0e4eb;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            .dashboard-filter-bar .btn {
+                border-radius: 6px;
+                font-weight: 500;
+                padding: 6px 14px;
+                font-size: 13px;
+            }
+            .btn-refresh {
+                background: #fff;
+                border: 1px solid #e0e4eb;
+                color: #6c757d;
+            }
+            .btn-refresh:hover { background: #f8f9ff; color: #2c3e50; }
         </style>
     </th:block>
 </head>
@@ -207,45 +239,35 @@
     </div>
     <div class="row pt-4">
         <div class="col-lg-7 mb-4 mb-lg-0">
-            <section class="card">
+            <section class="card chart-card">
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                        <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
-                    <h2 class="card-title">Thống kê doanh số</h2>
-                    <div class="row" style="margin-top: 20px">
-                        <div class="col-md-3">
-                            <input type="date" id="datepicker" class="form-control">
-                        </div>
-                        <div class="col-md-3">
-                            <input type="date" id="datepicker2" class="form-control">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="button" id="btn-dashboard-filter" class="btn btn-primary btn-sm"
-                                    value="Lọc kết quả">Lọc kết quả
-                            </button>
-                            <a href="/admin" class="btn btn-primary btn-sm">refesh</a>
-                        </div>
+                    <h2 class="card-title">📈 Thống kê doanh số 30 ngày</h2>
+                    <div class="dashboard-filter-bar">
+                        <input type="date" id="datepicker" class="form-control" placeholder="Từ ngày">
+                        <input type="date" id="datepicker2" class="form-control" placeholder="Đến ngày">
+                        <button type="button" id="btn-dashboard-filter" class="btn btn-primary btn-sm">Lọc</button>
+                        <a href="/admin" class="btn btn-refresh btn-sm">↻ Làm mới</a>
                     </div>
                 </header>
                 <div class="card-body">
-                    <div class="chart chart-md" id="chart"></div>
+                    <div class="chart-wrapper"><canvas id="salesChart"></canvas></div>
                 </div>
             </section>
         </div>
 
         <div class="col-lg-5">
-            <section class="card">
+            <section class="card chart-card">
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                        <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
-                    <h2 class="card-title">Số lượng Sản phẩm được mua theo danh mục</h2>
+                    <h2 class="card-title">🏷️ Sản phẩm bán theo danh mục</h2>
                 </header>
                 <div class="card-body">
-                    <canvas id="barChart"></canvas>
+                    <div class="chart-wrapper-square"><canvas id="categoryChart"></canvas></div>
                 </div>
             </section>
         </div>
@@ -253,30 +275,28 @@
     </div>
     <div class="row pt-4">
         <div class="col-lg-5 mb-4 mb-lg-0">
-            <section class="card">
+            <section class="card chart-card">
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                        <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
-                    <h2 class="card-title">Số lượng sản phẩm được mua theo nhãn hiệu</h2>
+                    <h2 class="card-title">👟 Sản phẩm bán theo nhãn hiệu</h2>
                 </header>
                 <div class="card-body">
-                    <canvas id="doughnutBrand"></canvas>
+                    <div class="chart-wrapper-square"><canvas id="brandChart"></canvas></div>
                 </div>
             </section>
         </div>
         <div class="col-lg-7">
-            <section class="card">
+            <section class="card chart-card">
                 <header class="card-header">
                     <div class="card-actions">
                         <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                        <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
                     </div>
-                    <h2 class="card-title">10 Sản phẩm bán chạy nhất trong tháng</h2>
+                    <h2 class="card-title">🔥 10 Sản phẩm bán chạy nhất tháng</h2>
                 </header>
                 <div class="card-body">
-                    <canvas id="myChartProduct"></canvas>
+                    <div class="chart-wrapper"><canvas id="topProductsChart"></canvas></div>
                 </div>
             </section>
         </div>
@@ -284,208 +304,299 @@
 </section>
 
 <th:block id="js-resources">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
-    <script th:src="@{https://cdn.jsdelivr.net/npm/chart.js@3.1.0/dist/chart.min.js}"></script>
+    <script th:src="@{https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js}"></script>
     <script>
-        let dataChartProductOrderedByCategory = [];
-        let labelChartProductOrderedByCategory = [];
+        /* ===== Palette (modern, pastel-bright) ===== */
+        const PALETTE = [
+            '#6366f1', '#ec4899', '#14b8a6', '#f59e0b',
+            '#8b5cf6', '#10b981', '#ef4444', '#3b82f6',
+            '#f97316', '#06b6d4'
+        ];
 
-        let dataChartProductOrderedByBrand = [];
-        let labelChartProductOrderedByBrand = [];
-
-        let dataChartProductOrdered = [];
-        let labelChartProductOrdered = [];
-
-        getListProductOrderedByCategory();
-        getListProductOrderedByBrand();
-        getListProductOrder();
-
-        function getListProductOrderedByCategory() {
-            $.ajax({
-                url: '/api/admin/product-order-categories',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (res) {
-                    let data_get = res;
-                    for (var i = 0; i < data_get.length; i++) {
-                        dataChartProductOrderedByCategory.push(data_get[i].value);
-                        labelChartProductOrderedByCategory.push(data_get[i].label);
-                    }
-                    if ($("#barChart").length) {
-                        var barChartCanvas = $("#barChart").get(0).getContext("2d");
-                        // This will get the first returned node in the jQuery collection.
-                        var barChart = new Chart(barChartCanvas, {
-                            type: 'polarArea',
-                            data: data,
-                            options: doughnutPieOptions
-                        });
-                    }
-                }
-            })
+        function fmtVnd(v) {
+            if (v == null || isNaN(v)) return '0đ';
+            if (v >= 1e9) return (v / 1e9).toFixed(1).replace('.0','') + ' tỷ';
+            if (v >= 1e6) return (v / 1e6).toFixed(1).replace('.0','') + ' tr';
+            if (v >= 1e3) return (v / 1e3).toFixed(0) + 'k';
+            return v + 'đ';
+        }
+        function fmtVndFull(v) {
+            return new Intl.NumberFormat('vi-VN').format(v) + 'đ';
         }
 
-        let data = {
-            labels: labelChartProductOrderedByCategory,
-            datasets: [{
-                data: dataChartProductOrderedByCategory,
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(75, 192, 192)',
-                    'rgb(255, 205, 86)',
-                    'rgb(201, 203, 207)',
-                    'rgb(54, 162, 235)'
-                ],
-            }],
-        };
+        /* ===== Sales chart (replace Morris.js) ===== */
+        let salesChartInstance = null;
+        function renderSalesChart(rows) {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            const labels = rows.map(r => r.createdAt);
+            const sales = rows.map(r => Number(r.sales) || 0);
+            const profits = rows.map(r => Number(r.profit) || 0);
+            const qty = rows.map(r => Number(r.quantity) || 0);
 
-        let doughnutPieOptions = {
-            responsive: true,
-            animation: {
-                animateScale: true,
-                animateRotate: true
-            }
-        };
-
-        function getListProductOrderedByBrand() {
-            $.ajax({
-                url: '/api/admin/product-order-brands',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (res) {
-                    let data_get = res;
-                    for (var i = 0; i < data_get.length; i++) {
-                        dataChartProductOrderedByBrand.push(data_get[i].value);
-                        labelChartProductOrderedByBrand.push(data_get[i].label);
-                    }
-                    if ($("#doughnutBrand").length) {
-                        var barChartCanvasBrand = $("#doughnutBrand").get(0).getContext("2d");
-                        // This will get the first returned node in the jQuery collection.
-                        var barChart = new Chart(barChartCanvasBrand, {
-                            type: 'polarArea',
-                            data: dataBrand,
-                            options: doughnutPieOptionsBrand
-                        });
+            if (salesChartInstance) salesChartInstance.destroy();
+            salesChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Doanh số',
+                            data: sales,
+                            backgroundColor: 'rgba(99, 102, 241, 0.85)',
+                            borderColor: '#6366f1',
+                            borderRadius: 6,
+                            borderWidth: 0,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Lợi nhuận',
+                            data: profits,
+                            backgroundColor: 'rgba(20, 184, 166, 0.85)',
+                            borderColor: '#14b8a6',
+                            borderRadius: 6,
+                            borderWidth: 0,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Số lượng',
+                            data: qty,
+                            type: 'line',
+                            borderColor: '#ec4899',
+                            backgroundColor: '#ec4899',
+                            tension: 0.35,
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, padding: 16, font: { size: 12 } }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                            titleColor: '#fff',
+                            bodyColor: '#e2e8f0',
+                            padding: 12,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(ctx) {
+                                    const v = ctx.parsed.y;
+                                    if (ctx.dataset.label === 'Số lượng') {
+                                        return ctx.dataset.label + ': ' + v + ' đôi';
+                                    }
+                                    return ctx.dataset.label + ': ' + fmtVndFull(v);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#64748b', font: { size: 11 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                            grid: { color: '#f1f5f9' },
+                            ticks: { color: '#64748b', font: { size: 11 }, callback: v => fmtVnd(v) },
+                            title: { display: true, text: 'VND', color: '#94a3b8', font: { size: 11 } }
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            position: 'right',
+                            grid: { display: false },
+                            ticks: { color: '#ec4899', font: { size: 11 }, stepSize: 1 },
+                            title: { display: true, text: 'Số lượng', color: '#ec4899', font: { size: 11 } }
+                        }
                     }
                 }
-            })
+            });
         }
 
-        let dataBrand = {
-            labels: labelChartProductOrderedByBrand,
-            datasets: [{
-                data: dataChartProductOrderedByBrand,
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(75, 192, 192)',
-                    'rgb(255, 205, 86)',
-                    'rgb(201, 203, 207)',
-                    'rgb(54, 162, 235)'
-                ],
-            }],
-        };
-
-        let doughnutPieOptionsBrand = {
-            responsive: true,
-            animation: {
-                animateScale: true,
-                animateRotate: true
-            }
-        };
-
-        function getListProductOrder() {
+        function loadSales30Day() {
             $.ajax({
-                url: '/api/admin/product-order',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (res) {
-                    let data_get = res;
-                    for (var i = 0; i < data_get.length; i++) {
-                        dataChartProductOrdered.push(data_get[i].value);
-                        labelChartProductOrdered.push(data_get[i].label);
-                    }
-                    if ($("#myChartProduct").length) {
-                        var barChartCanvasProduct = $("#myChartProduct").get(0).getContext("2d");
-                        // This will get the first returned node in the jQuery collection.
-                        var barChart = new Chart(barChartCanvasProduct, {
-                            type: 'bar',
-                            data: dataProduct,
-                            options: doughnutPieOptionsProduct
-                        });
-                    }
-                }
-            })
-        }
-
-        let dataProduct = {
-            labels: labelChartProductOrdered,
-            datasets: [{
-                label: 'Số lượng sản phẩm',
-                data: dataChartProductOrdered,
-                backgroundColor: [
-                    'rgb(255, 99, 132)',
-                    'rgb(75, 192, 192)',
-                    'rgb(255, 205, 86)',
-                    'rgb(201, 203, 207)',
-                    'rgb(54, 162, 235)'
-                ],
-            }],
-        };
-
-        let doughnutPieOptionsProduct = {
-            responsive: true,
-            animation: {
-                animateScale: true,
-                animateRotate: true
-            }
-        };
-    </script>
-    <script>
-        let chart = new Morris.Bar({
-            element: 'chart',
-            barColors: ["#EC407A", "#2196F3", "#8BC34A", "#AB47BC"],
-            parseTime: false,
-            hideHover: 'auto',
-            xkey: 'createdAt',
-            ykeys: ['sales', 'profit', 'quantity'],
-            labels: ['Doanh số', 'Lợi nhuận', 'Số lượng']
-        });
-
-        function char30day() {
-            $.ajax({
-                url: '/api/admin/statistics',
-                type: 'GET',
-                contentType: 'application/json',
-                success: function (data) {
-                    chart.setData(data);
-                }
-            })
+                url: '/api/admin/statistics', type: 'GET', contentType: 'application/json',
+                success: function (data) { renderSalesChart(data || []); }
+            });
         }
 
         $('#btn-dashboard-filter').click(function () {
             let toDate = $('#datepicker').val();
             let fromDate = $('#datepicker2').val();
-            req = {
-                toDate: toDate,
-                fromDate: fromDate
+            if (!toDate || !fromDate) {
+                toastr && toastr.warning ? toastr.warning('Vui lòng chọn khoảng ngày') : alert('Vui lòng chọn khoảng ngày');
+                return;
             }
-            let myJson = JSON.stringify(req)
             $.ajax({
                 url: '/api/admin/statistics',
                 type: 'POST',
-                data: myJson,
-                contentType: "application/json; charset=utf-8",
-                success: function (data) {
-                    if(data == null){
-                        console.log("ahihi!");
-                    }
-                    chart.setData(data);
-                }
-            })
+                data: JSON.stringify({ toDate: toDate, fromDate: fromDate }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) { renderSalesChart(data || []); }
+            });
         });
 
+        /* ===== Category doughnut ===== */
+        function loadCategoryChart() {
+            $.ajax({
+                url: '/api/admin/product-order-categories', type: 'GET', contentType: 'application/json',
+                success: function (res) {
+                    const labels = (res || []).map(r => r.label);
+                    const values = (res || []).map(r => r.value);
+                    new Chart(document.getElementById('categoryChart').getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: PALETTE,
+                                borderColor: '#fff',
+                                borderWidth: 3,
+                                hoverOffset: 10
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '60%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { usePointStyle: true, padding: 14, font: { size: 12 } }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                    padding: 12, cornerRadius: 8,
+                                    callbacks: {
+                                        label: function(ctx) {
+                                            const total = ctx.dataset.data.reduce((a,b)=>a+b,0) || 1;
+                                            const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                            return ctx.label + ': ' + ctx.parsed + ' đôi (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        /* ===== Brand doughnut ===== */
+        function loadBrandChart() {
+            $.ajax({
+                url: '/api/admin/product-order-brands', type: 'GET', contentType: 'application/json',
+                success: function (res) {
+                    const labels = (res || []).map(r => r.label);
+                    const values = (res || []).map(r => r.value);
+                    new Chart(document.getElementById('brandChart').getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: PALETTE,
+                                borderColor: '#fff',
+                                borderWidth: 3,
+                                hoverOffset: 10
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '60%',
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: { usePointStyle: true, padding: 14, font: { size: 12 } }
+                                },
+                                tooltip: {
+                                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                    padding: 12, cornerRadius: 8,
+                                    callbacks: {
+                                        label: function(ctx) {
+                                            const total = ctx.dataset.data.reduce((a,b)=>a+b,0) || 1;
+                                            const pct = ((ctx.parsed / total) * 100).toFixed(1);
+                                            return ctx.label + ': ' + ctx.parsed + ' đôi (' + pct + '%)';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        /* ===== Top products horizontal bar ===== */
+        function loadTopProductsChart() {
+            $.ajax({
+                url: '/api/admin/product-order', type: 'GET', contentType: 'application/json',
+                success: function (res) {
+                    const labels = (res || []).map(r => r.label);
+                    const values = (res || []).map(r => r.value);
+                    new Chart(document.getElementById('topProductsChart').getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Số lượng đã bán',
+                                data: values,
+                                backgroundColor: labels.map((_, i) => PALETTE[i % PALETTE.length]),
+                                borderRadius: 6,
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: {
+                                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                    padding: 12, cornerRadius: 8,
+                                    callbacks: {
+                                        label: function(ctx) { return ctx.parsed.x + ' đôi đã bán'; }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true,
+                                    grid: { color: '#f1f5f9' },
+                                    ticks: { color: '#64748b', font: { size: 11 }, precision: 0 }
+                                },
+                                y: {
+                                    grid: { display: false },
+                                    ticks: {
+                                        color: '#64748b',
+                                        font: { size: 11 },
+                                        callback: function(v, i) {
+                                            const lbl = this.getLabelForValue(v) || '';
+                                            return lbl.length > 26 ? lbl.substring(0,26) + '…' : lbl;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
         function init() {
-            char30day();
+            loadSales30Day();
+            loadCategoryChart();
+            loadBrandChart();
+            loadTopProductsChart();
             getCountCategory();
             getCountProduct();
             getCountOrder();
