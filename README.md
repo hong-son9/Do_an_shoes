@@ -39,6 +39,8 @@ Trên Linux/macOS:
 
 Mở trình duyệt: <http://localhost:8081>
 
+> Nếu chưa cấu hình SMTP, đăng ký và quên mật khẩu sẽ **in OTP ra console** thay vì gửi mail. Xem [Mục 6](#6-email--otp-đăng-ký--quên-mật-khẩu) để bật gửi mail thật.
+
 ## 3. Tài khoản mẫu
 
 | Vai trò | Email              | Mật khẩu   |
@@ -119,7 +121,121 @@ Một số thẻ test khác (dùng cho các case lỗi):
    - Hệ thống verify chữ ký, nếu thành công thì **clear giỏ hàng** + hiển thị trang kết quả.
    - Nếu hủy/lỗi: giỏ hàng vẫn còn nguyên, user có thể thử lại.
 
-## 6. Cấu trúc dự án
+## 6. Email & OTP (đăng ký / quên mật khẩu)
+
+Ứng dụng dùng **Gmail SMTP** để gửi mã OTP 6 số khi user **đăng ký tài khoản** hoặc **quên mật khẩu**. OTP có hiệu lực **5 phút**, mỗi email có cooldown **60 giây** giữa các lần gửi.
+
+### 6.1. Chế độ dev (không cần SMTP)
+
+Nếu chưa set `MAIL_USERNAME` / `MAIL_PASSWORD`, ứng dụng **không gửi email thật** mà **in OTP ra console**:
+
+```
+[DEV] OTP for register:user@gmail.com = 312487 (mail not configured)
+[DEV] OTP for reset:user@gmail.com = 904571 (mail not configured)
+```
+
+→ Copy OTP từ console, dán vào form là dùng được. Đây là cách nhanh nhất để test luồng đăng ký/quên mật khẩu.
+
+### 6.2. Bật gửi email thật qua Gmail
+
+#### Bước 1 — Tạo App Password Gmail
+
+Gmail không cho dùng mật khẩu thường để login SMTP. Bạn cần tạo **App Password**:
+
+1. Bật **2-Step Verification** tại <https://myaccount.google.com/security> (bắt buộc, không có 2FA không tạo được App Password).
+2. Vào <https://myaccount.google.com/apppasswords>.
+3. Đặt tên app (vd: `Shoes Dev`) → **Tạo**.
+4. Google hiển thị mã **16 ký tự** dạng `xxxx xxxx xxxx xxxx`. **Copy ngay** — Google chỉ hiện 1 lần.
+5. Bỏ khoảng trắng để có chuỗi liền 16 ký tự.
+
+#### Bước 2 — Set biến môi trường
+
+> **KHÔNG** hardcode mật khẩu vào file `application-dev.properties`. Properties này có thể bị commit lên Git và lộ credential — giống vụ leak Groq API key trước đây.
+
+**Windows (PowerShell)** — vĩnh viễn, dùng được cho mọi terminal/IDE sau này:
+
+```powershell
+[Environment]::SetEnvironmentVariable("MAIL_USERNAME", "your_email@gmail.com", "User")
+[Environment]::SetEnvironmentVariable("MAIL_PASSWORD", "xxxxxxxxxxxxxxxx", "User")
+```
+
+Hoặc qua GUI: **Windows + R** → `sysdm.cpl` → tab **Advanced** → **Environment Variables** → User variables → **New** → `MAIL_USERNAME` / `MAIL_PASSWORD`.
+
+**Linux/macOS** (bash/zsh) — thêm vào `~/.bashrc` hoặc `~/.zshrc`:
+
+```bash
+export MAIL_USERNAME="your_email@gmail.com"
+export MAIL_PASSWORD="xxxxxxxxxxxxxxxx"
+```
+
+Sau đó `source ~/.bashrc` (hoặc mở terminal mới).
+
+#### Bước 3 — Restart Spring Boot
+
+Đóng terminal đang chạy app, mở terminal **mới** (để load env var mới):
+
+```powershell
+echo $env:MAIL_USERNAME      # verify đã set
+mvn spring-boot:run
+```
+
+#### Bước 4 — Test
+
+1. Vào <http://localhost:8081> → click 👤 trên header.
+2. **Đăng ký**: điền form → click **Gửi OTP** → check inbox email vừa nhập → nhập OTP + mật khẩu → đăng ký xong là tự đăng nhập.
+3. **Quên mật khẩu**: từ modal đăng nhập click **"Quên mật khẩu?"** → nhập email đã đăng ký → Gửi OTP → check inbox → nhập OTP + mật khẩu mới → đặt lại.
+
+### 6.3. Cấu hình bổ sung
+
+Trong [src/main/resources/application-dev.properties](src/main/resources/application-dev.properties):
+
+```properties
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=${MAIL_USERNAME:}
+spring.mail.password=${MAIL_PASSWORD:}
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true
+spring.mail.properties.mail.smtp.starttls.required=true
+
+# OTP config
+otp.expiry-minutes=5            # OTP hết hạn sau X phút
+otp.resend-cooldown-seconds=60  # Bắt user chờ X giây trước khi gửi lại
+```
+
+### 6.4. Khắc phục sự cố mail
+
+| Lỗi trong Spring console | Nguyên nhân | Cách fix |
+|--------------------------|-------------|----------|
+| `Authentication failed` | App Password sai hoặc đã bị Google revoke | Tạo App Password mới tại <https://myaccount.google.com/apppasswords> |
+| `Could not connect to SMTP host` | Mạng chặn port 587 (hiếm) | Đổi mạng, tắt VPN, hoặc dùng port 465 với `mail.smtp.ssl.enable=true` |
+| `Username and Password not accepted` | Chưa bật 2FA hoặc dùng password thường | Bật 2FA + dùng App Password 16 ký tự, KHÔNG dùng password Gmail thường |
+| App in `[DEV] OTP` thay vì gửi mail | `MAIL_USERNAME` / `MAIL_PASSWORD` chưa set hoặc terminal cũ | Mở terminal **mới** sau khi set env var, verify `echo $env:MAIL_USERNAME` |
+| Email không tới inbox | Có thể trong **Spam folder** | Check Spam; Gmail tới chậm 5-30s sau khi gửi |
+
+### 6.5. Bảo mật
+
+- **OTP một lần dùng**: xoá khỏi cache ngay sau khi verify thành công.
+- **Cooldown 60s/email/purpose**: chống spam OTP.
+- **Anti-enumeration** (quên mật khẩu): nếu email không tồn tại trong DB, vẫn trả "success" để attacker không dò ra được danh sách email đã đăng ký.
+- **App Password**: chỉ cho phép gửi mail; **KHÔNG có quyền** đọc inbox hay đổi mật khẩu Gmail. Nếu lộ, vào <https://myaccount.google.com/apppasswords> revoke ngay.
+- **`.gitignore`**: nên thêm pattern để chặn commit nhầm credential. Hoặc kiểm tra `git diff` trước khi commit.
+
+### 6.6. Các endpoint OTP
+
+| Method | URL                              | Mô tả                            |
+|--------|----------------------------------|----------------------------------|
+| POST   | `/api/register/send-otp`         | Gửi OTP cho đăng ký (body: `{email}`) |
+| POST   | `/api/register`                  | Hoàn tất đăng ký (body có `otp`) |
+| POST   | `/api/forgot-password/send-otp`  | Gửi OTP đặt lại mật khẩu         |
+| POST   | `/api/forgot-password/reset`     | Đặt lại mật khẩu mới             |
+
+
+## 8. Cấu hình Chatbot AI
+1. Vào: https://console.groq.com/keys đăng kí tài khoản
+2. Sau đó tạo API Key. Rồi copy
+3. Paste vào: groq.api-key=${GROQ_API_KEY:} trong application-dev.properties
+## 7. Cấu trúc dự án
 
 ```
 src/main/java/com/phs/application/
@@ -149,7 +265,7 @@ src/main/resources/
     └── shop/                  # View phía user
 ```
 
-## 7. Một số endpoint quan trọng
+## 8. Một số endpoint quan trọng
 
 | Method | URL                              | Mô tả                                    |
 |--------|----------------------------------|------------------------------------------|
@@ -168,7 +284,7 @@ src/main/resources/
 | GET    | `/tai-khoan/lich-su-giao-dich`   | Lịch sử giao dịch                        |
 | GET    | `/admin/**`                      | Trang admin (yêu cầu role ADMIN)         |
 
-## 8. Khắc phục sự cố
+## 9. Khắc phục sự cố
 
 - **`Sai chữ ký` (VNPay code 70)**: Kiểm tra lại `vnpay.tmn-code` và `vnpay.hash-secret` trong properties. Đảm bảo copy chính xác, không có ký tự space ở đầu/cuối, và đúng cặp được VNPay gửi qua email.
 - **`localhost` bị từ chối khi đăng ký merchant**: VNPay không cho URL localhost. Khi đăng ký dùng domain giả như `http://shoes-demo.com`. Còn `vnp_ReturnUrl` trong code vẫn để `http://localhost:8081/...` được.

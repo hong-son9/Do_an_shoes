@@ -60,6 +60,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public boolean existsByEmail(String email) {
+        if (email == null) return false;
+        return userRepository.findByEmail(email) != null;
+    }
+
+    @Override
+    public void resetPasswordByEmail(String email, String newPassword) {
+        if (email == null || newPassword == null) {
+            throw new BadRequestException("Thông tin không hợp lệ");
+        }
+        // KHONG toLowerCase — phai khop chinh xac voi luc dang ky
+        User user = userRepository.findByEmail(email.trim());
+        if (user == null) {
+            throw new BadRequestException("Tài khoản không tồn tại");
+        }
+        String hash = BCrypt.hashpw(newPassword, BCrypt.gensalt(12));
+        user.setPassword(hash);
+        userRepository.save(user);
+    }
+
+    @Override
     public void changePassword(User user, ChangePasswordRequest changePasswordRequest) {
         //Kiểm tra mật khẩu
         if (!BCrypt.checkpw(changePasswordRequest.getOldPassword(), user.getPassword())) {

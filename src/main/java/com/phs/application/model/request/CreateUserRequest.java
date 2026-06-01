@@ -31,4 +31,7 @@ public class CreateUserRequest {
     private String phone;
 
     private String address;
+
+    // OTP gui ve email — bat buoc de hoan tat dang ky
+    private String otp;
 }

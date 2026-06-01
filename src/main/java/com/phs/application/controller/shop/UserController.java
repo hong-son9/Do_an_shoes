@@ -8,9 +8,11 @@ import com.phs.application.model.mapper.UserMapper;
 import com.phs.application.model.request.ChangePasswordRequest;
 import com.phs.application.model.request.CreateUserRequest;
 import com.phs.application.model.request.LoginRequest;
+import com.phs.application.model.request.ResetPasswordRequest;
 import com.phs.application.model.request.UpdateProfileRequest;
 import com.phs.application.security.CustomUserDetails;
 import com.phs.application.security.JwtTokenUtil;
+import com.phs.application.service.EmailOtpService;
 import com.phs.application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,9 @@ public class UserController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private EmailOtpService emailOtpService;
+
     @GetMapping("/users")
     public ResponseEntity<Object> getListUsers() {
         List<UserDTO> userDTOS = userService.getListUsers();
@@ -55,8 +60,75 @@ public class UserController {
         return ResponseEntity.ok(UserMapper.toUserDTO(user));
     }
 
+    @PostMapping("/api/forgot-password/send-otp")
+    public ResponseEntity<Object> sendResetOtp(@RequestBody java.util.Map<String, String> body) {
+        String rawEmail = body.get("email");
+        if (rawEmail == null || rawEmail.trim().isEmpty()) {
+            throw new BadRequestException("Email trống");
+        }
+        String email = rawEmail.trim();
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new BadRequestException("Email không đúng định dạng");
+        }
+        // Email phai ton tai trong he thong moi gui OTP — KHONG toLowerCase de tranh
+        // case-sensitive mismatch voi data luc dang ky.
+        if (!userService.existsByEmail(email)) {
+            // Du dev khong thay OTP → bao lỗi rõ ràng giúp debug. Production có thể đổi thành
+            // im lặng tra "success" để chống enumerate.
+            throw new BadRequestException("Email chưa được đăng ký trong hệ thống");
+        }
+        emailOtpService.sendOtp(email, com.phs.application.service.EmailOtpService.PURPOSE_RESET);
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("success", true);
+        resp.put("message", "Mã OTP đã được gửi tới " + email + ". Mã có hiệu lực 5 phút.");
+        return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/api/forgot-password/reset")
+    public ResponseEntity<Object> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
+        if (!emailOtpService.verifyOtp(req.getEmail(), req.getOtp(),
+                com.phs.application.service.EmailOtpService.PURPOSE_RESET)) {
+            throw new BadRequestException("Mã OTP không đúng hoặc đã hết hạn");
+        }
+        userService.resetPasswordByEmail(req.getEmail(), req.getNewPassword());
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("success", true);
+        resp.put("message", "Đặt lại mật khẩu thành công. Vui lòng đăng nhập với mật khẩu mới.");
+        return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/api/register/send-otp")
+    public ResponseEntity<Object> sendRegisterOtp(@RequestBody java.util.Map<String, String> body) {
+        String email = body.get("email");
+        if (email == null || email.trim().isEmpty()) {
+            throw new BadRequestException("Email trống");
+        }
+        // Email format check don gian
+        if (!email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            throw new BadRequestException("Email không đúng định dạng");
+        }
+        // Kiem tra email da ton tai chua
+        if (userService.existsByEmail(email.trim().toLowerCase())) {
+            throw new BadRequestException("Email đã được sử dụng — vui lòng đăng nhập");
+        }
+        emailOtpService.sendOtp(email);
+        java.util.Map<String, Object> resp = new java.util.HashMap<>();
+        resp.put("success", true);
+        resp.put("message", "Mã OTP đã được gửi tới " + email + ". Mã có hiệu lực 5 phút.");
+        return ResponseEntity.ok(resp);
+    }
+
     @PostMapping("/api/register")
     public ResponseEntity<Object> register(@Valid @RequestBody CreateUserRequest createUserRequest, HttpServletResponse response) {
+        // Verify OTP truoc khi tao tai khoan
+        String otp = createUserRequest.getOtp();
+        if (otp == null || otp.trim().isEmpty()) {
+            throw new BadRequestException("Vui lòng nhập mã OTP đã gửi về email");
+        }
+        if (!emailOtpService.verifyOtp(createUserRequest.getEmail(), otp)) {
+            throw new BadRequestException("Mã OTP không đúng hoặc đã hết hạn — vui lòng gửi lại");
+        }
+
         //Create user
         User user = userService.createUser(createUserRequest);
 

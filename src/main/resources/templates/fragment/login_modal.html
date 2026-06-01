@@ -242,6 +242,9 @@
                                 <button type="submit" class="btn btn-primary btn-md">Đăng nhập</button>
                                 <button  data-toggle="modal" href="#exampleModalRegister" data-dismiss="modal" class="btn btn-secondary btn-md">Đăng ký</button>
                             </div><!-- End .form-footer -->
+                            <div class="auth-footer-hint" style="text-align:center; margin-top:12px;">
+                                <a data-toggle="modal" href="#exampleModalForgot" data-dismiss="modal" style="color:#6b7280;">Quên mật khẩu?</a>
+                            </div>
                             <div class="auth-footer-hint">
                                 Chưa có tài khoản? <a data-toggle="modal" href="#exampleModalRegister" data-dismiss="modal">Đăng ký ngay</a>
                             </div>
@@ -282,9 +285,23 @@
                                 <input type="text" class="form-input form-wide mb-2" name="register_phone" id="register_phone" placeholder="0xxx xxx xxx">
                             </div>
                             <label for="register_email">Email <span class="required">*</span></label>
-                            <div class="input-wrap icon-email">
-                                <input type="email" class="form-input form-wide mb-2" name="register_email" id="register_email" placeholder="your@email.com">
+                            <div class="input-wrap icon-email" style="display:flex; gap:6px;">
+                                <input type="email" class="form-input form-wide mb-2" name="register_email" id="register_email" placeholder="your@email.com" style="flex:1;">
+                                <button type="button" id="btn-send-otp" class="btn btn-secondary"
+                                        style="white-space:nowrap; padding:0 14px; border-radius:10px; border:1.5px solid #ff6b35; background:#fff5ed; color:#ff6b35; font-weight:600;">
+                                    Gửi OTP
+                                </button>
                             </div>
+                            <small id="otp-msg" style="display:none; font-size:0.85rem; margin-top:-4px; margin-bottom:8px;"></small>
+
+                            <div id="otp-section" style="display:none;">
+                                <label for="register_otp">Mã OTP <span class="required">*</span> <small style="color:#9ca3af;">(6 số gửi về email)</small></label>
+                                <div class="input-wrap icon-lock">
+                                    <input type="text" inputmode="numeric" maxlength="6" class="form-input form-wide mb-2"
+                                           name="register_otp" id="register_otp" placeholder="------" style="letter-spacing: 4px; text-align: center; font-weight: 700;">
+                                </div>
+                            </div>
+
                             <label for="register_password">Mật khẩu <span class="required">*</span></label>
                             <div class="input-wrap icon-lock">
                                 <input type="password" class="form-input form-wide mb-2" name="register_password" id="register_password" placeholder="Tối thiểu 6 ký tự">
@@ -295,7 +312,7 @@
                             </div>
 
                             <div class="form-footer">
-                                <button type="submit" class="btn btn-primary btn-md">Đăng ký</button>
+                                <button type="submit" class="btn btn-primary btn-md" id="btn-do-register" disabled>Đăng ký</button>
                                 <button  data-toggle="modal" href="#exampleModal" data-dismiss="modal" class="btn btn-secondary btn-md">Quay lại</button>
                             </div><!-- End .form-footer -->
                             <div class="auth-footer-hint">
@@ -304,6 +321,64 @@
                         </form>
                     </div><!-- End .col-md-6 -->
                 </div><!-- End .row -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== Modal Quên mật khẩu ====== -->
+<div class="modal fade" id="exampleModalForgot" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Quên mật khẩu</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row row-sparse">
+                    <div class="col-md-12">
+                        <p style="color:#6b7280; font-size:0.92rem; margin-bottom:14px;">
+                            Nhập email đăng ký để nhận mã OTP đặt lại mật khẩu.
+                        </p>
+                        <form id="forgotForm">
+                            <label for="forgot_email">Email <span class="required">*</span></label>
+                            <div class="input-wrap icon-email" style="display:flex; gap:6px;">
+                                <input type="email" class="form-input form-wide mb-2" name="forgot_email" id="forgot_email" placeholder="your@email.com" style="flex:1;">
+                                <button type="button" id="btn-forgot-send-otp" class="btn btn-secondary"
+                                        style="white-space:nowrap; padding:0 14px; border-radius:10px; border:1.5px solid #ff6b35; background:#fff5ed; color:#ff6b35; font-weight:600;">
+                                    Gửi OTP
+                                </button>
+                            </div>
+                            <small id="forgot-otp-msg" style="display:none; font-size:0.85rem; margin-top:-4px; margin-bottom:8px;"></small>
+
+                            <div id="forgot-otp-section" style="display:none;">
+                                <label for="forgot_otp">Mã OTP <span class="required">*</span> <small style="color:#9ca3af;">(6 số)</small></label>
+                                <div class="input-wrap icon-lock">
+                                    <input type="text" inputmode="numeric" maxlength="6" class="form-input form-wide mb-2"
+                                           name="forgot_otp" id="forgot_otp" placeholder="------"
+                                           style="letter-spacing: 4px; text-align: center; font-weight: 700;">
+                                </div>
+
+                                <label for="forgot_new_password">Mật khẩu mới <span class="required">*</span></label>
+                                <div class="input-wrap icon-lock">
+                                    <input type="password" class="form-input form-wide mb-2" name="forgot_new_password" id="forgot_new_password" placeholder="Tối thiểu 6 ký tự">
+                                </div>
+
+                                <label for="forgot_confirm_password">Nhập lại mật khẩu <span class="required">*</span></label>
+                                <div class="input-wrap icon-lock">
+                                    <input type="password" class="form-input form-wide mb-2" name="forgot_confirm_password" id="forgot_confirm_password" placeholder="Xác nhận mật khẩu">
+                                </div>
+                            </div>
+
+                            <div class="form-footer">
+                                <button type="submit" class="btn btn-primary btn-md" id="btn-do-reset" disabled>Đặt lại mật khẩu</button>
+                                <button data-toggle="modal" href="#exampleModal" data-dismiss="modal" class="btn btn-secondary btn-md" type="button">Quay lại đăng nhập</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

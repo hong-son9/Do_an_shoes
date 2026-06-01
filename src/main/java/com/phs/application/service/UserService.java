@@ -19,7 +19,12 @@ public interface UserService {
 
     User createUser(CreateUserRequest createUserRequest);
 
+    boolean existsByEmail(String email);
+
     void changePassword(User user, ChangePasswordRequest changePasswordRequest);
+
+    /** Dat lai mat khau truc tiep (sau khi da verify OTP). */
+    void resetPasswordByEmail(String email, String newPassword);
 
     User updateProfile(User user, UpdateProfileRequest updateProfileRequest);
 }
