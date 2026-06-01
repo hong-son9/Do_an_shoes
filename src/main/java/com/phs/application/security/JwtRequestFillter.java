@@ -62,8 +62,16 @@ public class JwtRequestFillter extends OncePerRequestFilter {
         String username = claims.getSubject();
 
         if (username != null) {
-            UserDetails user = userDetailsService.loadUserByUsername(username);
-            return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            try {
+                UserDetails user = userDetailsService.loadUserByUsername(username);
+                // Tai khoan bi admin khoa (status = false) → tu choi authentication du token con han
+                if (!user.isEnabled()) {
+                    return null;
+                }
+                return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+            } catch (Exception ex) {
+                return null;
+            }
         }
         return null;
     }

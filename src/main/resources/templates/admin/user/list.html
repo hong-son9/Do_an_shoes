@@ -13,6 +13,31 @@
     <title>Danh sách tài khoản</title>
     <th:block id="css-resources">
         <link rel="stylesheet" th:href="@{/adminlte/pagination/simplePagination.css}">
+        <style>
+            .status-badge {
+                display: inline-block;
+                padding: 4px 10px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+            }
+            .status-badge.active { background: #d1fae5; color: #065f46; }
+            .status-badge.inactive { background: #fee2e2; color: #991b1b; }
+            .btn-toggle-status {
+                padding: 5px 12px;
+                border-radius: 6px;
+                font-size: 12px;
+                font-weight: 500;
+                border: none;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .btn-toggle-status.lock { background: #ef4444; color: white; }
+            .btn-toggle-status.lock:hover { background: #dc2626; }
+            .btn-toggle-status.unlock { background: #10b981; color: white; }
+            .btn-toggle-status.unlock:hover { background: #059669; }
+            .btn-toggle-status:disabled { background: #cbd5e1 !important; cursor: not-allowed; opacity: 0.6; }
+        </style>
     </th:block>
 </head>
 <body>
@@ -58,7 +83,8 @@
                     <th>Số điện thoại</th>
                     <th>Địa chỉ</th>
                     <th>Ngày tạo</th>
-<!--                    <th>Thao tác</th>-->
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
                 </tr>
                 <tr>
                     <form method="GET" id="search-form">
@@ -68,27 +94,41 @@
                         <th><input type="text" name="phone" id="phone" class="form-control search-input"></th>
                         <th></th>
                         <th></th>
-<!--                        <th></th>-->
+                        <th></th>
+                        <th></th>
                         <input type="hidden" name="page" id="page">
                     </form>
                 </tr>
                 </thead>
                 <tbody>
                 <th:block th:each="user : ${users}">
-                    <tr data-item-id="1">
+                    <tr th:attr="data-user-id=${user.id}, data-is-admin=${user.roles != null and user.roles.contains('ADMIN')}">
                     <td th:text="${user.id}"></td>
                     <td th:text="${user.fullName}"></td>
                     <td th:text="${user.email}"></td>
                     <td th:text="${user.phone}"></td>
                     <td th:text="${user.address}"></td>
                     <td th:text="${#dates.format(user.createdAt, 'dd-MM-yyyy')}"></td>
-<!--                    <td class="actions">-->
-<!--                        <a href="#" class="hidden on-editing save-row"><i class="fas fa-save"></i></a>-->
-<!--                        <a href="#" class="hidden on-editing cancel-row"><i-->
-<!--                                class="fas fa-times"></i></a>-->
-<!--                        <a href="#" class="on-default edit-row"><i class="fas fa-pencil-alt"></i></a>-->
-<!--                        <a href="#" class="on-default remove-row"><i class="far fa-trash-alt"></i></a>-->
-<!--                    </td>-->
+                    <td>
+                        <span th:if="${user.status}" class="status-badge active">● Đang hoạt động</span>
+                        <span th:unless="${user.status}" class="status-badge inactive">● Đã khóa</span>
+                    </td>
+                    <td>
+                        <button
+                            th:if="${user.roles != null and user.roles.contains('ADMIN')}"
+                            class="btn-toggle-status" disabled
+                            title="Không thể khóa tài khoản admin">
+                            <i class="fas fa-shield-alt"></i> Admin
+                        </button>
+                        <button
+                            th:unless="${user.roles != null and user.roles.contains('ADMIN')}"
+                            th:classappend="${user.status} ? 'lock' : 'unlock'"
+                            th:attr="data-user-id=${user.id}, data-current-status=${user.status}"
+                            class="btn-toggle-status btn-toggle">
+                            <i th:class="${user.status} ? 'fas fa-lock' : 'fas fa-unlock'"></i>
+                            <span th:text="${user.status} ? 'Khóa' : 'Mở khóa'"></span>
+                        </button>
+                    </td>
                 </tr>
                 </th:block>
                 </tbody>
@@ -124,6 +164,43 @@
             $('#page').val(page)
 
             pagination([[${totalPages}]], [[${currentPage}]]);
+        });
+
+        $(document).on('click', '.btn-toggle', function () {
+            const $btn = $(this);
+            const userId = $btn.data('user-id');
+            const currentStatus = $btn.data('current-status') === true || $btn.data('current-status') === 'true';
+            const actionText = currentStatus ? 'khóa' : 'mở khóa';
+            if (!confirm('Bạn có chắc muốn ' + actionText + ' tài khoản này?')) return;
+
+            $btn.prop('disabled', true).text('Đang xử lý...');
+            $.ajax({
+                url: '/api/admin/users/' + userId + '/status',
+                type: 'PUT',
+                contentType: 'application/json',
+                success: function (data) {
+                    if (typeof toastr !== 'undefined') {
+                        toastr.success(data.message || 'Cập nhật thành công');
+                    } else {
+                        alert(data.message || 'Cập nhật thành công');
+                    }
+                    setTimeout(function () { location.reload(); }, 500);
+                },
+                error: function (xhr) {
+                    $btn.prop('disabled', false);
+                    let msg = 'Có lỗi xảy ra';
+                    try {
+                        const r = JSON.parse(xhr.responseText);
+                        msg = r.message || r.error || msg;
+                    } catch (e) {}
+                    if (typeof toastr !== 'undefined') {
+                        toastr.error(msg);
+                    } else {
+                        alert(msg);
+                    }
+                    location.reload();
+                }
+            });
         });
     </script>
 </th:block>

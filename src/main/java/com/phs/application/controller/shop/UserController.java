@@ -166,9 +166,10 @@ public class UserController {
             addJwtCookie(response, token);
 
             return ResponseEntity.ok(UserMapper.toUserDTO(((CustomUserDetails) authentication.getPrincipal()).getUser()));
+        } catch (org.springframework.security.authentication.DisabledException ex) {
+            throw new BadRequestException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.");
         } catch (Exception ex) {
             throw new BadRequestException("Email hoặc mật khẩu không chính xác!");
-
         }
     }
 

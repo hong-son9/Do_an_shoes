@@ -5,6 +5,7 @@ import com.phs.application.entity.User;
 import com.phs.application.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 /**
@@ -43,6 +45,19 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 return;
             }
             User user = userService.findOrCreateOAuthUser(email, name);
+
+            // Tai khoan bi admin khoa → don sach OAuth session + SecurityContext truoc khi redirect.
+            // Neu khong, principal DefaultOAuth2User van ton tai trong session → cac request sau
+            // se crash khi cac controller/interceptor cast sang CustomUserDetails.
+            if (!user.isStatus()) {
+                SecurityContextHolder.clearContext();
+                HttpSession session = request.getSession(false);
+                if (session != null) {
+                    session.invalidate();
+                }
+                response.sendRedirect("/?oauthError=account_locked");
+                return;
+            }
 
             // Sinh JWT giong nhu /api/login
             CustomUserDetails principal = new CustomUserDetails(user);

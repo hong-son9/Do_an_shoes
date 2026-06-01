@@ -123,4 +123,20 @@ public class UserServiceImpl implements UserService {
 
         return userRepository.save(user);
     }
+
+    @Override
+    public User toggleUserStatus(long id, long currentAdminId) {
+        if (id == currentAdminId) {
+            throw new BadRequestException("Không thể tự khóa tài khoản của chính mình");
+        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Tài khoản không tồn tại"));
+        // Chan khoa tai khoan admin de tranh lockout he thong
+        if (user.getRoles() != null && user.getRoles().contains("ADMIN")) {
+            throw new BadRequestException("Không thể khóa tài khoản quản trị viên khác");
+        }
+        user.setStatus(!user.isStatus());
+        user.setModifiedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        return userRepository.save(user);
+    }
 }

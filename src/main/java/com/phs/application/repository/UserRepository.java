@@ -11,10 +11,18 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User,Long> {
     User findByEmail(String email);
 
-    @Query(value = "SELECT * " +
-            "FROM users u WHERE u.full_name LIKE CONCAT('%',?1,'%') " +
-            "AND u.phone LIKE CONCAT('%',?2,'%') " +
-            "AND u.email LIKE CONCAT('%',?3,'%') ",nativeQuery = true)
-    Page<User> adminListUserPages(String fullName, String phone, String email, Pageable pageable);
+    @Query(value = """
+    SELECT *
+    FROM users u
+    WHERE COALESCE(u.full_name,'') LIKE CONCAT('%', ?1, '%')
+      AND COALESCE(u.phone,'') LIKE CONCAT('%', ?2, '%')
+      AND COALESCE(u.email,'') LIKE CONCAT('%', ?3, '%')
+    """,
+            nativeQuery = true)
+    Page<User> adminListUserPages(
+            String fullName,
+            String phone,
+            String email,
+            Pageable pageable);
 
 }

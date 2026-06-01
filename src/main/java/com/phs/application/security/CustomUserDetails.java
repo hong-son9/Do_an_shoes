@@ -56,6 +56,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        // status = false => tai khoan bi admin khoa, khong cho login / khong cho dung token
+        return user.isStatus();
     }
 }

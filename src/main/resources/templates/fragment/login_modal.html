@@ -409,4 +409,43 @@
     </div>
 </div>
 
+<script>
+    // Hien thi toastr cho OAuth login result (chay sau khi DOM ready va toastr da load)
+    (function () {
+        function showOAuthFeedback() {
+            try {
+                var params = new URLSearchParams(window.location.search);
+                var oauth = params.get('oauth');
+                var err = params.get('oauthError');
+                if (!oauth && !err) return;
+                if (typeof toastr === 'undefined') {
+                    setTimeout(showOAuthFeedback, 200);
+                    return;
+                }
+                if (oauth === 'success') {
+                    toastr.success('Đăng nhập Google thành công');
+                } else if (err === 'account_locked') {
+                    toastr.error('Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.');
+                } else if (err === 'missing_email') {
+                    toastr.warning('Không lấy được email từ tài khoản Google.');
+                } else if (err === 'auth_failed') {
+                    toastr.error('Đăng nhập Google thất bại. Vui lòng thử lại.');
+                } else if (err) {
+                    toastr.error('Đăng nhập Google thất bại: ' + decodeURIComponent(err));
+                }
+                // Don sach query string de F5 khong show lai
+                if (window.history && window.history.replaceState) {
+                    var url = window.location.pathname + window.location.hash;
+                    window.history.replaceState({}, document.title, url);
+                }
+            } catch (e) { /* ignore */ }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', showOAuthFeedback);
+        } else {
+            showOAuthFeedback();
+        }
+    })();
+</script>
+
 </th:block>

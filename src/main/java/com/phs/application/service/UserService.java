@@ -30,4 +30,7 @@ public interface UserService {
     User findOrCreateOAuthUser(String email, String fullName);
 
     User updateProfile(User user, UpdateProfileRequest updateProfileRequest);
+
+    /** Toggle active/inactive cho user. Tra ve user sau khi update. */
+    User toggleUserStatus(long id, long currentAdminId);
 }
