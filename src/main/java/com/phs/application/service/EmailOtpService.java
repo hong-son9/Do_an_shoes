@@ -73,10 +73,10 @@ public class EmailOtpService {
                 message.setFrom(fromEmail);
                 message.setTo(normalized);
                 if (PURPOSE_RESET.equals(purpose)) {
-                    message.setSubject("[Sơn Shoes] Mã xác thực đặt lại mật khẩu");
+                    message.setSubject("[Shoes] Mã xác thực đặt lại mật khẩu");
                     message.setText(buildResetEmailBody(otp));
                 } else {
-                    message.setSubject("[Sơn Shoes] Mã xác thực đăng ký tài khoản");
+                    message.setSubject("[Shoes] Mã xác thực đăng ký tài khoản");
                     message.setText(buildEmailBody(otp));
                 }
                 mailSender.send(message);
@@ -122,18 +122,18 @@ public class EmailOtpService {
 
     private String buildEmailBody(String otp) {
         return "Xin chào,\n\n"
-                + "Mã xác thực đăng ký tài khoản Sơn Shoes của bạn là:\n\n"
+                + "Mã xác thực đăng ký tài khoản Shoes của bạn là:\n\n"
                 + "    " + otp + "\n\n"
                 + "Mã có hiệu lực trong " + expiryMinutes + " phút.\n"
                 + "Nếu bạn không yêu cầu đăng ký, vui lòng bỏ qua email này.\n\n"
                 + "—\n"
-                + "Sơn Shoes — Giày Phong Cách\n"
-                + "Hotline: 036 545 4643";
+                + "Shoes — Giày Phong Cách\n"
+                + "Hotline: 036 XXX XXXX";
     }
 
     private String buildResetEmailBody(String otp) {
         return "Xin chào,\n\n"
-                + "Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản Sơn Shoes của bạn.\n\n"
+                + "Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản Shoes của bạn.\n\n"
                 + "Mã xác thực:\n\n"
                 + "    " + otp + "\n\n"
                 + "Mã có hiệu lực trong " + expiryMinutes + " phút.\n\n"
