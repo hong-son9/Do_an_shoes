@@ -4,6 +4,7 @@ import com.phs.application.entity.CartItem;
 import com.phs.application.entity.Order;
 import com.phs.application.entity.Product;
 import com.phs.application.entity.ProductSize;
+import com.phs.application.entity.Promotion;
 import com.phs.application.entity.User;
 import com.phs.application.exception.BadRequestException;
 import com.phs.application.exception.NotFoundException;
@@ -16,6 +17,7 @@ import com.phs.application.repository.OrderRepository;
 import com.phs.application.repository.ProductRepository;
 import com.phs.application.repository.ProductSizeRepository;
 import com.phs.application.service.CartService;
+import com.phs.application.service.PromotionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +43,9 @@ public class CartServiceImpl implements CartService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private PromotionService promotionService;
 
     @Override
     public List<CartItemDTO> getCartItems(long userId) {
@@ -155,13 +160,67 @@ public class CartServiceImpl implements CartService {
         User buyer = new User();
         buyer.setId(userId);
 
+        // ===== Tinh tong tien + tong so luong + ap dung coupon (neu co) =====
+        long cartSubTotal = 0L;
+        long totalQty = 0L;
+        for (CartItem item : items) {
+            cartSubTotal += unitPrice(item.getProduct()) * item.getQuantity();
+            totalQty += item.getQuantity();
+        }
+
+        // Kiem tra coupon, tinh tong tien duoc giam (PER-UNIT cho fixed type)
+        long totalDiscount = 0L;
+        Promotion appliedPromotion = null;
+        String couponCode = request.getCouponCode();
+        if (couponCode != null && !couponCode.trim().isEmpty()) {
+            try {
+                appliedPromotion = promotionService.checkPromotion(couponCode.trim());
+            } catch (Exception e) {
+                throw new BadRequestException("Mã khuyến mãi không hợp lệ");
+            }
+            if (appliedPromotion == null) {
+                throw new BadRequestException("Mã khuyến mãi không tồn tại hoặc đã hết hạn");
+            }
+            if (appliedPromotion.getDiscountType() == 1) {
+                // % giam: ap dung tren tong subTotal
+                totalDiscount = cartSubTotal * appliedPromotion.getDiscountValue() / 100;
+                if (appliedPromotion.getMaximumDiscountValue() > 0
+                        && totalDiscount > appliedPromotion.getMaximumDiscountValue()) {
+                    totalDiscount = appliedPromotion.getMaximumDiscountValue();
+                }
+            } else {
+                // Giam co dinh: PER-UNIT — 1 doi = -X, 2 doi = -2X
+                totalDiscount = (long) appliedPromotion.getDiscountValue() * totalQty;
+                if (appliedPromotion.getMaximumDiscountValue() > 0
+                        && totalDiscount > appliedPromotion.getMaximumDiscountValue()) {
+                    totalDiscount = appliedPromotion.getMaximumDiscountValue();
+                }
+                if (totalDiscount > cartSubTotal) totalDiscount = cartSubTotal;
+            }
+        }
+
         // Cung 1 timestamp cho tat ca orders trong cung 1 lan checkout
-        // -> dung lam khoa group trong lich su giao dich.
         Timestamp checkoutTime = new Timestamp(System.currentTimeMillis());
 
-        for (CartItem item : items) {
+        long discountUsed = 0L;
+        for (int idx = 0; idx < items.size(); idx++) {
+            CartItem item = items.get(idx);
             long unit = unitPrice(item.getProduct());
             long itemTotal = unit * item.getQuantity();
+
+            // Phan bo discount theo ti le itemTotal/cartSubTotal
+            long itemDiscount;
+            if (idx == items.size() - 1) {
+                // Item cuoi nhan phan con lai de tranh sai so do lam tron
+                itemDiscount = totalDiscount - discountUsed;
+            } else {
+                itemDiscount = (cartSubTotal > 0)
+                        ? (totalDiscount * itemTotal / cartSubTotal)
+                        : 0;
+                discountUsed += itemDiscount;
+            }
+            if (itemDiscount < 0) itemDiscount = 0;
+            if (itemDiscount > itemTotal) itemDiscount = itemTotal;
 
             Order order = new Order();
             order.setBuyer(buyer);
@@ -173,13 +232,23 @@ public class CartServiceImpl implements CartService {
             order.setReceiverPhone(request.getReceiverPhone());
             order.setReceiverAddress(request.getReceiverAddress());
             order.setNote(request.getNote());
-            order.setPrice(unit);
-            order.setTotalPrice(itemTotal);
+            order.setPrice(itemTotal);
+            // Convention: totalPrice = so tien giam (discount)
+            order.setTotalPrice(itemDiscount);
             order.setStatus(ORDER_STATUS);
             order.setCreatedAt(checkoutTime);
+            if (appliedPromotion != null && itemDiscount > 0) {
+                Order.UsedPromotion used = new Order.UsedPromotion(
+                        appliedPromotion.getCouponCode(),
+                        appliedPromotion.getDiscountType(),
+                        appliedPromotion.getDiscountValue(),
+                        appliedPromotion.getMaximumDiscountValue()
+                );
+                order.setPromotion(used);
+            }
             orderRepository.save(order);
 
-            // Tru ton kho - khop voi OrderServiceImpl.createOrder
+            // Tru ton kho
             ProductSize ps = productSizeRepository.checkProductAndSizeAvailable(item.getProduct().getId(), item.getSize());
             ps.setQuantity(ps.getQuantity() - item.getQuantity());
             productSizeRepository.save(ps);

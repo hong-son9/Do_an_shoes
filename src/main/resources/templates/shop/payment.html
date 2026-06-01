@@ -354,20 +354,37 @@
                                 <button class="btn btn-primary size trans-btn" style="border-radius: 10px;"><span class="size-text">Size</span><span th:data-size="${size}" class="size-details">9US | 42.5VN | 26.2CM</span><i class="fas dropdown-arrow"></i></button>
                             </div>
 
-                            <div class="input-group" style="margin-top:30px">
-                                <input type="text" class="form-control" placeholder="Nhập số lượng" style="border-radius: 10px;" id="in-quantity" th:value="${product.quantity}">
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-secondary" type="button" style="border-radius: 10px;" id="btn-apply-quantity">Áp dụng</button>
-                                </div>
+                            <div style="margin-top:24px;">
+                                <label for="in-quantity" style="font-size:0.92rem; color:#6b7280; font-weight:600;">
+                                    Số lượng <small id="stock-hint" style="color:#6b7280;"></small>
+                                </label>
+                                <input type="number" min="1" class="form-control" placeholder="Nhập số lượng"
+                                       style="border-radius: 10px;" id="in-quantity" th:value="${product.quantity}">
+                                <small id="stock-warning" style="display:none; color:#dc3545; font-weight:600; margin-top:4px;"></small>
                             </div>
 
-
-
-                            <div class="input-group" style="margin-top:30px;">
-                                <input type="text" class="form-control" style="border-radius: 10px;" placeholder="Khong có mã khuyến mãi" id="in-coupon" th:value="${product.couponCode}" readonly>
-<!--                                <div class="input-group-append">-->
-<!--                                    <button class="btn btn-outline-secondary" style="border-radius: 10px;" type="button" id="btn-apply-coupon">Áp dụng</button>-->
-<!--                                </div>-->
+                            <div style="margin-top:18px;">
+                                <label for="in-coupon" style="font-size:0.92rem; color:#6b7280; font-weight:600;">Mã khuyến mãi</label>
+                                <select id="in-coupon" class="form-control" style="border-radius: 10px;">
+                                    <th:block th:if="${validPromotions == null} or ${validPromotions.isEmpty()}">
+                                        <option value="" data-empty="true">Không có khuyến mãi</option>
+                                    </th:block>
+                                    <th:block th:if="${validPromotions != null} and not ${validPromotions.isEmpty()}">
+                                        <option value="">-- Không áp dụng --</option>
+                                        <th:block th:each="p : ${validPromotions}">
+                                            <option th:value="${p.couponCode}"
+                                                    th:data-type="${p.discountType}"
+                                                    th:data-value="${p.discountValue}"
+                                                    th:data-max="${p.maximumDiscountValue}"
+                                                    th:selected="${product.couponCode != null and product.couponCode == p.couponCode}"
+                                                    th:text="${p.discountType == 1
+                                                        ? p.couponCode + ' — Giảm ' + p.discountValue + '%'
+                                                        : p.couponCode + ' — Giảm ' + #numbers.formatDecimal(p.discountValue, 0, 'COMMA', 0, 'POINT') + 'đ/đôi'}">
+                                            </option>
+                                        </th:block>
+                                    </th:block>
+                                </select>
+                                <small id="coupon-msg" style="display:none; font-size:0.85rem; margin-top:4px;"></small>
                             </div>
                             <div class="coupon price-include">
                                 <div class="text">Tạm tính</div>
@@ -555,21 +572,17 @@
 <th:block id="js-resources">
     <script th:src="@{/shop/js/size-choose.js}"></script>
     <script th:inline="javascript">
-        let price = [[${product.price}]];
-        let promotionValue = 0;
-        let totalPrice = price;
-        if ([[${product.couponCode}]] != null && [[${product.couponCode}]] != "") {
-            totalPrice = [[${product.promotionPrice}]];
-            promotionValue = price - totalPrice;
-        }
-        else {
-            totalPrice = 0;
-            promotionValue = price;
-        }
-        $('#in-total-price').val(promotionValue);
-        $('#in-promotion-value').val(totalPrice);
+        // product.price tu server da nhan voi quantity → suy ra unit price
+        const __serverProductPrice = [[${product.price}]] || 0;
+        const __serverQuantity = parseInt([[${product.quantity}]], 10) || 1;
+        const unitPrice = __serverQuantity > 0
+            ? Math.floor(__serverProductPrice / __serverQuantity)
+            : __serverProductPrice;
 
-        let couponCode = [[${product.couponCode}]];
+        let totalSubtotal = 0;     // = unitPrice × quantity
+        let promotionValue = 0;    // so tien duoc giam
+        let totalPrice = 0;        // = totalSubtotal - promotionValue (thanh toan)
+        let couponCode = null;
 
         let sizeVn = [[${sizeVn}]];
 
@@ -629,47 +642,141 @@
                 $(`.item[data-id='${availableSizes[i]}']`).removeClass('cross');
             }
         }
-        $('#btn-apply-coupon').click(function() {
-            let coupon = $('#in-coupon').val();
-            if (coupon == "") {
-                $('#in-coupon').val(couponCode);
-                toastr.warning("Bạn chưa nhập mã khuyến mãi");
+        // ===== Stock check + recompute prices khi doi quantity / promotion =====
+        const __productId = [[${product.id}]];
+        const __selectedSize = [[${size}]];
+        let stockBySize = {};
+
+        function getQty() {
+            let q = parseInt($('#in-quantity').val(), 10);
+            if (isNaN(q) || q < 1) q = 1;
+            return q;
+        }
+
+        function fetchStock() {
+            $.ajax({
+                url: '/api/products/' + encodeURIComponent(__productId) + '/stock-by-size',
+                type: 'GET',
+                success: function(data) {
+                    stockBySize = data || {};
+                    validateStock();
+                },
+                error: function() {
+                    stockBySize = {};
+                }
+            });
+        }
+
+        function validateStock() {
+            let qty = getQty();
+            let available = stockBySize[__selectedSize];
+            if (available != null) {
+                $('#stock-hint').text('(Còn ' + available + ' đôi)');
+            } else {
+                $('#stock-hint').text('');
+            }
+            if (available != null && qty > available) {
+                $('#stock-warning')
+                    .text('Hết hàng — trong kho chỉ còn ' + available + ' đôi cho size ' + __selectedSize)
+                    .show();
+                $('#in-quantity').css('border-color', '#dc3545');
+                $('#btn-buy-now').prop('disabled', true).css('opacity', '0.6');
+                return false;
+            } else {
+                $('#stock-warning').hide();
+                $('#in-quantity').css('border-color', '');
+                $('#btn-buy-now').prop('disabled', false).css('opacity', '');
+                return true;
+            }
+        }
+
+        // Update URL khi qty thay doi → preserve khi browser back tu VNPay
+        function updateUrlQuantity(qty) {
+            try {
+                let u = new URL(window.location.href);
+                u.searchParams.set('quantity', qty);
+                window.history.replaceState({}, '', u.toString());
+            } catch(e) { /* fallback noop */ }
+        }
+
+        function recomputePrices() {
+            let qty = getQty();
+            totalSubtotal = unitPrice * qty;
+
+            // Doc promotion tu dropdown
+            let $opt = $('#in-coupon').find('option:selected');
+            promotionValue = 0;
+            couponCode = null;
+            if ($opt.length && $opt.val() && $opt.attr('data-empty') !== 'true') {
+                let type = parseInt($opt.attr('data-type'), 10);
+                let value = parseFloat($opt.attr('data-value')) || 0;
+                let max = parseFloat($opt.attr('data-max')) || 0;
+                if (type === 1) {
+                    promotionValue = Math.floor(totalSubtotal * value / 100);
+                } else if (type === 2) {
+                    // Fixed: per-unit × qty
+                    promotionValue = value * qty;
+                }
+                if (max > 0 && promotionValue > max) promotionValue = max;
+                if (promotionValue > totalSubtotal) promotionValue = totalSubtotal;
+                if (promotionValue < 0) promotionValue = 0;
+                couponCode = $opt.val();
+            }
+
+            totalPrice = totalSubtotal - promotionValue;
+            if (totalPrice < 0) totalPrice = 0;
+
+            $('#in-price').val(totalSubtotal);
+            $('#in-promotion-value').val(promotionValue);
+            $('#in-total-price').val(totalPrice);
+            if (typeof formatMoney === 'function') formatMoney();
+            updateCouponMsg();
+        }
+
+        function updateCouponMsg() {
+            let $sel = $('#in-coupon');
+            let $msg = $('#coupon-msg');
+            let $opt = $sel.find('option:selected');
+            if (!$sel.find('option').length || $opt.attr('data-empty') === 'true') {
+                $msg.text('Hiện không có khuyến mãi nào').css('color', '#6b7280').show();
                 return;
             }
-            $.ajax({
-                url: '/api/check-hidden-promotion?code='+coupon,
-                type: 'GET',
-                contentType: "application/json; charset=utf-8",
-                success: function(data) {
-                    couponCode = coupon;
-                    let tmp = data.discountValue;
-                    if (data.discountType == 1) {
-                        tmp = price * data.discountValue / 100;
-                    }
-                    if (tmp < data.maximumDiscountValue) {
-                        promotionValue = tmp;
-                    } else {
-                        promotionValue = data.maximumDiscountValue;
-                    }
-                    totalPrice = price - promotionValue;
-                    $('#in-price').val(price);
-                    $('#in-promotion-value').val(promotionValue);
-                    $('#in-total-price').val(totalPrice);
-                    formatMoney();
-                },
-                error: function(data) {
-                    $('#in-coupon').val(couponCode);
-                    toastr.warning(data.responseJSON.message);
-                },
-            });
-        })
+            if (!$opt.val()) {
+                $msg.hide();
+                return;
+            }
+            if (promotionValue > 0) {
+                $msg.text('✓ Đã áp dụng — giảm ' + promotionValue.toLocaleString('vi-VN') + 'đ').css('color', '#22c55e').show();
+            } else {
+                $msg.text('Mã được chọn nhưng không tạo ra giảm giá').css('color', '#6b7280').show();
+            }
+        }
 
-        $('#btn-apply-quantity').click(function() {
-            let quantity = document.getElementById('in-quantity').value;
-            let size = document.getElementById('saveSize').value;
-            let id = document.getElementById('saveId').value;
-            window.location.href = 'http://localhost:8081/dat-hang?id=' + id + '&size=' + size + '&quantity=' + quantity;
-        })
+        // Auto-recompute on input + validate stock + persist URL
+        $('#in-quantity').on('input change', function () {
+            let q = parseInt($(this).val(), 10);
+            if (!isNaN(q) && q < 1) { $(this).val(1); q = 1; }
+            recomputePrices();
+            validateStock();
+            updateUrlQuantity(q || 1);
+        });
+        $('#in-coupon').on('change', function () {
+            recomputePrices();
+        });
+
+        // Auto-select promotion dau tien co value khi load (cho DOM ready) + fetch stock
+        $(function() {
+            let $sel = $('#in-coupon');
+            // Neu chua co option nao duoc Thymeleaf "selected" (product.couponCode khop)
+            let $selected = $sel.find('option:selected');
+            if (!$selected.length || (!$selected.val() && $selected.attr('data-empty') !== 'true')) {
+                // Tu chon option dau tien co promotion thuc
+                let $first = $sel.find('option[data-type]').first();
+                if ($first.length) $sel.val($first.val());
+            }
+            recomputePrices();
+            fetchStock();
+        });
 
         function validateOrderForm() {
             let receiverName = $('#receiver_name').val();
@@ -706,6 +813,14 @@
                 $('.not-found-size').show();
                 isValid = false;
             }
+            // Stock validation
+            if (!validateStock()) {
+                let avail = stockBySize[__selectedSize];
+                if (typeof toastr !== 'undefined') {
+                    toastr.warning('Trong kho chỉ còn ' + (avail != null ? avail : 0) + ' đôi cho size ' + __selectedSize);
+                }
+                isValid = false;
+            }
             return isValid;
         }
 
@@ -713,13 +828,13 @@
             return {
                 product_id: [[${product.id}]],
                 size: $('.size-choose').data("id"),
-                quantity: document.getElementById('in-quantity').value,
+                quantity: getQty(),
                 receiver_name: $('#receiver_name').val(),
                 receiver_phone: $('#receiver_phone').val(),
                 receiver_address: $('#receiver_address').val(),
                 coupon_code: couponCode,
                 total_price: totalPrice,
-                product_price: price,
+                product_price: totalSubtotal,
                 note: $('#notes').val()
             };
         }

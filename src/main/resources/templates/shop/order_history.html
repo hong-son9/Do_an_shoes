@@ -390,13 +390,13 @@
                                 </div>
                                 <div class="item-info-wrapper">
                                     <div class="product-info-wrapper">
-                                        <div class="thumbnails"><img class="img-fluid" th:src="@{${item.productImg}}" th:alt="${item.productName}"/></div>
+                                        <div class="thumbnails"><img class="img-fluid" th:src="@{${item.productImg}}" th:alt="${item.productName}" loading="lazy"/></div>
                                         <div class="product-info"><span class="name" th:text="${item.productName}"></span>
                                             <div class="size"><span th:text="${item.sizeUs}"></span>US | <span th:text="${item.sizeVn}"></span>VN | <span th:text="${item.sizeCm}"></span>CM</div>
                                             <div class="quantity"><span th:text="${item.quantity}"></span></div>
                                         </div>
                                     </div>
-                                    <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                    <div class="price bid-price"><span class="text-price" th:text="${item.finalPrice}"></span> &#x20AB;</div>
                                 </div>
                             </div>
                             <!-- Item Small-->
@@ -413,7 +413,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="price bid-price"><span class="text-price" th:text="${item.totalPrice}"></span> &#x20AB;</div>
+                                    <div class="price bid-price"><span class="text-price" th:text="${item.finalPrice}"></span> &#x20AB;</div>
                                 </div>
                             </div>
                             <div class="zalo-button">
@@ -549,7 +549,7 @@
                                             <div class="size"><span>${order.sizeUs}</span>US | <span>${order.sizeVn}</span>VN | <span>${order.sizeCm}</span>CM</div>
                                         </div>
                                     </div>
-                                    <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
+                                    <div class="price bid-price"><span class="text-price">${order.finalPrice}</span> &#x20AB;</div>
                                 </div>
                             </div>
                             <div class="item-small">
@@ -565,7 +565,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="price bid-price"><span class="text-price">${order.totalPrice}</span> &#x20AB;</div>
+                                    <div class="price bid-price"><span class="text-price">${order.finalPrice}</span> &#x20AB;</div>
                                 </div>
                             </div>
         `

@@ -184,7 +184,7 @@
     <section class="news-hero">
         <div class="container">
             <h1>Tin tức &amp; Bài viết</h1>
-            <p>Cập nhật xu hướng giày mới nhất, mẹo phối đồ và những câu chuyện thú vị từ Sơn Shoes.</p>
+            <p>Cập nhật xu hướng giày mới nhất, mẹo phối đồ và những câu chuyện thú vị từ Shoes.</p>
         </div>
     </section>
     <div class="zalo-button">
@@ -287,7 +287,7 @@
                     <article class="post">
                         <div class="post-media">
                             <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}">
-                                <img th:src="@{${post.thumbnail}}" th:alt="${post.title}">
+                                <img th:src="@{${post.thumbnail}}" th:alt="${post.title}" loading="lazy">
                             </a>
                         </div>
                         <!-- End .post-media -->

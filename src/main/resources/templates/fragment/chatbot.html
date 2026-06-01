@@ -332,15 +332,19 @@
 
     <div class="sb-messages" id="sb-messages">
         <div class="sb-msg bot">
-            Xin chào! Mình là <b>Sneaker Bot</b> của Sơn Shoes. Mình có thể giúp bạn chọn size, gợi ý mẫu giày phù hợp, hoặc giải đáp về đổi trả & vận chuyển. Bạn cần hỗ trợ gì ạ?
+            Xin chào! Mình là <b>Sneaker Bot</b> của Shoes. Mình có thể giúp bạn chọn size, gợi ý mẫu giày phù hợp, hoặc giải đáp về đổi trả & vận chuyển. Bạn cần hỗ trợ gì ạ?
         </div>
     </div>
 
     <div class="sb-suggestions" id="sb-suggestions">
-        <button type="button" data-q="Cho mình xem các mẫu Nike đang hot nhất">Mẫu Nike hot</button>
-        <button type="button" data-q="Cách chọn size giày chuẩn?">Chọn size</button>
-        <button type="button" data-q="Chính sách đổi trả như thế nào?">Đổi trả</button>
-        <button type="button" data-q="Cách bảo quản giày để bền lâu?">Bảo quản giày</button>
+        <button type="button" data-q="Cho mình xem các mẫu giày đang bán chạy">🔥 Bán chạy</button>
+        <button type="button" data-q="Có mẫu giày mới nào không?">✨ Mới về</button>
+        <button type="button" data-q="Gợi ý giày dưới 2 triệu">💰 Dưới 2tr</button>
+        <button type="button" data-q="Mình đi học nên chọn giày nào?">🎒 Đi học</button>
+        <button type="button" data-q="Mình đi chạy bộ/tập gym nên chọn giày nào?">🏃 Tập gym</button>
+        <button type="button" data-q="Cách chọn size giày chuẩn?">📏 Chọn size</button>
+        <button type="button" data-q="Cách bảo quản giày để bền lâu?">🧼 Bảo quản</button>
+        <button type="button" data-q="Chính sách đổi trả như thế nào?">↩ Đổi trả</button>
     </div>
 
     <form class="sb-input-area" id="sb-form">
@@ -410,10 +414,25 @@
                 return pre + '<a href="' + path + '">' + path + '</a>';
             });
         }
+        function renderMarkdown(s) {
+            // Bold **text**
+            s = s.replace(/\*\*([^\*\n]+)\*\*/g, '<strong>$1</strong>');
+            // Italic *text*
+            s = s.replace(/(^|[^\*])\*([^\*\n]+)\*(?!\*)/g, '$1<em>$2</em>');
+            // Inline code `text`
+            s = s.replace(/`([^`\n]+)`/g, '<code style="background:rgba(255,107,53,0.12); padding:2px 6px; border-radius:4px; color:#e63946;">$1</code>');
+            return s;
+        }
         function renderMessage(role, text) {
             var div = document.createElement('div');
             div.className = 'sb-msg ' + (role === 'user' ? 'user' : 'bot');
-            div.innerHTML = linkify(escapeHtml(text)).replace(/\n/g, '<br>');
+            // Order: escape HTML → markdown bold/italic → linkify → newlines
+            var html = escapeHtml(text);
+            if (role !== 'user') {
+                html = renderMarkdown(html);
+            }
+            html = linkify(html).replace(/\n/g, '<br>');
+            div.innerHTML = html;
             messages.appendChild(div);
             messages.scrollTop = messages.scrollHeight;
         }

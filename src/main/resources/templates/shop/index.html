@@ -10,7 +10,7 @@
                                                                     )}">
 <head>
     <meta charset="UTF-8">
-    <title>Shop Sơn Shoes</title>
+    <title>Shop Shoes</title>
     <th:block id="css-resources">
         <style>
             /* ===== Brand palette =====
@@ -449,7 +449,7 @@
                     <div class="product-default">
                         <figure>
                             <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}">
-                                <img th:src="@{${newProduct.images}}" alt="product">
+                                <img th:src="@{${newProduct.images}}" alt="product" loading="lazy">
                             </a>
                         </figure>
                         <div class="product-details">
@@ -497,7 +497,7 @@
                     <div class="product-default">
                         <figure>
                             <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}">
-                                <img th:src="@{${sell.images}}" alt="product">
+                                <img th:src="@{${sell.images}}" alt="product" loading="lazy">
                             </a>
                             <div class="label-group">
                                 <div class="product-label label-hot">HOT</div>
@@ -628,7 +628,7 @@
                     <div class="product-default">
                         <figure>
                             <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}">
-                                <img th:src="@{${view.images}}" alt="product">
+                                <img th:src="@{${view.images}}" alt="product" loading="lazy">
                             </a>
                         </figure>
                         <div class="product-details">
@@ -731,7 +731,7 @@
                     <article class="post">
                         <div class="post-media">
                             <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}">
-                                <img th:src="@{${post.thumbnail}}" alt="Post" width="225" height="280">
+                                <img th:src="@{${post.thumbnail}}" alt="Post" width="225" height="280" loading="lazy">
                             </a>
                             <div class="post-date">
                                 <span th:text="${#dates.format(post.publishedAt, 'MM yyyy')}"></span></p>

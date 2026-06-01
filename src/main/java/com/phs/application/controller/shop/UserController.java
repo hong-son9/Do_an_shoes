@@ -64,13 +64,19 @@ public class UserController {
         UserDetails principal = new CustomUserDetails(user);
         String token = jwtTokenUtil.generateToken(principal);
 
-        //Add token on cookie to login
-        Cookie cookie = new Cookie("JWT_TOKEN", token);
-        cookie.setMaxAge(Contant.MAX_AGE_COOKIE);
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        //Add token on cookie to login (HttpOnly + SameSite=Lax de chong CSRF + XSS)
+        addJwtCookie(response, token);
 
         return ResponseEntity.ok(UserMapper.toUserDTO(user));
+    }
+
+    private void addJwtCookie(HttpServletResponse response, String token) {
+        // Dung Set-Cookie header thay vi Cookie object de set duoc SameSite
+        String cookieValue = String.format(
+                "JWT_TOKEN=%s; Path=/; Max-Age=%d; HttpOnly; SameSite=Lax",
+                token, Contant.MAX_AGE_COOKIE
+        );
+        response.addHeader("Set-Cookie", cookieValue);
     }
 
     @PostMapping("/api/login")
@@ -84,11 +90,8 @@ public class UserController {
             //Gen token
             String token = jwtTokenUtil.generateToken((CustomUserDetails) authentication.getPrincipal());
 
-            //Add token to cookie to login
-            Cookie cookie = new Cookie("JWT_TOKEN", token);
-            cookie.setMaxAge(Contant.MAX_AGE_COOKIE);
-            cookie.setPath("/");
-            response.addCookie(cookie);
+            //Add token to cookie to login (HttpOnly + SameSite=Lax)
+            addJwtCookie(response, token);
 
             return ResponseEntity.ok(UserMapper.toUserDTO(((CustomUserDetails) authentication.getPrincipal()).getUser()));
         } catch (Exception ex) {

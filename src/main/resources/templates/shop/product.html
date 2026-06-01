@@ -388,7 +388,7 @@
                             <div class="product-default inner-quickview inner-icon">
                                 <figure>
                                     <a th:href="@{/{slug}/{id}(id=${product.id},slug=${product.slug})}">
-                                        <img th:src="@{${product.images}}" th:alt="${product.name}">
+                                        <img th:src="@{${product.images}}" th:alt="${product.name}" loading="lazy">
                                     </a>
                                 </figure>
                                 <div class="product-details">

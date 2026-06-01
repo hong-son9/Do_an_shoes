@@ -1,6 +1,7 @@
 package com.phs.application.controller.shop;
 
 import com.phs.application.entity.Order;
+import com.phs.application.entity.Promotion;
 import com.phs.application.entity.User;
 import com.phs.application.model.dto.CartItemDTO;
 import com.phs.application.model.request.AddCartItemRequest;
@@ -8,6 +9,7 @@ import com.phs.application.model.request.CheckoutCartRequest;
 import com.phs.application.model.request.UpdateCartItemRequest;
 import com.phs.application.security.CustomUserDetails;
 import com.phs.application.service.CartService;
+import com.phs.application.service.PromotionService;
 import com.phs.application.service.VNPayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,15 +34,29 @@ public class CartController {
     @Autowired
     private VNPayService vnPayService;
 
+    @Autowired
+    private PromotionService promotionService;
+
     @GetMapping("/gio-hang")
     public String cartPage(Model model) {
         long userId = currentUserId();
         List<CartItemDTO> items = cartService.getCartItems(userId);
         long total = cartService.getTotalAmount(userId);
         User user = currentUser();
+
+        // Lay danh sach promotion con han de show trong dropdown
+        List<Promotion> promotions;
+        try {
+            promotions = promotionService.getAllValidPromotion();
+            if (promotions == null) promotions = new ArrayList<>();
+        } catch (Exception e) {
+            promotions = new ArrayList<>();
+        }
+
         model.addAttribute("items", items);
         model.addAttribute("totalAmount", total);
         model.addAttribute("itemCount", items.size());
+        model.addAttribute("promotions", promotions);
         model.addAttribute("user_fullname", user.getFullName());
         model.addAttribute("user_phone", user.getPhone());
         model.addAttribute("user_address", user.getAddress());
@@ -99,9 +115,11 @@ public class CartController {
 
         List<Long> orderIds = new ArrayList<>();
         long total = 0L;
+        // Convention moi: order.price = subTotal, order.totalPrice = discount
+        // → so tien thuc thu = price - totalPrice
         for (Order o : orders) {
             orderIds.add(o.getId());
-            total += o.getTotalPrice();
+            total += (o.getPrice() - o.getTotalPrice());
         }
 
         Map<String, Object> resp = new HashMap<>();

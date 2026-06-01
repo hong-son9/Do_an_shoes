@@ -35,4 +35,8 @@ public class CheckoutCartRequest {
     // "cod" hoac "vnpay"
     @JsonProperty("payment_method")
     private String paymentMethod;
+
+    // Coupon code (optional) — ap dung khuyen mai khi checkout
+    @JsonProperty("coupon_code")
+    private String couponCode;
 }

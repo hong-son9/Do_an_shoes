@@ -24,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -287,7 +288,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderInfoDTO> getListOrderOfPersonByStatus(int status, long userId) {
         List<OrderInfoDTO> list = orderRepository.getListOrderOfPersonByStatus(status, userId);
-
+        Collections.reverse(list);
         for (OrderInfoDTO dto : list) {
             for (int i = 0; i < SIZE_VN.size(); i++) {
                 if (SIZE_VN.get(i) == dto.getSizeVn()) {

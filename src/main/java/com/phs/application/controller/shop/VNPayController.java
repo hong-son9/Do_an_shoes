@@ -37,7 +37,13 @@ public class VNPayController {
     public ResponseEntity<Object> createPayment(@RequestParam("order_id") long orderId,
                                                 HttpServletRequest request) {
         Order order = orderService.findOrderById(orderId);
-        long amount = order.getTotalPrice();
+        // Convention: order.totalPrice luu DISCOUNT.
+        // VNPay can so tien KHACH THUC TRA = price - discount.
+        long amount = order.getPrice() - order.getTotalPrice();
+        if (amount <= 0) {
+            // Fallback: neu data le, dung order.price (subtotal day du)
+            amount = order.getPrice();
+        }
         if (amount <= 0) {
             throw new BadRequestException("Số tiền thanh toán không hợp lệ");
         }

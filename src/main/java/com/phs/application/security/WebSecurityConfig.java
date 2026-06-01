@@ -46,6 +46,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception{
+        // CSRF disabled toan cuc:
+        // Project dung JWT stateless (Authorization header / cookie). Cac form HTML
+        // se gui thong qua AJAX voi JWT, khong dung session cookie + form post truyen thong.
+        // De bao mat CSRF du an JWT-cookie, can set SameSite=Lax/Strict tren JWT_TOKEN
+        // (xem JwtRequestFillter / login flow).
         httpSecurity
                 .cors()
                 .and()
@@ -68,6 +73,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .headers()
+                // Bao ve XSS/clickjacking co ban
+                .frameOptions().sameOrigin()
+                .xssProtection().and()
+                .contentTypeOptions().and()
+                .referrerPolicy(org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy.SAME_ORIGIN)
+                .and()
                 .and()
                 .addFilterBefore(jwtRequestFillter, UsernamePasswordAuthenticationFilter.class);
     }

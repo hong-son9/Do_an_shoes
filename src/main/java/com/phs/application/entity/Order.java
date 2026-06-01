@@ -20,6 +20,7 @@ import java.sql.Timestamp;
                                 columns = {
                                         @ColumnResult(name = "id", type = Long.class),
                                         @ColumnResult(name = "total_price", type = Long.class),
+                                        @ColumnResult(name = "product_price", type = Long.class),
                                         @ColumnResult(name = "quantity", type = Integer.class),
                                         @ColumnResult(name = "size_vn", type = Integer.class),
                                         @ColumnResult(name = "product_name", type = String.class),
@@ -51,7 +52,8 @@ import java.sql.Timestamp;
 @NamedNativeQuery(
         name = "getListOrderOfPersonByStatus",
         resultSetMapping = "orderInfoDTO",
-        query = "SELECT od.id, od.total_price, od.quantity, od.size size_vn, p.name product_name, (p.images ->> '$[0]') as product_img " +
+        query = "SELECT od.id, od.total_price, od.price as product_price, od.quantity, od.size size_vn, " +
+                "p.name product_name, (p.images ->> '$[0]') as product_img " +
                 "FROM orders od " +
                 "INNER JOIN product p " +
                 "ON od.product_id = p.id " +

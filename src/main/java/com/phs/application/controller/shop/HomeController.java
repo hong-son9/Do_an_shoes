@@ -126,11 +126,42 @@ public class HomeController {
         } catch (Exception ex) {
             return "error/500";
         }
+        // Luu unit price truoc khi nhan voi quantity
+        long unitPrice = product.getPrice();
         product.setQuantity(quantity);
-        product.setPrice(product.getPrice() * quantity);
-        long price = product.getPrice() / quantity;
-        product.setPromotionPrice((price - product.getPromotionPrice()) * quantity);
+        product.setPrice(unitPrice * quantity);
+        long discountPerUnit = unitPrice - product.getPromotionPrice();
+        long totalDiscount = discountPerUnit * quantity;
+
+        // Ap dung gioi han toi da cua promotion (neu co)
+        // Vd: 500k/doi, max 500k → mua 2 doi van chi giam 500k, khong 1,000k
+        if (totalDiscount > 0 && product.getCouponCode() != null && !product.getCouponCode().isEmpty()) {
+            try {
+                Promotion promo = promotionService.checkPromotion(product.getCouponCode());
+                if (promo != null && promo.getMaximumDiscountValue() > 0
+                        && totalDiscount > promo.getMaximumDiscountValue()) {
+                    totalDiscount = promo.getMaximumDiscountValue();
+                }
+            } catch (Exception ignore) {
+                // Promotion het han / khong ton tai → bo qua, giu nguyen totalDiscount
+            }
+        }
+        if (totalDiscount < 0) totalDiscount = 0;
+        if (totalDiscount > product.getPrice()) totalDiscount = product.getPrice();
+
+        product.setPromotionPrice(totalDiscount);
         model.addAttribute("product", product);
+        model.addAttribute("unitPrice", unitPrice);
+
+        // Danh sach promotion con han de show trong dropdown
+        List<Promotion> validPromotions;
+        try {
+            validPromotions = promotionService.getAllValidPromotion();
+            if (validPromotions == null) validPromotions = new ArrayList<>();
+        } catch (Exception e) {
+            validPromotions = new ArrayList<>();
+        }
+        model.addAttribute("validPromotions", validPromotions);
 
         //Validate size
         if (size < 35 || size > 42) {
@@ -165,6 +196,19 @@ public class HomeController {
         Order order = orderService.createOrder(createOrderRequest, user.getId());
 
         return ResponseEntity.ok(order.getId());
+    }
+
+    // Endpoint public — tra ve so luong ton kho theo size cho 1 san pham
+    @GetMapping("/api/products/{id}/stock-by-size")
+    public ResponseEntity<java.util.Map<Integer, Integer>> getProductStockBySize(@PathVariable String id) {
+        java.util.List<com.phs.application.entity.ProductSize> sizes = productService.getListSizeOfProduct(id);
+        java.util.Map<Integer, Integer> stock = new java.util.HashMap<>();
+        if (sizes != null) {
+            for (com.phs.application.entity.ProductSize ps : sizes) {
+                stock.put(ps.getSize(), ps.getQuantity());
+            }
+        }
+        return ResponseEntity.ok(stock);
     }
 
     @GetMapping("/products")
