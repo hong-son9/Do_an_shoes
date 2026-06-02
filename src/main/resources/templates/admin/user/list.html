@@ -36,6 +36,10 @@
             .btn-toggle-status.lock:hover { background: #dc2626; }
             .btn-toggle-status.unlock { background: #10b981; color: white; }
             .btn-toggle-status.unlock:hover { background: #059669; }
+            .btn-toggle-status.promote { background: #ff6b35; color: white; }
+            .btn-toggle-status.promote:hover { background: #e63946; }
+            .btn-toggle-status.demote { background: #6b7280; color: white; }
+            .btn-toggle-status.demote:hover { background: #374151; }
             .btn-toggle-status:disabled { background: #cbd5e1 !important; cursor: not-allowed; opacity: 0.6; }
         </style>
     </th:block>
@@ -57,23 +61,28 @@
         </div>
     </header>
 
-    <section class="card">
-        <header class="card-header">
+    <section class="card panel">
+        <header class="card-header panel-heading">
             <div class="card-actions">
                 <a href="#" class="card-action card-action-toggle" data-card-toggle></a>
-                <a href="#" class="card-action card-action-dismiss" data-card-dismiss></a>
             </div>
-            <h2 class="card-title">Danh sách tài khoản </h2>
+            <h2 class="card-title panel-title"><i class="fas fa-users" style="color:#ff6b35; margin-right:8px;"></i> Danh sách tài khoản</h2>
         </header>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-sm-6">
-<!--                    <div class="mb-3">-->
-<!--                        <button id="addToTable" class="btn btn-primary">Thêm mới tài khoản <i-->
-<!--                                class="fas fa-plus"></i></button>-->
-<!--                    </div>-->
-                </div>
+
+        <!-- Quick search + filter pills toolbar -->
+        <div class="table-toolbar">
+            <div class="table-search">
+                <input type="text" id="quickSearchTable" placeholder="Tìm kiếm nhanh trong bảng (tên, email, SĐT)...">
             </div>
+            <div class="filter-pills">
+                <span class="filter-pill active" data-filter="all">Tất cả <span class="count" id="cntAll">0</span></span>
+                <span class="filter-pill" data-filter="active">🟢 Hoạt động <span class="count" id="cntActive">0</span></span>
+                <span class="filter-pill" data-filter="inactive">🔴 Đã khóa <span class="count" id="cntInactive">0</span></span>
+                <span class="filter-pill" data-filter="admin">🛡 Admin <span class="count" id="cntAdmin">0</span></span>
+            </div>
+        </div>
+
+        <div class="card-body">
             <table class="table table-bordered table-striped mb-0" id="datatable-editable">
                 <thead>
                 <tr>
@@ -113,21 +122,45 @@
                         <span th:if="${user.status}" class="status-badge active">● Đang hoạt động</span>
                         <span th:unless="${user.status}" class="status-badge inactive">● Đã khóa</span>
                     </td>
-                    <td>
-                        <button
-                            th:if="${user.roles != null and user.roles.contains('ADMIN')}"
-                            class="btn-toggle-status" disabled
-                            title="Không thể khóa tài khoản admin">
-                            <i class="fas fa-shield-alt"></i> Admin
+                    <td style="white-space: nowrap;" th:with="isSelf=${user.id == user_id},isAdmin=${user.roles != null and user.roles.contains('ADMIN')}">
+                        <!-- Neu la chinh tai khoan dang login → khong cho thao tac -->
+                        <button th:if="${isSelf}"
+                                class="btn-toggle-status" disabled
+                                title="Đây là tài khoản đang đăng nhập, không thể tự thao tác">
+                            <i class="fas fa-user-check"></i> Bạn
                         </button>
-                        <button
-                            th:unless="${user.roles != null and user.roles.contains('ADMIN')}"
-                            th:classappend="${user.status} ? 'lock' : 'unlock'"
-                            th:attr="data-user-id=${user.id}, data-current-status=${user.status}"
-                            class="btn-toggle-status btn-toggle">
-                            <i th:class="${user.status} ? 'fas fa-lock' : 'fas fa-unlock'"></i>
-                            <span th:text="${user.status} ? 'Khóa' : 'Mở khóa'"></span>
-                        </button>
+
+                        <!-- Khoa/Mo khoa: chi cho user thuong (khong phai self, khong phai admin) -->
+                        <th:block th:unless="${isSelf}">
+                            <button th:if="${isAdmin}"
+                                    class="btn-toggle-status" disabled
+                                    title="Cần thu hồi quyền admin trước khi khóa">
+                                <i class="fas fa-shield-alt"></i> Admin
+                            </button>
+                            <button th:unless="${isAdmin}"
+                                    th:classappend="${user.status} ? 'lock' : 'unlock'"
+                                    th:attr="data-user-id=${user.id}, data-current-status=${user.status}"
+                                    class="btn-toggle-status btn-toggle">
+                                <i th:class="${user.status} ? 'fas fa-lock' : 'fas fa-unlock'"></i>
+                                <span th:text="${user.status} ? 'Khóa' : 'Mở khóa'"></span>
+                            </button>
+
+                            <!-- Cap/Thu hoi quyen admin (cung an khi la self) -->
+                            <button th:if="${isAdmin}"
+                                    th:attr="data-user-id=${user.id}"
+                                    class="btn-toggle-status btn-toggle-role demote"
+                                    style="margin-left: 4px;"
+                                    title="Thu hồi quyền quản trị viên">
+                                <i class="fas fa-user-minus"></i> Thu hồi
+                            </button>
+                            <button th:unless="${isAdmin}"
+                                    th:attr="data-user-id=${user.id}, data-status=${user.status}"
+                                    class="btn-toggle-status btn-toggle-role promote"
+                                    style="margin-left: 4px;"
+                                    title="Cấp quyền quản trị viên">
+                                <i class="fas fa-user-shield"></i> Cấp quyền
+                            </button>
+                        </th:block>
                     </td>
                 </tr>
                 </th:block>
@@ -164,6 +197,74 @@
             $('#page').val(page)
 
             pagination([[${totalPages}]], [[${currentPage}]]);
+
+            // ===== Quick search box: filter rows in current page bang JS =====
+            $('#quickSearchTable').on('input', function () {
+                var q = $(this).val().toLowerCase().trim();
+                $('#datatable-editable tbody tr').each(function () {
+                    var text = $(this).text().toLowerCase();
+                    $(this).toggle(q === '' || text.indexOf(q) >= 0);
+                });
+            });
+
+            // ===== Filter pills: filter by status + role =====
+            function applyPill(filter) {
+                $('#datatable-editable tbody tr').each(function () {
+                    var $row = $(this);
+                    var isAdmin = $row.attr('data-is-admin') === 'true';
+                    var hasInactiveBadge = $row.find('.status-badge.inactive, .inactive').length > 0;
+                    var match = true;
+                    if (filter === 'admin') match = isAdmin;
+                    else if (filter === 'active') match = !hasInactiveBadge && !isAdmin;
+                    else if (filter === 'inactive') match = hasInactiveBadge;
+                    $row.toggle(match);
+                });
+            }
+            $('.filter-pill').on('click', function () {
+                $('.filter-pill').removeClass('active');
+                $(this).addClass('active');
+                applyPill($(this).data('filter'));
+            });
+
+            // ===== Counter pills =====
+            var $rows = $('#datatable-editable tbody tr');
+            var cntAll = $rows.length;
+            var cntAdmin = $rows.filter('[data-is-admin="true"]').length;
+            var cntInactive = $rows.has('.status-badge.inactive, .inactive').length;
+            var cntActive = cntAll - cntAdmin - cntInactive;
+            $('#cntAll').text(cntAll);
+            $('#cntActive').text(cntActive);
+            $('#cntInactive').text(cntInactive);
+            $('#cntAdmin').text(cntAdmin);
+        });
+
+        // Toggle admin role
+        $(document).on('click', '.btn-toggle-role', function () {
+            const $btn = $(this);
+            const userId = $btn.data('user-id');
+            const isDemote = $btn.hasClass('demote');
+            const actionText = isDemote ? 'thu hồi quyền quản trị viên của' : 'cấp quyền quản trị viên cho';
+            if (!confirm('Bạn có chắc muốn ' + actionText + ' tài khoản này?')) return;
+
+            $btn.prop('disabled', true).text('Đang xử lý...');
+            $.ajax({
+                url: '/api/admin/users/' + userId + '/role',
+                type: 'PUT',
+                contentType: 'application/json',
+                success: function (data) {
+                    if (typeof toastr !== 'undefined') toastr.success(data.message);
+                    else alert(data.message);
+                    setTimeout(function () { location.reload(); }, 500);
+                },
+                error: function (xhr) {
+                    $btn.prop('disabled', false);
+                    let msg = 'Có lỗi xảy ra';
+                    try { msg = (JSON.parse(xhr.responseText).message) || msg; } catch (e) {}
+                    if (typeof toastr !== 'undefined') toastr.error(msg);
+                    else alert(msg);
+                    location.reload();
+                }
+            });
         });
 
         $(document).on('click', '.btn-toggle', function () {

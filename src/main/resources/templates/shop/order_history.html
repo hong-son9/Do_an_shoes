@@ -572,6 +572,53 @@
             }
             $('#list-order').html(html);
         }
+
+        // ============================================================
+        // Polling order status — auto refresh khi admin update status,
+        // khong can F5 thu cong.
+        // ============================================================
+        (function () {
+            var STATUS_TEXT = {1:'⏳ Chờ lấy hàng', 2:'🚚 Đang giao', 3:'✅ Đã giao', 4:'↩️ Đã trả lại', 5:'❌ Đã hủy'};
+            var prevSnapshot = null;
+            var currentTab = 1;
+            $('.order-status').on('click', function () { currentTab = $(this).data('status'); });
+
+            function pollStatus() {
+                $.ajax({ url: '/api/orders/my-status', type: 'GET' })
+                    .done(function (data) {
+                        if (!data) return;
+                        if (prevSnapshot === null) { prevSnapshot = data; return; }
+
+                        // Phat hien don nao da thay doi status
+                        var changes = [];
+                        Object.keys(data).forEach(function (oid) {
+                            if (prevSnapshot[oid] !== undefined && prevSnapshot[oid] !== data[oid]) {
+                                changes.push({ id: oid, oldStatus: prevSnapshot[oid], newStatus: data[oid] });
+                            }
+                        });
+
+                        if (changes.length > 0) {
+                            changes.forEach(function (c) {
+                                toastr.success(
+                                    'Đơn hàng <strong>#' + c.id + '</strong> đã chuyển sang: <strong>' + (STATUS_TEXT[c.newStatus] || ('Status ' + c.newStatus)) + '</strong>',
+                                    '📦 Cập nhật trạng thái',
+                                    { timeOut: 8000, closeButton: true, escapeHtml: false,
+                                      onclick: function () { window.location.href = '/tai-khoan/lich-su-giao-dich/' + c.id; } }
+                                );
+                            });
+                            // Reload danh sach cua tab hien tai de UI khop voi DB
+                            $.ajax({
+                                url: '/api/get-order-list?status=' + currentTab,
+                                type: 'GET',
+                                success: function (orders) { showListOrder(orders); formatMoney(); }
+                            });
+                        }
+                        prevSnapshot = data;
+                    });
+            }
+            pollStatus(); // baseline snapshot
+            setInterval(pollStatus, 15000); // poll moi 15s
+        })();
     </script>
 </th:block>
 </body>

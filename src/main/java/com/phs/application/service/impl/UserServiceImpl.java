@@ -131,6 +131,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User toggleAdminRole(long id, long currentAdminId) {
+        if (id == currentAdminId) {
+            throw new BadRequestException("Không thể thay đổi quyền của chính mình");
+        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new BadRequestException("Tài khoản không tồn tại"));
+
+        List<String> roles = user.getRoles() != null ? new ArrayList<>(user.getRoles()) : new ArrayList<>();
+        boolean isAdmin = roles.contains("ADMIN");
+
+        if (isAdmin) {
+            // Demote: bao dam con it nhat 1 admin khac
+            long total = userRepository.countAdmins();
+            if (total <= 1) {
+                throw new BadRequestException("Hệ thống phải còn ít nhất 1 quản trị viên");
+            }
+            roles.remove("ADMIN");
+            if (!roles.contains("USER")) roles.add("USER");
+        } else {
+            // Promote: chan promote user da bi khoa (status=false) — phai mo khoa truoc
+            if (!user.isStatus()) {
+                throw new BadRequestException("Không thể cấp quyền cho tài khoản đang bị khóa. Mở khóa trước.");
+            }
+            if (!roles.contains("ADMIN")) roles.add("ADMIN");
+            if (!roles.contains("USER")) roles.add("USER");
+        }
+        user.setRoles(roles);
+        user.setModifiedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        return userRepository.save(user);
+    }
+
+    @Override
     public User toggleUserStatus(long id, long currentAdminId) {
         if (id == currentAdminId) {
             throw new BadRequestException("Không thể tự khóa tài khoản của chính mình");

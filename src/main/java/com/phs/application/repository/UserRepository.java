@@ -25,4 +25,8 @@ public interface UserRepository extends JpaRepository<User,Long> {
             String email,
             Pageable pageable);
 
+    // Dem so tai khoan co role ADMIN — dung de chan demote admin cuoi cung.
+    @Query(value = "SELECT COUNT(*) FROM users WHERE JSON_CONTAINS(roles, '\"ADMIN\"')", nativeQuery = true)
+    long countAdmins();
+
 }

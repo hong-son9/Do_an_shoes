@@ -66,7 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/cart/count").permitAll()
                 .antMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 .antMatchers("/api/order", "/tai-khoan", "/tai-khoan/**", "/api/change-password", "/api/update-profile",
-                        "/api/update-avatar", "/gio-hang", "/api/cart/**").authenticated()
+                        "/api/update-avatar", "/api/orders/my-status", "/gio-hang", "/api/cart/**").authenticated()
                 .antMatchers("/admin/**","/api/admin/**").hasRole("ADMIN")
                 .anyRequest().permitAll()
                 .and()

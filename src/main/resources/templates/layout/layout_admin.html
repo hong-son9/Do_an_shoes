@@ -154,6 +154,7 @@
         header.header #userbox.show .custom-caret { transform: rotate(180deg); opacity: 1; }
 
         /* Dropdown menu */
+        header.header #userbox { position: relative; }
         header.header #userbox .dropdown-menu {
             border: 0 !important;
             border-radius: 12px !important;
@@ -165,6 +166,8 @@
             left: auto !important;
             transform: none !important;
             background: #fff !important;
+            position: absolute !important;
+            top: 100% !important;  /* luon nam DUOI userbox, khong de */
         }
         header.header #userbox .dropdown-menu::before {
             content: "";
@@ -957,6 +960,443 @@
             .inner-wrapper, section.content-body { margin: 0 !important; padding: 0 !important; }
             * { box-shadow: none !important; }
             body { background: #fff !important; }
+        }
+
+        /* ============================================================
+           ADMIN UI MODERN — Phase 2 enhancements
+           Sticky table header, search bar, status dots, stat trends,
+           empty states, notification bell, sidebar active accent
+           ============================================================ */
+
+        /* ===== SIDEBAR active accent bar (left vertical) ===== */
+        aside.sidebar-left .nav-main > li.nav-active > a.nav-link {
+            position: relative;
+        }
+        aside.sidebar-left .nav-main > li.nav-active > a.nav-link::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 8px; bottom: 8px;
+            width: 4px;
+            background: linear-gradient(180deg, var(--adm-primary), #ffd60a);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 12px rgba(255,107,53,0.5);
+        }
+
+        /* ===== STICKY TABLE HEADER ===== */
+        .table-wrap {
+            max-height: 70vh;
+            overflow: auto;
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: inset 0 0 0 1px var(--adm-border);
+        }
+        .table-wrap table.table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        /* Apply auto-sticky to ALL panel-body tables (auto enhancement) */
+        section.panel .panel-body > table.table thead th,
+        section.panel .panel-body table.table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 5;
+        }
+        section.panel .panel-body {
+            max-height: calc(100vh - 240px);
+            overflow: auto;
+        }
+
+        /* ===== TABLE TOOLBAR (search + filter pills) ===== */
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 22px;
+            background: #fff;
+            border-bottom: 1px solid var(--adm-border);
+            flex-wrap: wrap;
+        }
+        .table-search {
+            position: relative;
+            flex: 1;
+            max-width: 360px;
+        }
+        .table-search input {
+            width: 100%;
+            padding: 9px 14px 9px 38px !important;
+            border: 1.5px solid var(--adm-border) !important;
+            border-radius: 10px !important;
+            font-size: 0.92rem !important;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .table-search input:focus {
+            border-color: var(--adm-primary) !important;
+            box-shadow: 0 0 0 4px rgba(255,107,53,0.12) !important;
+            outline: 0;
+        }
+        .table-search::before {
+            content: "\f002";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            position: absolute;
+            left: 14px; top: 50%;
+            transform: translateY(-50%);
+            color: var(--adm-text-2);
+            font-size: 0.9rem;
+            pointer-events: none;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #f3f4f6;
+            color: var(--adm-text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-pill:hover {
+            background: #fff5ed;
+            color: var(--adm-primary);
+        }
+        .filter-pill.active {
+            background: linear-gradient(135deg, var(--adm-primary), var(--adm-primary-dark));
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(255,107,53,0.35);
+        }
+        .filter-pill .count {
+            background: rgba(255,255,255,0.25);
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .filter-pill:not(.active) .count {
+            background: #fff;
+            color: var(--adm-text-2);
+        }
+
+        /* ===== STATUS BADGES with dot indicator ===== */
+        .status-dot {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px 4px 8px;
+            border-radius: 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .status-dot::before {
+            content: "";
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: dotPulse 2s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+            0%, 100% { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+            50% { box-shadow: 0 0 0 4px transparent; opacity: 0.7; }
+        }
+        .status-dot.s-success { background: #dcfce7; color: #16a34a; }
+        .status-dot.s-warning { background: #fef3c7; color: #d97706; }
+        .status-dot.s-danger  { background: #fee2e2; color: #dc2626; }
+        .status-dot.s-info    { background: #dbeafe; color: #2563eb; }
+        .status-dot.s-muted   { background: #f3f4f6; color: #6b7280; }
+
+        /* ===== STAT CARD with trend ===== */
+        .stat-card {
+            position: relative;
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px 24px;
+            box-shadow: 0 4px 18px rgba(13,27,42,0.06);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            overflow: hidden;
+            border-left: 4px solid var(--adm-primary);
+        }
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            top: -30px; right: -30px;
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            opacity: 0.08;
+            background: var(--adm-primary);
+            transition: transform 0.4s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 36px rgba(13,27,42,0.12);
+        }
+        .stat-card:hover::before { transform: scale(1.3); }
+        .stat-card.variant-success { border-left-color: #22c55e; }
+        .stat-card.variant-success::before { background: #22c55e; }
+        .stat-card.variant-warning { border-left-color: #ffa726; }
+        .stat-card.variant-warning::before { background: #ffa726; }
+        .stat-card.variant-info { border-left-color: #08c; }
+        .stat-card.variant-info::before { background: #08c; }
+        .stat-card.variant-danger { border-left-color: #ef4444; }
+        .stat-card.variant-danger::before { background: #ef4444; }
+
+        .stat-card .stat-label {
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--adm-text-2);
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .stat-card .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--adm-text);
+            line-height: 1.1;
+        }
+        .stat-card .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 10px;
+        }
+        .stat-card .stat-trend.up   { background: #dcfce7; color: #16a34a; }
+        .stat-card .stat-trend.down { background: #fee2e2; color: #dc2626; }
+        .stat-card .stat-trend.flat { background: #f3f4f6; color: #6b7280; }
+        .stat-card .stat-icon {
+            position: absolute;
+            top: 22px; right: 22px;
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            color: #fff;
+            font-size: 1.3rem;
+            background: linear-gradient(135deg, var(--adm-primary), var(--adm-primary-dark));
+            box-shadow: 0 6px 14px rgba(255,107,53,0.35);
+            z-index: 1;
+        }
+        .stat-card.variant-success .stat-icon { background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 6px 14px rgba(34,197,94,0.35); }
+        .stat-card.variant-warning .stat-icon { background: linear-gradient(135deg, #ffa726, #f57c00); box-shadow: 0 6px 14px rgba(255,167,38,0.35); }
+        .stat-card.variant-info .stat-icon { background: linear-gradient(135deg, #08c, #035983); box-shadow: 0 6px 14px rgba(8,136,204,0.35); }
+        .stat-card.variant-danger .stat-icon { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 6px 14px rgba(239,68,68,0.35); }
+
+        /* ===== EMPTY STATE for admin tables ===== */
+        .admin-empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--adm-text-2);
+        }
+        .admin-empty-state .empty-icon {
+            width: 90px; height: 90px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            color: #94a3b8;
+            font-size: 2.5rem;
+        }
+        .admin-empty-state h4 {
+            color: var(--adm-text);
+            margin: 0 0 8px;
+            font-weight: 700;
+        }
+        .admin-empty-state p {
+            color: var(--adm-text-2);
+            max-width: 360px;
+            margin: 0 auto 20px;
+            font-size: 0.92rem;
+        }
+
+        /* ===== HEADER-RIGHT: force flex de bell + userbox xep cung 1 hang ===== */
+        header.header .header-right {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 12px !important;
+            float: none !important;
+            height: auto !important;
+            padding-right: 16px !important;
+        }
+        header.header .header-right > .separator {
+            width: 1px;
+            height: 32px;
+            background: rgba(255,255,255,0.12);
+            display: inline-block;
+            margin: 0 !important;
+        }
+
+        /* ===== NOTIFICATION BELL ===== */
+        .header-notifications {
+            position: relative;
+            display: inline-flex !important;
+            align-items: center !important;
+            margin: 0 !important;
+            height: 40px;
+            line-height: 1;
+        }
+        .header-notifications .notif-btn {
+            background: rgba(255,255,255,0.08);
+            border: 0;
+            color: #fff;
+            width: 40px; height: 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s ease;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            padding: 0;
+            line-height: 1;
+        }
+        .header-notifications .notif-btn:hover { background: rgba(255,255,255,0.15); }
+        /* Force bell dropdown menu khong bi anh huong boi Bootstrap .dropdown-menu defaults */
+        #admNotifMenu {
+            position: absolute !important;
+            right: 0 !important;
+            left: auto !important;
+            top: 50px !important;
+            transform: none !important;
+            margin: 0 !important;
+            background: #fff !important;
+            border: 0 !important;
+        }
+        #admNotifMenu[style*="display:none"], #admNotifMenu[style*="display: none"] { display: none !important; }
+        .header-notifications .notif-badge {
+            position: absolute;
+            top: 4px; right: 4px;
+            min-width: 18px; height: 18px;
+            background: var(--adm-primary);
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 800;
+            border-radius: 9px;
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 0 4px;
+            border: 2px solid #0d1b2a;
+            animation: badgeBlink 2s ease-in-out infinite;
+        }
+        @keyframes badgeBlink {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* ===== SKELETON for admin (loading states) ===== */
+        .adm-skeleton {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: admSkel 1.4s ease-in-out infinite;
+            border-radius: 6px;
+            color: transparent !important;
+            display: inline-block;
+            min-height: 14px;
+        }
+        @keyframes admSkel {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ===== STAT GRID — clean responsive ===== */
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+            margin-bottom: 22px;
+        }
+
+        /* ===== QUICK ACTION BAR (sticky on top of long pages) ===== */
+        .quick-actions {
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding: 14px 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(13,27,42,0.06);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 18px;
+            z-index: 10;
+            border: 1px solid var(--adm-border);
+        }
+
+        /* ===== TIMELINE WIDGET (recent activity) ===== */
+        .activity-list {
+            list-style: none;
+            padding: 0; margin: 0;
+            position: relative;
+        }
+        .activity-list::before {
+            content: "";
+            position: absolute;
+            left: 18px; top: 8px; bottom: 8px;
+            width: 2px;
+            background: var(--adm-border);
+        }
+        .activity-list li {
+            position: relative;
+            padding: 10px 0 10px 48px;
+            font-size: 0.92rem;
+        }
+        .activity-list li .act-dot {
+            position: absolute;
+            left: 8px; top: 14px;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: var(--adm-primary);
+            color: #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.7rem;
+            box-shadow: 0 0 0 4px #fff;
+        }
+        .activity-list li .act-meta {
+            color: var(--adm-text-2);
+            font-size: 0.78rem;
+            margin-top: 2px;
+        }
+
+        /* ===== TOOLTIP simple ===== */
+        [data-tooltip] {
+            position: relative;
+            cursor: help;
+        }
+        [data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%) translateY(4px);
+            background: #1f2a37;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.15s ease;
+            z-index: 100;
+        }
+        [data-tooltip]:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>

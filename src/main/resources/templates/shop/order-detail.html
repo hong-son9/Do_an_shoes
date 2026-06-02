@@ -637,6 +637,29 @@
                 }
             });
         })
+
+        // Polling status — auto reload trang khi admin update status cua don hang nay
+        (function () {
+            var orderId = [[${order.id}]];
+            var STATUS_TEXT = {1:'Chờ lấy hàng', 2:'Đang giao hàng', 3:'Đã giao hàng', 4:'Đơn hàng đã trả lại', 5:'Đơn hàng đã hủy'};
+            var currentStatus = [[${order.status}]];
+            function pollMyStatus() {
+                $.ajax({ url: '/api/orders/my-status', type: 'GET' })
+                    .done(function (data) {
+                        if (!data) return;
+                        var newStatus = data[orderId];
+                        if (newStatus !== undefined && newStatus !== currentStatus) {
+                            toastr.success('Trạng thái đơn hàng đã chuyển sang: <strong>' + (STATUS_TEXT[newStatus] || newStatus) + '</strong>',
+                                '📦 Cập nhật', { timeOut: 6000, closeButton: true, escapeHtml: false });
+                            $('.status').html(STATUS_TEXT[newStatus] || newStatus);
+                            currentStatus = newStatus;
+                            // Neu da huy/da giao → an nut cancel
+                            if (newStatus !== 1) { $('.cancel-btn').remove(); }
+                        }
+                    });
+            }
+            setInterval(pollMyStatus, 15000);
+        })();
     </script>
 </th:block>
 </body>

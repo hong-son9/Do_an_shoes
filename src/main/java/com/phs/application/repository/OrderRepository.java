@@ -29,6 +29,19 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
     int countByProductId(String id);
 
+    // Lay don gan day nhat (bell notification admin). Limit 15.
+    @Query(value = "SELECT o.id AS orderId, o.created_at AS createdAt, o.status AS status, o.quantity AS quantity, " +
+            "COALESCE(u.full_name, o.receiver_name) AS buyerName, p.name AS productName " +
+            "FROM orders o " +
+            "LEFT JOIN users u ON u.id = o.buyer " +
+            "LEFT JOIN product p ON p.id = o.product_id " +
+            "ORDER BY o.created_at DESC LIMIT 15", nativeQuery = true)
+    List<Object[]> getRecentOrdersRaw();
+
+    // Lay status cua tat ca don cua user (de polling phia client).
+    @Query(value = "SELECT id, status FROM orders WHERE buyer = ?1", nativeQuery = true)
+    List<Object[]> getOrderStatusesByBuyer(long buyerId);
+
 
 //        @Query("SELECT new com.phs.application.model.dto.OrderDetailDTO(" +
 //                "o.id, " +

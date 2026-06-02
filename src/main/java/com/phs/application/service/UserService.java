@@ -36,4 +36,7 @@ public interface UserService {
 
     /** Cap nhat avatar cho user hien tai. */
     User updateAvatar(User user);
+
+    /** Toggle ADMIN role cho user. Tra ve user sau khi update. */
+    User toggleAdminRole(long id, long currentAdminId);
 }

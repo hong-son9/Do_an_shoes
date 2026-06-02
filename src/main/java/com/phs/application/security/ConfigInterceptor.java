@@ -22,6 +22,7 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
                 && !authentication.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
                 && authentication.getPrincipal() instanceof CustomUserDetails) {
             CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
+            modelAndView.addObject("user_id", principal.getUser().getId());
             modelAndView.addObject("user_fullname", principal.getUser().getFullName());
             modelAndView.addObject("user_phone", principal.getUser().getPhone());
             modelAndView.addObject("user_email", principal.getUser().getEmail());
@@ -31,6 +32,7 @@ public class ConfigInterceptor extends HandlerInterceptorAdapter {
                     (avatar != null && !avatar.trim().isEmpty()) ? avatar : "/shop/images/avatar/avatar.png");
             modelAndView.addObject("isLogined", true);
         } else {
+            modelAndView.addObject("user_id", -1L);
             modelAndView.addObject("user_avatar", "/shop/images/avatar/avatar.png");
             modelAndView.addObject("isLogined", false);
         }

@@ -198,6 +198,26 @@ public class HomeController {
         return ResponseEntity.ok(order.getId());
     }
 
+    @Autowired
+    private com.phs.application.repository.OrderRepository orderRepositoryForPolling;
+
+    /** Tra ve {orderId: status} cua user dang dang nhap. Dung de poll auto update UI. */
+    @GetMapping("/api/orders/my-status")
+    public ResponseEntity<Object> getMyOrderStatuses() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication() != null
+                ? SecurityContextHolder.getContext().getAuthentication().getPrincipal() : null;
+        if (!(principal instanceof CustomUserDetails)) {
+            return ResponseEntity.ok(java.util.Collections.emptyMap());
+        }
+        long uid = ((CustomUserDetails) principal).getUser().getId();
+        java.util.List<Object[]> rows = orderRepositoryForPolling.getOrderStatusesByBuyer(uid);
+        java.util.Map<Long, Integer> map = new java.util.HashMap<>();
+        for (Object[] r : rows) {
+            map.put(((Number) r[0]).longValue(), ((Number) r[1]).intValue());
+        }
+        return ResponseEntity.ok(map);
+    }
+
     // Endpoint public — tra ve so luong ton kho theo size cho 1 san pham
     @GetMapping("/api/products/{id}/stock-by-size")
     public ResponseEntity<java.util.Map<Integer, Integer>> getProductStockBySize(@PathVariable String id) {
