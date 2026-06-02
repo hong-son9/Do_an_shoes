@@ -31,6 +31,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private OAuth2LoginSuccessHandler oauth2LoginSuccessHandler;
 
+    @Autowired
+    private OAuth2LoginFailureHandler oauth2LoginFailureHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -69,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .oauth2Login()
                 .successHandler(oauth2LoginSuccessHandler)
-                .failureUrl("/?oauthError=auth_failed")
+                .failureHandler(oauth2LoginFailureHandler)
                 .and()
                 .logout()
                 .logoutUrl("/api/logout")

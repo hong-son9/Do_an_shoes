@@ -356,7 +356,125 @@ spring.security.oauth2.client.registration.google.redirect-uri={baseUrl}/login/o
 
 ---
 
-## 9. Cấu trúc dự án
+## 9. Đăng nhập bằng Facebook (OAuth 2.0)
+
+Cho phép user đăng nhập bằng tài khoản Facebook. Nếu email FB đã có trong DB (do đăng ký thường hoặc qua Google) thì **tự link vào user cũ**, không tạo trùng. Nếu chưa có thì tạo mới (role `USER`, password ngẫu nhiên).
+
+### 9.1. Tạo app trên Facebook Developer Console
+
+1. Truy cập <https://developers.facebook.com/apps/> → đăng nhập bằng tài khoản FB cá nhân.
+2. Click nút xanh **"Create app"** (góc trên phải).
+3. Bước **Use cases** → chọn **"Authenticate and request data from users with Facebook Login"** → Next.
+4. Bước **Type** → chọn **"Consumer"** → Next.
+5. Bước **Details**:
+   - **App name**: vd "Sneaker Shop"
+   - **App contact email**: email của bạn
+   - **Business account**: chọn "I don't want to connect a business portfolio"
+6. Click **Create app** → nhập lại password FB để confirm.
+
+### 9.2. Bật permission `email` cho Use Case
+
+Mặc định Use Case "Authentication and Account Creation" chỉ có sẵn `public_profile`. Cần add `email`:
+
+1. Sidebar trái → **Use case** → card **"Authentication and Account Creation"** → **Customize**.
+2. Section **"Permissions"** (Quyền) → tìm dòng `email` → click **Add**.
+3. Status sẽ chuyển thành **"Ready for testing" / "Sẵn sàng thử nghiệm"** — đây là Standard Access tự cấp cho Dev mode, dùng được luôn không cần submit review.
+
+> **Lưu ý**: Bỏ qua bước thêm Valid OAuth Redirect URIs — ở Development mode FB **tự động cho phép `http://localhost`**, thêm tay vào sẽ bị reject.
+
+### 9.3. Lấy App ID + App Secret
+
+1. Sidebar → **Install the app** → **Basic** (hoặc gõ thẳng URL `https://developers.facebook.com/apps/<APP_ID>/settings/basic/`).
+2. **App ID**: dãy số 15-16 chữ số — copy.
+3. **App Secret**: click **Show** → nhập password FB → copy chuỗi hash.
+
+> **Mẹo**: App ID nằm sẵn trong URL của trang dashboard (`developers.facebook.com/apps/XXXXXXXXXXXX/dashboard`).
+
+### 9.4. Add bản thân vào Testers (chỉ với app Dev mode)
+
+Dev mode chỉ cho phép admin/developer/tester của app login. Add bạn vào tester list:
+
+1. Sidebar → **Role in the application** → **Roles**.
+2. Click **Add Testers** (Thêm người kiểm thử) → nhập username Facebook của bạn.
+3. Bạn nhận lời mời ở <https://developers.facebook.com/requests> → chấp nhận.
+
+### 9.5. Set biến môi trường
+
+```powershell
+# Windows PowerShell (chỉ áp dụng cho session hiện tại)
+$env:FACEBOOK_APP_ID="1234567890123456"
+$env:FACEBOOK_APP_SECRET="abc123def456..."
+mvn spring-boot:run
+```
+
+```powershell
+# Windows — set vĩnh viễn (dùng cho mọi session sau)
+[Environment]::SetEnvironmentVariable("FACEBOOK_APP_ID", "1234567890123456", "User")
+[Environment]::SetEnvironmentVariable("FACEBOOK_APP_SECRET", "abc123def456...", "User")
+```
+
+```bash
+# Linux/macOS
+export FACEBOOK_APP_ID="1234567890123456"
+export FACEBOOK_APP_SECRET="abc123def456..."
+```
+
+### 9.6. Cấu hình tự động
+
+Phần config trong [application-dev.properties](src/main/resources/application-dev.properties) đã sẵn sàng:
+
+```properties
+spring.security.oauth2.client.registration.facebook.client-id=${FACEBOOK_APP_ID:placeholder-app-id}
+spring.security.oauth2.client.registration.facebook.client-secret=${FACEBOOK_APP_SECRET:placeholder-secret}
+spring.security.oauth2.client.registration.facebook.scope=public_profile,email
+spring.security.oauth2.client.registration.facebook.redirect-uri={baseUrl}/login/oauth2/code/{registrationId}
+spring.security.oauth2.client.registration.facebook.authorization-grant-type=authorization_code
+spring.security.oauth2.client.provider.facebook.authorization-uri=https://www.facebook.com/v12.0/dialog/oauth
+spring.security.oauth2.client.provider.facebook.token-uri=https://graph.facebook.com/v12.0/oauth/access_token
+spring.security.oauth2.client.provider.facebook.user-info-uri=https://graph.facebook.com/v12.0/me?fields=id,name,email
+spring.security.oauth2.client.provider.facebook.user-name-attribute=id
+```
+
+> Dùng Graph API **v12.0** (stable, tương thích Spring Security 5.4.5). Phiên bản v18+ đôi khi trả response format mới khiến parser cũ ném `[server_error]` không rõ nguyên nhân.
+
+> Khi chưa set env var, app vẫn chạy (dùng `placeholder-*`) nhưng click nút Facebook sẽ lỗi `invalid_client` từ FB. Set env var → restart → hoạt động.
+
+### 9.7. Luồng hoạt động
+
+1. User click **"Đăng nhập bằng Facebook"** (nút xanh `#1877F2`) trên modal đăng nhập.
+2. Browser redirect đến `facebook.com/v12.0/dialog/oauth?...`.
+3. User chọn tài khoản FB + cho phép quyền `email` + `public_profile`.
+4. FB redirect về `http://localhost:8081/login/oauth2/code/facebook?code=xxx`.
+5. Spring Security đổi `code` lấy access_token → gọi `graph.facebook.com/v12.0/me?fields=id,name,email`.
+6. [OAuth2LoginSuccessHandler](src/main/java/com/phs/application/security/OAuth2LoginSuccessHandler.java) (chung với Google):
+   - Tìm user theo email; nếu chưa có thì **tạo mới** (password random, role USER).
+   - Check `user.status` — nếu bị admin khóa → redirect `/?oauthError=account_locked` (toast cảnh báo).
+   - Sinh JWT, set cookie `JWT_TOKEN`.
+   - Redirect về `/?oauth=success&provider=facebook`.
+7. Trang chủ load lại → toast "Đăng nhập Facebook thành công" → header hiện tên user ✅.
+
+### 9.8. Khắc phục sự cố
+
+| Lỗi | Nguyên nhân | Fix |
+|---|---|---|
+| `[server_error]` không có description | API version cũ + Spring parser không khớp | Dùng v12.0 thay v18+ (đã set sẵn) |
+| `invalid_client` | App ID hoặc App Secret sai | Verify lại bằng cách show App Secret + copy lại chính xác |
+| `Invalid Scopes: email` | Chưa add permission `email` vào Use Case | Use case → Authentication... → Customize → Permissions → Add `email` |
+| `redirect_uri_mismatch` (hiếm gặp ở Dev mode) | URI callback không khớp | Thường tự pass ở localhost; nếu deploy thật phải thêm URI vào Valid OAuth Redirect URIs |
+| Login OK nhưng bị "Tài khoản đã bị khóa" | User bị admin khoá (toggle status=false) | Admin vào `/admin/users` → mở khoá user đó |
+| FB hiển thị "App not active" / "App in development mode" | App đang Dev mode, user FB chưa được add làm tester | Vào Role → Add Testers → username FB người đó |
+
+Khi cần debug chi tiết, bật DEBUG log:
+
+```properties
+logging.level.org.springframework.security.oauth2=DEBUG
+```
+
+Log sẽ in HTTP request/response thực tế với FB, dễ tìm root cause khi gặp `[server_error]`.
+
+---
+
+## 10. Cấu trúc dự án
 
 ```
 src/main/java/com/phs/application/
@@ -386,7 +504,7 @@ src/main/resources/
     └── shop/                  # View phía user
 ```
 
-## 10. Một số endpoint quan trọng
+## 11. Một số endpoint quan trọng
 
 | Method | URL                              | Mô tả                                    |
 |--------|----------------------------------|------------------------------------------|
@@ -405,7 +523,7 @@ src/main/resources/
 | GET    | `/tai-khoan/lich-su-giao-dich`   | Lịch sử giao dịch                        |
 | GET    | `/admin/**`                      | Trang admin (yêu cầu role ADMIN)         |
 
-## 11. Khắc phục sự cố
+## 12. Khắc phục sự cố
 
 - **`Sai chữ ký` (VNPay code 70)**: Kiểm tra lại `vnpay.tmn-code` và `vnpay.hash-secret` trong properties. Đảm bảo copy chính xác, không có ký tự space ở đầu/cuối, và đúng cặp được VNPay gửi qua email.
 - **`localhost` bị từ chối khi đăng ký merchant**: VNPay không cho URL localhost. Khi đăng ký dùng domain giả như `http://shoes-demo.com`. Còn `vnp_ReturnUrl` trong code vẫn để `http://localhost:8081/...` được.
