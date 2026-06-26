@@ -1,10 +1,766 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{/layout/layout :: main-fragment(
+                                                                     ~{:: title},
+                                                                    'header',
+                                                                    'footer',
+                                                                     ~{:: #css-resources},
+                                                                     ~{:: #js-resources},
+                                                                     ~{:: #main-content}
+                                                                    )}">
 <head>
-    <meta charset="UTF-8" />
-    <title>Test Deploy Shoes</title>
+    <meta charset="UTF-8">
+    <title>Shop Shoes</title>
+    <th:block id="css-resources">
+        <style>
+            /* ===== Brand palette =====
+               Primary dark : #0d1b2a (deep navy)
+               Accent       : #ff6b35 (energetic orange)
+               Highlight    : #ffd60a (yellow)
+               Secondary    : #08c (sport blue) — vẫn dùng làm secondary CTA */
+
+            /* ===== Homepage modern styling ===== */
+            body { background: #f5f7fb; }
+
+            /* Slider wrapper — banner area */
+            .slider-container {
+                background: linear-gradient(135deg, #0d1b2a 0%, #1a2944 60%, #1a2944 100%);
+                padding: 30px 25px 24px !important;
+                border-radius: 0 0 24px 24px;
+                margin-bottom: 0;
+                position: relative;
+                overflow: hidden;
+            }
+            .slider-container::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ff6b35' fill-opacity='0.05'%3E%3Cpath d='M11 80c-4-7-4-15-4-23 0-9 5-17 12-22s17-7 25-4c8 2 14 9 14 18-1 9-9 16-18 17-7 1-14 4-19 9-3 3-7 5-10 5zm60-20c-4 4-10 6-15 4s-9-8-8-13c1-6 6-10 12-10 5 0 10 3 12 8 1 4 0 8-1 11z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+                opacity: 0.5;
+            }
+            .home-slider {
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 18px 50px rgba(0,0,0,0.4);
+                position: relative;
+                z-index: 1;
+            }
+            .small-image-container { position: relative; z-index: 1; }
+            .small-image-container img {
+                border-radius: 14px !important;
+                box-shadow: 0 12px 32px rgba(0,0,0,0.3) !important;
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .small-image-container img:hover {
+                transform: scale(1.03) translateY(-3px);
+                box-shadow: 0 18px 40px rgba(255,107,53,0.3) !important;
+            }
+
+            /* Owl carousel nav buttons */
+            .home-slider .owl-prev, .home-slider .owl-next {
+                background: rgba(255,255,255,0.9) !important;
+                color: #0d1b2a !important;
+                border-radius: 50% !important;
+                width: 48px; height: 48px;
+                font-size: 1.4rem !important;
+                box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+                transition: background 0.2s ease, color 0.2s ease;
+            }
+            .home-slider .owl-prev:hover, .home-slider .owl-next:hover {
+                background: #ff6b35 !important;
+                color: #fff !important;
+            }
+
+            .home-hero-wrap {
+                background: linear-gradient(135deg, #f7fafc 0%, #e9f3fb 100%);
+                padding: 24px 0 32px;
+            }
+
+            /* Section titles — bold, sport feel */
+            .section-title.heading-border {
+                font-size: 2.4rem !important;
+                font-weight: 800 !important;
+                color: #0d1b2a !important;
+                text-transform: uppercase;
+                letter-spacing: 2px;
+                position: relative;
+                padding-bottom: 18px;
+                margin-bottom: 36px !important;
+                margin-top: 10px !important;
+                text-align: center;
+            }
+            .section-title.heading-border::before {
+                content: "";
+                position: absolute;
+                left: 50%; top: -8px;
+                transform: translateX(-50%);
+                width: 40px; height: 4px;
+                background: #ff6b35;
+                border-radius: 2px;
+            }
+            .section-title.heading-border::after {
+                content: "";
+                position: absolute;
+                left: 50%;
+                bottom: 0;
+                transform: translateX(-50%);
+                width: 80px;
+                height: 3px;
+                background: linear-gradient(90deg, #ff6b35, #ffd60a);
+                border-radius: 2px;
+            }
+
+            /* Info boxes — sport panels */
+            .info-boxes-slider {
+                margin-top: 36px !important;
+                padding: 30px 18px !important;
+                background: linear-gradient(135deg, #0d1b2a 0%, #1a2944 100%);
+                border-radius: 18px;
+                box-shadow: 0 14px 36px rgba(13,27,42,0.18);
+                position: relative;
+                overflow: hidden;
+            }
+            .info-boxes-slider::before {
+                content: "";
+                position: absolute;
+                top: 0; right: 0;
+                width: 200px; height: 100%;
+                background: radial-gradient(circle at top right, rgba(255,107,53,0.18), transparent 70%);
+                pointer-events: none;
+            }
+            .info-boxes-slider .info-box {
+                background: transparent !important;
+                border-radius: 14px !important;
+                padding: 12px 18px !important;
+                box-shadow: none !important;
+                border: 0 !important;
+                transition: transform 0.25s ease;
+                position: relative;
+                z-index: 1;
+            }
+            .info-boxes-slider .info-box:hover {
+                transform: translateY(-4px);
+            }
+            .info-boxes-slider .info-box > i {
+                font-size: 1.8rem !important;
+                color: #fff !important;
+                background: linear-gradient(135deg, #ff6b35, #e63946);
+                width: 64px; height: 64px;
+                border-radius: 18px;
+                display: inline-flex; align-items:center; justify-content:center;
+                margin-right: 18px !important;
+                box-shadow: 0 8px 22px rgba(255,107,53,0.4);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .info-boxes-slider .info-box:hover > i {
+                transform: rotate(-8deg) scale(1.05);
+                box-shadow: 0 12px 28px rgba(255,107,53,0.55);
+            }
+            .info-boxes-slider .info-box:nth-child(2) > i {
+                background: linear-gradient(135deg, #ffd60a, #ff9500);
+                box-shadow: 0 8px 22px rgba(255,213,10,0.4);
+            }
+            .info-boxes-slider .info-box:nth-child(3) > i {
+                background: linear-gradient(135deg, #08c, #035983);
+                box-shadow: 0 8px 22px rgba(8,136,204,0.45);
+            }
+            .info-boxes-slider .info-box-content h4 {
+                font-size: 1.15rem !important;
+                font-weight: 800 !important;
+                color: #fff !important;
+                text-transform: uppercase;
+                margin-bottom: 4px !important;
+                letter-spacing: 0.5px;
+            }
+            .info-boxes-slider .info-box-content p {
+                color: #cbd5e0 !important;
+                font-size: 0.98rem !important;
+                margin: 0 !important;
+            }
+
+            /* Product cards — sport sneaker store style */
+            section.featured-products-section,
+            section.new-products-section {
+                padding: 50px 0 30px;
+            }
+            .product-default {
+                background: #fff;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 6px 22px rgba(13,27,42,0.06);
+                transition: transform 0.35s ease, box-shadow 0.35s ease;
+                margin-bottom: 10px;
+                position: relative;
+                border: 1px solid rgba(13,27,42,0.04);
+            }
+            .product-default:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 22px 42px rgba(13,27,42,0.15);
+                border-color: rgba(255,107,53,0.3);
+            }
+            .product-default figure {
+                overflow: hidden;
+                position: relative;
+                background: linear-gradient(135deg, #f7fafc 0%, #eef1f5 100%);
+                padding: 10px 0;
+            }
+            .product-default figure::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(180deg, transparent 60%, rgba(13,27,42,0.04));
+                pointer-events: none;
+            }
+            .product-default figure img {
+                transition: transform 0.5s ease;
+            }
+            .product-default:hover figure img {
+                transform: scale(1.1) rotate(-3deg);
+            }
+            .product-default .product-details {
+                padding: 16px 18px 18px;
+            }
+            .product-default .product-title a {
+                color: #0d1b2a !important;
+                font-weight: 700 !important;
+                font-size: 1.05rem !important;
+                transition: color 0.2s ease;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                min-height: 2.8em;
+            }
+            .product-default:hover .product-title a {
+                color: #ff6b35 !important;
+            }
+            .product-default .price-box .product-price {
+                color: #ff6b35 !important;
+                font-weight: 800 !important;
+                font-size: 1.3rem !important;
+                letter-spacing: 0.3px;
+            }
+            .product-default .price-box .old-price {
+                color: #9ca3af !important;
+                font-size: 0.95rem !important;
+                margin-left: 6px;
+            }
+            .product-default .ratings-container .sold {
+                color: #6b7280 !important;
+                font-size: 0.92rem !important;
+                margin: 6px 0 0 !important;
+                display: inline-block;
+                background: #f7fafc;
+                padding: 3px 10px;
+                border-radius: 20px;
+            }
+            .product-default .label-group {
+                position: absolute;
+                top: 12px; left: 12px;
+                z-index: 2;
+            }
+            .product-default .label-group .product-label.label-hot {
+                background: linear-gradient(135deg, #ff6b35, #e63946) !important;
+                border-radius: 6px !important;
+                padding: 5px 12px !important;
+                font-size: 0.78rem !important;
+                font-weight: 800 !important;
+                color: #fff !important;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                box-shadow: 0 6px 16px rgba(255,107,53,0.5);
+            }
+
+            /* Blog cards */
+            section.blog-section {
+                padding: 50px 0 70px;
+                background: linear-gradient(180deg, #f5f7fb 0%, #eef2f7 100%);
+                margin-top: 30px;
+            }
+            article.post {
+                background: #fff;
+                border-radius: 16px;
+                overflow: hidden;
+                box-shadow: 0 6px 22px rgba(13,27,42,0.06);
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+                border: 1px solid rgba(13,27,42,0.04);
+            }
+            article.post:hover {
+                transform: translateY(-6px);
+                box-shadow: 0 18px 38px rgba(13,27,42,0.12);
+            }
+            article.post .post-media {
+                position: relative;
+                overflow: hidden;
+            }
+            article.post .post-media img {
+                transition: transform 0.5s ease;
+                width: 100%;
+                object-fit: cover;
+            }
+            article.post:hover .post-media img { transform: scale(1.08); }
+            article.post .post-date {
+                position: absolute;
+                top: 12px; left: 12px;
+                background: linear-gradient(135deg, #ff6b35, #e63946) !important;
+                color: #fff !important;
+                border-radius: 8px;
+                padding: 8px 12px;
+                font-size: 0.85rem;
+                font-weight: 800;
+                box-shadow: 0 6px 16px rgba(255,107,53,0.4);
+                z-index: 2;
+            }
+            article.post .post-date .month { color: #fff !important; }
+            article.post .post-body { padding: 18px 20px 20px; }
+            article.post .post-title a {
+                color: #0d1b2a !important;
+                font-weight: 700 !important;
+                font-size: 1.15rem !important;
+                line-height: 1.4 !important;
+            }
+            article.post:hover .post-title a { color: #ff6b35 !important; }
+            article.post .post-content p {
+                color: #6b7280;
+                font-size: 1rem;
+                line-height: 1.6;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            /* Small image banners next to slider */
+            .small-image-container img {
+                border-radius: 10px;
+                box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+                transition: transform 0.25s ease;
+            }
+            .small-image-container img:hover { transform: scale(1.02); }
+
+            @media (max-width: 768px) {
+                .section-title.heading-border { font-size: 1.4rem !important; }
+                .small-image-container { display: none; }
+            }
+        </style>
+    </th:block>
 </head>
+<style>
+
+
+    .small-image-container {
+        flex-shrink: 0; /* Prevent the small image from shrinking */
+        margin-left: 10px;
+        position: relative; /* Set position to relative */
+
+    }
+
+    .small-image-container img {
+        width: 100px; /* Adjust the size as needed */
+        height: auto;
+    }
+
+</style>
 <body>
-    <h1 style="text-align: center; margin-top: 50px; color: green;">🎉 Thymeleaf Production Đã Hoạt Động Sạch Sẽ! 🎉</h1>
+<main class="main" id="main-content">
+    <div class="slider-container" style="display: flex; align-items: center; justify-content: center">
+        <div class="home-slider owl-carousel owl-theme owl-carousel-lazy show-nav-hover nav-big mb-2 text-uppercase" data-owl-options="{
+            'loop': true,
+            'autoplay': true,
+            'autoplayTimeout': 3500
+        }" style="width: 1000px; height: auto;">
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider5.png}" data-src="shop/images/slider/slider5.png" alt="slider image">
+            </div>
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider2.png}" data-src="shop/images/slider/slider2.png" alt="slider image">
+            </div>
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider6.jpg}" data-src="shop/images/slider/slider6.jpg" alt="slider image">
+            </div>
+
+            <div class="home-slide home-slide1 banner">
+                <img class="owl-lazy slide-bg" th:src="@{/shop/images/slider/slider7.jpg}" data-src="shop/images/slider/slider7.jpg" alt="slider image">
+            </div>
+        </div>
+
+        <div class="small-image-container" style="margin-left: 10px;">
+            <img th:src="@{/shop/images/slider/banner1.png}" alt="Small image" style="width: 300px; height: 200px;">
+            <img th:src="@{/shop/images/slider/banner2.jpg}" alt="Small image" style="width: 300px; height: 200px; margin-top: 35px;">
+        </div>
+
+    </div>
+
+
+    <div class="container">
+        <div class="info-boxes-slider owl-carousel owl-theme mb-2" data-owl-options="{
+					'dots': false,
+					'loop': false,
+					'responsive': {
+						'576': {
+							'items': 2
+						},
+						'992': {
+							'items': 3
+						}
+					}
+				}">
+            <div class="info-box info-box-icon-left">
+                <i class="icon-shipping"></i>
+
+                <div class="info-box-content">
+                    <h4>Miễn phí vận chuyển</h4>
+                    <p class="text-body">Áp dụng cho đơn hàng từ 500.000đ trở lên.</p>
+                </div><!-- End .info-box-content -->
+            </div><!-- End .info-box -->
+
+            <div class="info-box info-box-icon-left">
+                <i class="icon-money"></i>
+
+                <div class="info-box-content">
+                    <h4>Hoàn tiền 100%</h4>
+                    <p class="text-body">Đổi trả trong 7 ngày, hoàn tiền nếu sản phẩm lỗi.</p>
+                </div><!-- End .info-box-content -->
+            </div><!-- End .info-box -->
+
+            <div class="info-box info-box-icon-left">
+                <i class="icon-support"></i>
+
+                <div class="info-box-content">
+                    <h4>Hỗ trợ 24/7</h4>
+                    <p class="text-body">Luôn sẵn sàng tư vấn qua hotline &amp; Zalo.</p>
+                </div><!-- End .info-box-content -->
+            </div><!-- End .info-box -->
+        </div><!-- End .info-boxes-slider -->
+    </div><!-- End .container -->
+
+    <section class="featured-products-section">
+        <div class="container">
+            <h2 class="section-title heading-border ls-20 border-0">Sản phẩm mới</h2>
+
+            <div class="products-slider custom-products owl-carousel owl-theme nav-outer show-nav-hover nav-image-center" data-owl-options="{
+						'dots': false,
+						'nav': true
+					}">
+                <th:block th:each="newProduct :${newProducts}">
+                    <div class="product-default">
+                        <figure>
+                            <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}">
+                                <img th:src="@{${newProduct.images}}" alt="product" loading="lazy">
+                            </a>
+                        </figure>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a th:href="@{/{slug}/{id}(id=${newProduct.id},slug=${newProduct.slug})}" th:text="${newProduct.name}"></a>
+                            </h3>
+                            <div class="price-box">
+                                <th:block th:if="${newProduct.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(newProduct.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                    <del class="old-price" th:text="${#numbers.formatDecimal(newProduct.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
+                                </th:block>
+                                <th:block th:unless="${newProduct.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(newProduct.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                </th:block>
+                            </div><!-- End .price-box -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${newProduct.totalSold}"></span> &dstrok;&ocirc;i</p>
+                            </div><!-- End .product-container -->
+                            <!--                        <div class="product-action">-->
+                            <!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
+                            <!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
+                            <!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
+                            <!--                        </div>-->
+                        </div><!-- End .product-details -->
+                    </div>
+                </th:block>
+            </div><!-- End .featured-proucts -->
+        </div>
+    </section>
+
+    <section class="new-products-section">
+        <div class="container">
+            <h2 class="section-title heading-border ls-20 border-0">Sản phẩm mua nhiều</h2>
+
+            <div class="products-slider custom-products owl-carousel owl-theme nav-outer show-nav-hover nav-image-center" data-owl-options="{
+						'dots': false,
+						'nav': true,
+						'responsive': {
+							'992': {
+								'items': 5
+							}
+						}
+					}">
+                <th:block th:each="sell : ${bestSellerProducts}">
+                    <div class="product-default">
+                        <figure>
+                            <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}">
+                                <img th:src="@{${sell.images}}" alt="product" loading="lazy">
+                            </a>
+                            <div class="label-group">
+                                <div class="product-label label-hot">HOT</div>
+                            </div>
+                        </figure>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a th:href="@{/{slug}/{id}(id=${sell.id},slug=${sell.slug})}" th:text="${sell.name}"></a>
+                            </h3>
+                            <div class="price-box">
+                                <th:block th:if="${sell.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(sell.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                    <del class="old-price" th:text="${#numbers.formatDecimal(sell.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
+                                </th:block>
+                                <th:block th:unless="${sell.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(sell.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                </th:block>
+                            </div><!-- End .price-box -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${sell.totalSold}"></span> &dstrok;&ocirc;i</p>
+                            </div><!-- End .product-container -->
+                            <!--                        <div class="product-action">-->
+                            <!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
+                            <!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
+                            <!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
+                            <!--                        </div>-->
+                        </div><!-- End .product-details -->
+                    </div>
+                </th:block>
+            </div><!-- End .featured-proucts -->
+        </div>
+    </section>
+    <div class="zalo-button">
+        <a href="https://zalo.me/036xxxxxxx">
+            <img th:src="@{/shop/images/zalo3.png}" alt="Zalo">
+        </a>
+    </div>
+    <div class="call-button">
+        <a href="tel:036xxxxxxx">
+            <img th:src="@{/shop/images/dienthoai.jpg}" alt="hotline">
+        </a>
+    </div>
+    <style>
+
+        .zalo-button {
+            position: fixed;
+            bottom: 80px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 999;
+            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
+        }
+        .zalo-button::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(0, 123, 255, 0.7);
+            animation: pulse 1s infinite;
+            box-sizing: border-box;
+            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
+        }
+
+        .zalo-button img {
+            width: 70px;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(0.9);
+                opacity: 0.7;
+            }
+        }
+
+        .call-button {
+            position: fixed;
+            bottom: 5px;
+            left: 25px;
+            cursor: pointer;
+            z-index: 999;
+            overflow: hidden; /* Ngăn chặn đường viền che khuất nút */
+        }
+        .call-button::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid red;
+            animation: pulse 1s infinite;
+            box-sizing: border-box;
+            pointer-events: none; /* Cho phép sự kiện nhấp vào liên kết đi qua */
+        }
+
+        .call-button img {
+            width: 60px;
+            height: auto;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            position: relative; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+            z-index: 1; /* Đảm bảo hình ảnh nằm trên đỉnh của đường viền */
+        }
+
+    </style>
+    <section class="featured-products-section">
+        <div class="container">
+            <h2 class="section-title heading-border ls-20 border-0">Sản phẩm xem nhiều</h2>
+
+            <div class="products-slider custom-products owl-carousel owl-theme nav-outer show-nav-hover nav-image-center" data-owl-options="{
+						'dots': false,
+						'nav': true
+					}">
+                <th:block th:each="view : ${viewProducts}">
+                    <div class="product-default">
+                        <figure>
+                            <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}">
+                                <img th:src="@{${view.images}}" alt="product" loading="lazy">
+                            </a>
+                        </figure>
+                        <div class="product-details">
+                            <h3 class="product-title">
+                                <a th:href="@{/{slug}/{id}(id=${view.id},slug=${view.slug})}" th:text="${view.name}"></a>
+                            </h3>
+                            <div class="price-box">
+                                <th:block th:if="${view.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(view.promotionPrice, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                    <del class="old-price" th:text="${#numbers.formatDecimal(view.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></del>
+                                </th:block>
+                                <th:block th:unless="${view.promotionPrice}">
+                                    <span class="product-price" th:text="${#numbers.formatDecimal(view.price, 0, 'COMMA', 0, 'POINT') +' đ'}"></span>
+                                </th:block>
+                            </div><!-- End .price-box -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">&Dstrok;&atilde; b&aacute;n <span th:text="${view.totalSold}"></span> &dstrok;&ocirc;i</p>
+                            </div><!-- End .product-container -->
+                            <div class="ratings-container">
+                                <p class="card-text sold">Số lượt xem: <span th:text="${view.views}"></span></p>
+                            </div><!-- End .product-container -->
+                            <!--                        <div class="product-action">-->
+                            <!--                            <a href="#" class="btn-icon-wish"><i class="icon-heart"></i></a>-->
+                            <!--                            <button class="btn-icon btn-add-cart" data-toggle="modal" data-target="#addCartModal">Mua hàng</button>-->
+                            <!--                            <a href="ajax/product-quick-view.html" class="btn-quickview" title="Quick View"><i class="fas fa-external-link-alt"></i></a>-->
+                            <!--                        </div>-->
+                        </div><!-- End .product-details -->
+                    </div>
+                </th:block>
+            </div><!-- End .featured-proucts -->
+        </div>
+    </section>
+
+    <!--    <section class="feature-boxes-container">-->
+    <!--        <div class="container">-->
+    <!--            <div class="row">-->
+    <!--                <div class="col-md-4">-->
+    <!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
+    <!--                        <i class="icon-earphones-alt"></i>-->
+
+    <!--                        <div class="feature-box-content">-->
+    <!--                            <h3 class="m-b-1">Customer Support</h3>-->
+    <!--                            <h5 class="m-b-3">You Won't Be Alone</h5>-->
+
+    <!--                            <p>We really care about you and your website as much as you do. Purchasing Porto or any other theme from us you get 100% free support.</p>-->
+    <!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
+    <!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
+    <!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
+
+    <!--                <div class="col-md-4">-->
+    <!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
+    <!--                        <i class="icon-credit-card"></i>-->
+
+    <!--                        <div class="feature-box-content">-->
+    <!--                            <h3 class="m-b-1">Fully Customizable</h3>-->
+    <!--                            <h5 class="m-b-3">Tons Of Options</h5>-->
+
+    <!--                            <p>With Porto you can customize the layout, colors and styles within only a few minutes. Start creating an amazing website right now!</p>-->
+    <!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
+    <!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
+    <!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
+
+    <!--                <div class="col-md-4">-->
+    <!--                    <div class="feature-box px-sm-5 feature-box-simple text-center">-->
+    <!--                        <i class="icon-action-undo"></i>-->
+
+    <!--                        <div class="feature-box-content">-->
+    <!--                            <h3 class="m-b-1">Powerful Admin</h3>-->
+    <!--                            <h5 class="m-b-3">Made To Help You</h5>-->
+
+    <!--                            <p>Porto has very powerful admin features to help customer to build their own shop in minutes without any special skills in web development.</p>-->
+    <!--                        </div>&lt;!&ndash; End .feature-box-content &ndash;&gt;-->
+    <!--                    </div>&lt;!&ndash; End .feature-box &ndash;&gt;-->
+    <!--                </div>&lt;!&ndash; End .col-md-4 &ndash;&gt;-->
+    <!--            </div>&lt;!&ndash; End .row &ndash;&gt;-->
+    <!--        </div>&lt;!&ndash; End .container&ndash;&gt;-->
+    <!--    </section>&lt;!&ndash; End .feature-boxes-container &ndash;&gt;-->
+
+    <section class="blog-section">
+        <div class="container">
+            <h2 class="section-title heading-border border-0 mb-2">Tin mới nhất</h2>
+
+            <div class="owl-carousel owl-theme" data-owl-options="{
+						'loop': false,
+						'margin': 20,
+						'autoHeight': true,
+						'autoplay': false,
+						'dots': false,
+						'items': 2,
+						'responsive': {
+							'576': {
+								'items': 3
+							},
+							'768': {
+								'items': 4
+							}
+						}
+					}">
+                <th:block th:each="post : ${posts}">
+                    <article class="post">
+                        <div class="post-media">
+                            <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}">
+                                <img th:src="@{${post.thumbnail}}" alt="Post" width="225" height="280" loading="lazy">
+                            </a>
+                            <div class="post-date">
+                                <span th:text="${#dates.format(post.publishedAt, 'MM yyyy')}"></span></p>
+                            </div>
+                        </div><!-- End .post-media -->
+
+                        <div class="post-body">
+                            <h2 class="post-title">
+                                <a th:href="@{/tin-tuc/{slug}/{id}(id=${post.id},slug=${post.slug})}" th:text="${post.title}"></a>
+                            </h2>
+                            <div class="post-content">
+                                <p th:utext="${post.content}"></p>
+                            </div><!-- End .post-content -->
+                            <!--                        <a href="single.html" class="post-comment">0 Comments</a>-->
+                        </div><!-- End .post-body -->
+                    </article><!-- End .post -->
+                </th:block>
+            </div>
+
+            <hr class="mt-0 m-b-5">
+        </div>
+    </section>
+</main><!-- End .main -->
+
+<th:block id="js-resources">
+
+</th:block>
 </body>
 </html>
+
+
+
