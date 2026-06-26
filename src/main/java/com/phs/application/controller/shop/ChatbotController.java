@@ -256,7 +256,7 @@ public class ChatbotController {
         // ===== Thong tin shop =====
         sb.append("THÔNG TIN SHOP:\n");
         sb.append("- Tên: Shoes (Giày Phong Cách)\n");
-        sb.append("- Hotline: 036 545 4643 | Zalo: 0365454643\n");
+        sb.append("- Hotline: 03****** | Zalo: 036********\n");
         sb.append("- Địa chỉ: Hà Nội\n");
         sb.append("- Giờ mở: T2-CN 9:00-20:00\n");
         sb.append("- Size VN: 35-42\n\n");
