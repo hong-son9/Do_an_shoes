@@ -122,18 +122,29 @@
             if (typeof fetch !== 'function') return;
             fetch('/api/admin/orders/recent').then(function (r) { return r.json(); }).then(function (orders) {
                 orders = orders || [];
+
+                // 1. ÉP SẮP XẾP: Đơn có ID lớn nhất (mới nhất) LUÔN LUÔN nằm ở đầu mảng [0]
+                orders.sort(function (a, b) {
+                    return b.id - a.id;
+                });
+
                 var previousOrders = JSON.parse(localStorage.getItem('adm_recent_orders') || '[]');
                 var lastSeenId = parseInt(localStorage.getItem('adm_last_seen_order_id') || '0', 10);
 
-                // Count don MOI ke tu lan click cuoi
+                // 2. Cập nhật số lượng trên Badge (Đếm số đơn lớn hơn lần click cuối)
                 var newCount = orders.filter(function (o) { return o.id > lastSeenId; }).length;
                 if (newCount > 0) {
                     badge.textContent = newCount > 99 ? '99+' : newCount;
                     badge.style.display = 'inline-flex';
                 }
 
-                // Phat hien don MOI THAT (so voi snapshot poll truoc) → toast + sound
-                var prevMaxId = previousOrders.length > 0 ? previousOrders[0].id : 0;
+                // 3. Tìm ID lớn nhất của lần poll trước bằng Math.max để tuyệt đối không bị trùng
+                var prevMaxId = 0;
+                if (previousOrders.length > 0) {
+                    prevMaxId = Math.max.apply(Math, previousOrders.map(function(o) { return o.id; }));
+                }
+
+                // 4. Lọc đơn thực sự mới để bắn thông báo
                 var trulyNew = orders.filter(function (o) { return o.id > prevMaxId; });
                 if (trulyNew.length > 0 && prevMaxId > 0) {
                     trulyNew.forEach(function (o) {
@@ -141,7 +152,7 @@
                             toastr.info('<strong>' + escapeHtml(o.buyerName) + '</strong> vừa đặt <strong>' + escapeHtml(o.productName) + '</strong>',
                                 '🛒 Đơn mới!', { timeOut: 6000, closeButton: true, escapeHtml: false, onclick: function () { window.location.href = '/admin/orders'; } });
                         }
-                        // Simple beep — Web Audio API
+                        // Âm thanh Beep
                         try {
                             var ctx = new (window.AudioContext || window.webkitAudioContext)();
                             var osc = ctx.createOscillator(); var gain = ctx.createGain();
@@ -152,12 +163,13 @@
                     });
                 }
 
+                // 5. Lưu vào localStorage và render giao diện
                 localStorage.setItem('adm_recent_orders', JSON.stringify(orders));
                 render(orders);
             }).catch(function () { /* ignore */ });
         }
         poll();
-        setInterval(poll, 10000);  // 10s — nhanh hon truoc (30s)
+        setInterval(poll, 10000); // 10s
     })();
 </script>
 </th:block>

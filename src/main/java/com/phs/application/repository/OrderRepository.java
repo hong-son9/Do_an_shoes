@@ -18,7 +18,8 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
             "AND receiver_name LIKE CONCAT('%',?2,'%') " +
             "AND receiver_phone LIKE CONCAT('%',?3,'%') " +
             "AND status LIKE CONCAT('%',?4,'%') " +
-            "AND product_id LIKE CONCAT('%',?5,'%')", nativeQuery = true)
+            "AND product_id LIKE CONCAT('%',?5,'%')" +
+            "ORDER BY id DESC", nativeQuery = true)
     Page<Order> adminGetListOrder(String id, String name, String phone, String status, String product, Pageable pageable);
 
     @Query(nativeQuery = true, name = "getListOrderOfPersonByStatus")
